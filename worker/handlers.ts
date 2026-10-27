@@ -1,3 +1,6 @@
+import { db } from "@/db";
+import { processPhoto } from "@/lib/photos";
+import { getStorage } from "@/lib/storage";
 import {
   isJobName,
   parseJobPayload,
@@ -11,6 +14,8 @@ type Handlers = {
 
 export const handlers: Handlers = {
   ping: async ({ requestedAt }) => ({ pong: true, requestedAt }),
+  "process-photo": async (payload) =>
+    processPhoto({ db: db(), storage: getStorage() }, payload),
 };
 
 export async function dispatch(name: string, data: unknown) {
