@@ -28,7 +28,7 @@
 - [x] `lib/plans.ts` (Pläne, Limits, Feature-Flags, `assertCanUpload` etc.) + Abo-Felder am Account (Migration 0001)
 - [x] Billing-Interface (`BillingProvider`) mit Fake + Stripe-Implementierung: Checkout-Session (14 Tage Test, monatlich/jährlich), Customer-Portal-Session
 - [x] Stripe-Webhook `/api/stripe/webhook` (Signaturprüfung, idempotent): Abo-Status/Plan/Trial-Ende auf Account schreiben
-- [ ] Abo-Seite im Dashboard (Plan wählen, Portal öffnen, Speicherverbrauch) + E2E mit Fake-Billing
+- [x] Abo-Seite im Dashboard (Plan wählen, Portal öffnen, Speicherverbrauch) + E2E mit Fake-Billing
 - [ ] Limits in Server Actions verdrahten (Galerie anlegen, Upload-Start) – sobald diese Actions existieren (M3/M5)
 
 ## Entscheidungsbedarf
@@ -44,6 +44,9 @@ Siehe `docs/DECISIONS.md` → Abschnitt „Offen“. Nichts davon blockiert M1.
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-10-27 – M2 Abo-Seite
+- `/dashboard/billing`: Plan, Status, Trial-Ende, Speicherbalken, Plan-Wahl (monatlich/jährlich) → Checkout, „Abo verwalten“ → Portal. E2E mit Fake-Billing inkl. simuliertem Webhook.
 
 ### 2026-10-27 – M2 Billing-Backend
 - `lib/billing`: `BillingProvider` (Stripe + Fake, `BILLING_TRANSPORT`), Checkout mit `price_data` in EUR + 14 Tage Trial, Portal-Session, Webhook `/api/stripe/webhook` (Signaturprüfung, veraltete Events werden ignoriert via `billing_event_at`). Gegen echtes Stripe ungetestet (D-006).
