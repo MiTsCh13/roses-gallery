@@ -51,6 +51,11 @@ export const accounts = pgTable("accounts", {
   id: id(),
   name: text("name").notNull(),
   plan: text("plan").notNull().default("free"),
+  subscriptionStatus: text("subscription_status").notNull().default("none"),
+  billingInterval: text("billing_interval"),
+  stripeSubscriptionId: text("stripe_subscription_id"),
+  trialEndsAt: timestamp("trial_ends_at", { withTimezone: true }),
+  currentPeriodEnd: timestamp("current_period_end", { withTimezone: true }),
   storageUsedBytes: bigint("storage_used_bytes", { mode: "number" })
     .notNull()
     .default(0),
