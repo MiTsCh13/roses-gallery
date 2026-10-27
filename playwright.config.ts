@@ -27,6 +27,7 @@ export default defineConfig({
       AUTH_URL: `http://localhost:${PORT}`,
       AUTH_TRUST_HOST: "true",
       MAIL_TRANSPORT: "fake",
+      BILLING_TRANSPORT: "fake",
       E2E_TEST_MODE: "1",
     },
     url: `http://localhost:${PORT}/api/health`,

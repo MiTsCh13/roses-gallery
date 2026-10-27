@@ -32,6 +32,27 @@
   "Dashboard": {
     "title": "Dashboard",
     "signedInAs": "Angemeldet als {email}",
-    "signOut": "Abmelden"
+    "signOut": "Abmelden",
+    "billing": "Abo & Speicher"
+  },
+  "Billing": {
+    "title": "Abo & Speicher",
+    "currentPlan": "Aktueller Plan",
+    "status": {
+      "none": "kein Abo",
+      "trialing": "Testphase",
+      "active": "aktiv",
+      "past_due": "Zahlung offen",
+      "canceled": "gekündigt"
+    },
+    "trialEnds": "Die Testphase endet am {date}.",
+    "storage": "{used} von {total} belegt",
+    "storageLabel": "Speichernutzung",
+    "manage": "Abo verwalten",
+    "choosePlan": "Plan wählen",
+    "trialHint": "Die ersten 14 Tage sind kostenlos. Du kannst jederzeit wechseln oder kündigen.",
+    "planStorage": "{size} Speicher",
+    "perMonth": "{price} / Monat",
+    "perYear": "{price} / Jahr"
   }
 }
