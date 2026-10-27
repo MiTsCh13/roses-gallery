@@ -8,6 +8,7 @@
 
 | ID | Frage | Vorläufige Annahme | Benötigt bis |
 | --- | --- | --- | --- |
+| D-110 | Netzwerk-Allowlist der Cloud-Umgebung um `api.stripe.com`, `api.postmarkapp.com`, `video.bunnycdn.com` (und `*.b-cdn.net`) erweitern, damit echte Dienste getestet werden können | Bis dahin Fakes; R2-Bucket braucht für Browser-Uploads CORS mit `ExposeHeaders: ETag` (nicht prüfbar aus der Cloud) | Stripe-/Postmark-/Bunny-Abnahme |
 
 Schlüssel bitte als Secrets in der Cloud-Umgebung (bzw. GitHub Actions Secrets) hinterlegen, nie ins Repo. Anleitung und Variablenliste: `docs/ZUGAENGE.md`.
 
@@ -30,4 +31,4 @@ Schlüssel bitte als Secrets in der Cloud-Umgebung (bzw. GitHub Actions Secrets)
 | D-004 | Branch-Schutz für `main` aktiv (PR + Statuschecks Pflicht) | von Mitsch eingerichtet | 2026-10-27 |
 | D-105–D-108 | Von Mitsch bestätigt (siehe oben) | – | 2026-10-27 |
 | D-002 | `ui.shadcn.com` bleibt gesperrt; shadcn-Komponenten werden manuell aus dem Registry-Quelltext angelegt | Kein Freigabebedarf, nur etwas Mehraufwand | 2026-10-27 |
-| D-005–D-007 | Zugänge (Postmark, Google-OAuth, Stripe-Testschlüssel, R2, Bunny Stream) liegen in den Umgebungsvariablen. Offen: `STRIPE_WEBHOOK_SECRET` (kommt erst mit öffentlicher Webhook-URL). Smoke-Tests gegen die echten Dienste stehen noch aus | Bestätigt von Mitsch | 2026-10-27 |
+| D-005–D-007 | Zugänge (Postmark, Google-OAuth, Stripe-Testschlüssel, R2, Bunny Stream) liegen in den Umgebungsvariablen. Offen: `STRIPE_WEBHOOK_SECRET` (kommt erst mit öffentlicher Webhook-URL). **Smoke-Test 2026-10-27:** R2 vollständig grün (put/get, Multipart mit signierter Part-URL inkl. ETag, signGet, head, delete). Stripe, Postmark und Bunny nicht erreichbar: Proxy der Cloud-Umgebung blockt `api.stripe.com`, `api.postmarkapp.com`, `video.bunnycdn.com` (CONNECT 403) → siehe D-110. Google-Login nicht automatisierbar | Bestätigt von Mitsch | 2026-10-27 |
