@@ -7,9 +7,13 @@ import { PlanLimitError } from "@/lib/plans";
 import { createQueue, enqueue } from "@/lib/queue";
 import { getStorage } from "@/lib/storage";
 import {
+  abortReplacement,
   abortUpload,
+  completeReplacement,
   completeUpload,
+  signReplacementPart,
   signUploadPart,
+  startReplacement,
   startUpload,
   UploadError,
 } from "@/lib/uploads";
@@ -56,6 +60,22 @@ export async function POST(
         );
       case "abort":
         await abortUpload(deps, body);
+        return Response.json({ ok: true });
+      case "replace-start":
+        return Response.json(await startReplacement(deps, body));
+      case "replace-sign":
+        return Response.json(await signReplacementPart(deps, body));
+      case "replace-complete":
+        return Response.json(
+          await completeReplacement(deps, body, async (uploaded) => {
+            await enqueue(queue(), "process-photo", {
+              accountId,
+              mediaId: uploaded.id,
+            });
+          }),
+        );
+      case "replace-abort":
+        await abortReplacement(deps, body);
         return Response.json({ ok: true });
       default:
         return Response.json({ error: "not_found" }, { status: 404 });
