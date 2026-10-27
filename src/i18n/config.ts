@@ -1,0 +1,4 @@
+export const locales = ["de"] as const;
+export type Locale = (typeof locales)[number];
+export const defaultLocale: Locale = "de";
+export const timeZone = "Europe/Vienna";
