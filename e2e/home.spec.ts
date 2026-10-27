@@ -1,0 +1,26 @@
+import { expect, test } from "@playwright/test";
+
+import messages from "../messages/de.json";
+
+test("home page renders German copy", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator("html")).toHaveAttribute("lang", "de");
+  await expect(
+    page.getByRole("heading", { level: 1, name: messages.HomePage.title }),
+  ).toBeVisible();
+  await expect(page.getByText(messages.HomePage.tagline)).toBeVisible();
+});
+
+test("responses carry security headers", async ({ request }) => {
+  const response = await request.get("/");
+  const headers = response.headers();
+  expect(headers["x-content-type-options"]).toBe("nosniff");
+  expect(headers["x-frame-options"]).toBe("DENY");
+  expect(headers["x-powered-by"]).toBeUndefined();
+});
+
+test("health endpoint responds", async ({ request }) => {
+  const response = await request.get("/api/health");
+  expect(response.ok()).toBe(true);
+  expect(await response.json()).toEqual({ status: "ok" });
+});
