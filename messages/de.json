@@ -7,5 +7,31 @@
     "title": "Roses Gallery",
     "tagline": "Foto- und Video-Galerien für deine Hochzeitskunden – gebrandet, in 4K und DSGVO-konform.",
     "cta": "Demnächst verfügbar"
+  },
+  "Auth": {
+    "mail": {
+      "subject": "Dein Anmeldelink für Roses Gallery",
+      "body": "Hallo,\n\nmit diesem Link meldest du dich bei Roses Gallery an (gültig für 15 Minuten, nur einmal verwendbar):\n\n{url}\n\nWenn du die Anmeldung nicht angefordert hast, kannst du diese E-Mail ignorieren."
+    }
+  },
+  "Login": {
+    "title": "Anmelden",
+    "intro": "Wir schicken dir einen Anmeldelink per E-Mail. Neu hier? Mit dem ersten Login legst du dein Konto an.",
+    "emailLabel": "E-Mail-Adresse",
+    "emailPlaceholder": "du@beispiel.de",
+    "submit": "Anmeldelink senden",
+    "google": "Mit Google fortfahren",
+    "errors": {
+      "invalid_email": "Bitte gib eine gültige E-Mail-Adresse ein."
+    }
+  },
+  "CheckEmail": {
+    "title": "Prüfe dein Postfach",
+    "body": "Wir haben dir einen Anmeldelink geschickt. Er ist 15 Minuten gültig."
+  },
+  "Dashboard": {
+    "title": "Dashboard",
+    "signedInAs": "Angemeldet als {email}",
+    "signOut": "Abmelden"
   }
 }
