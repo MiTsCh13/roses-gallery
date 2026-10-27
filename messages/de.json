@@ -53,6 +53,8 @@
     "trialHint": "Die ersten 14 Tage sind kostenlos. Du kannst jederzeit wechseln oder kündigen.",
     "planStorage": "{size} Speicher",
     "perMonth": "{price} / Monat",
-    "perYear": "{price} / Jahr"
+    "perYear": "{price} / Jahr",
+    "enterpriseHint": "Für Studios mit großem Archiv und individuellen Anforderungen.",
+    "onRequest": "Preis auf Anfrage"
   }
 }

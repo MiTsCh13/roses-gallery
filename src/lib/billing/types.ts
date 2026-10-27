@@ -1,4 +1,4 @@
-import type { PlanId, SubscriptionStatus } from "@/lib/plans";
+import type { PurchasablePlanId, SubscriptionStatus } from "@/lib/plans";
 
 export type BillingInterval = "month" | "year";
 
@@ -11,7 +11,7 @@ export type SubscriptionEvent = {
   accountId: string | null;
   customerId: string;
   subscriptionId: string;
-  plan: PlanId;
+  plan: PurchasablePlanId;
   interval: BillingInterval;
   status: SubscriptionStatus;
   trialEndsAt: Date | null;
@@ -22,7 +22,7 @@ export type CheckoutInput = {
   accountId: string;
   email: string;
   customerId: string | null;
-  plan: Exclude<PlanId, "free">;
+  plan: PurchasablePlanId;
   interval: BillingInterval;
   successUrl: string;
   cancelUrl: string;

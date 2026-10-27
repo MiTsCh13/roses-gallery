@@ -5,11 +5,11 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { getBilling } from "@/lib/billing";
-import { PLAN_IDS } from "@/lib/plans";
+import { PURCHASABLE_PLAN_IDS } from "@/lib/plans";
 import { requireAccount } from "@/lib/session";
 
 const checkoutSchema = z.object({
-  plan: z.enum(PLAN_IDS.filter((id) => id !== "free")),
+  plan: z.enum(PURCHASABLE_PLAN_IDS),
   interval: z.enum(["month", "year"]),
 });
 

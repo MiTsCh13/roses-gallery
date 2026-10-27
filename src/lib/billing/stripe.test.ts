@@ -20,7 +20,7 @@ function payload(over: Record<string, unknown> = {}) {
         customer: "cus_1",
         status: "trialing",
         trial_end: 1_791_000_000,
-        metadata: { accountId: "acc-1", plan: "advanced", interval: "year" },
+        metadata: { accountId: "acc-1", plan: "bouquet", interval: "year" },
         items: { data: [{ current_period_end: 1_791_000_000 }] },
         ...over,
       },
@@ -42,7 +42,7 @@ describe("StripeBilling.parseWebhook", () => {
       accountId: "acc-1",
       customerId: "cus_1",
       subscriptionId: "sub_1",
-      plan: "advanced",
+      plan: "bouquet",
       interval: "year",
       status: "trialing",
     });
