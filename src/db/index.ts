@@ -9,7 +9,7 @@ function createDb() {
   return drizzle(client, { schema });
 }
 
-type Db = ReturnType<typeof createDb>;
+export type Db = ReturnType<typeof createDb>;
 
 const globalForDb = globalThis as unknown as { db?: Db };
 
