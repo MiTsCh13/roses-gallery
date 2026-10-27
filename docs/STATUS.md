@@ -25,9 +25,9 @@
 
 ## Nächste Schritte (M1, in dieser Reihenfolge)
 
-- [ ] Drizzle-Schema: Account, User, Gallery, Set, Media, Visitor, FavoriteList, Favorite, Theme, Event (+ Auth.js-Tabellen), erste Migration
-- [ ] DB-Integrationstests gegen echtes Postgres (lokal: `postgres` 16 installiert; CI: Service-Container)
-- [ ] Mandanten-Helper: jede Abfrage auf accountId eingeschränkt + Test „Creator liest keine fremde Galerie“
+- [x] Drizzle-Schema: Account, User, Gallery, Set, Media, Visitor, FavoriteList, Favorite, Theme, Event (+ Auth.js-Tabellen), erste Migration
+- [x] DB-Integrationstests gegen echtes Postgres (lokal: `postgres` 16 installiert; CI: Service-Container)
+- [x] Mandanten-Helper: jede Abfrage auf accountId eingeschränkt + Test „Creator liest keine fremde Galerie“
 - [ ] Auth.js: Magic Link (Postmark, mit Fake-Transport für Tests) und Google-Login; Registrierung legt Account an
 - [ ] Login-/Registrierungsseiten (Texte via next-intl), E2E-Test des Magic-Link-Flows mit Fake-Mailer
 
@@ -44,6 +44,11 @@ Siehe `docs/DECISIONS.md` → Abschnitt „Offen“. Nichts davon blockiert M1.
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-10-27 – M1 Datenmodell (Teil 1)
+- Drizzle-Schema + Migration (inkl. Auth.js-Tabellen `auth_*`), DB-Integrationstests gegen echtes Postgres (CI-Service-Container; lokal: `service postgresql start`, Rolle/DB `roses`).
+- `src/db/tenant.ts`: `tenantDb(db, accountId)` erzwingt accountId bei list/get/create/update/remove; Test „Creator liest keine fremde Galerie“.
+- Offen: Auth.js (Magic Link + Google), Login-/Registrierungsseiten, E2E.
 
 ### 2026-10-27 – M0 Projekt-Setup
 - Spec, Umsetzungsplan, CLAUDE.md nach `main`.
