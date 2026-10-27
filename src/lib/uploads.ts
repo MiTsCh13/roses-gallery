@@ -5,18 +5,14 @@ import type { Db } from "@/db";
 import { accounts, media } from "@/db/schema";
 import { tenantDb } from "@/db/tenant";
 import { assertCanUpload, type SubscriptionStatus } from "@/lib/plans";
+import {
+  MAX_PHOTO_BYTES,
+  PART_SIZE,
+  PHOTO_CONTENT_TYPES,
+} from "@/lib/upload-limits";
 import { originalKey, type Storage } from "@/lib/storage/types";
 
-export const PHOTO_CONTENT_TYPES = [
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/tiff",
-] as const;
-
-export const MAX_PHOTO_BYTES = 100 * 1024 * 1024;
-/** S3 multipart parts must be ≥ 5 MiB except the last one. */
-export const PART_SIZE = 8 * 1024 * 1024;
+export { MAX_PHOTO_BYTES, PART_SIZE, PHOTO_CONTENT_TYPES };
 export const SIGN_TTL_SECONDS = 15 * 60;
 
 export class UploadError extends Error {

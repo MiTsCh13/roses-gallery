@@ -56,5 +56,26 @@
     "perYear": "{price} / Jahr",
     "enterpriseHint": "Für Studios mit großem Archiv und individuellen Anforderungen.",
     "onRequest": "Preis auf Anfrage"
+  },
+  "Upload": {
+    "title": "Fotos hochladen",
+    "hint": "Fotos hierher ziehen (JPEG, PNG, WebP, TIFF) oder auswählen.",
+    "choose": "Fotos auswählen",
+    "cancel": "Abbrechen",
+    "done": "Hochgeladen",
+    "error": {
+      "unsupported_type": "Dateityp wird nicht unterstützt",
+      "plan_limit": "Speicherplatz im Plan erschöpft",
+      "aborted": "Abgebrochen",
+      "failed": "Upload fehlgeschlagen"
+    },
+    "photos": "{count, plural, =0 {Noch keine Fotos} one {# Foto} other {# Fotos}}",
+    "photoN": "Foto {n}",
+    "status": {
+      "pending": "wird verarbeitet",
+      "processing": "wird verarbeitet",
+      "ready": "bereit",
+      "failed": "Verarbeitung fehlgeschlagen"
+    }
   }
 }
