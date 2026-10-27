@@ -4,8 +4,8 @@ import { formatBytes, formatEuro } from "./format";
 
 describe("formatEuro", () => {
   it("formats cent integers in German notation", () => {
-    expect(formatEuro(1400)).toBe("14 €");
-    expect(formatEuro(1490)).toBe("14,90 €");
+    expect(formatEuro(1400)).toBe("14\u00a0€");
+    expect(formatEuro(1490)).toBe("14,90\u00a0€");
   });
 });
 
