@@ -14,6 +14,9 @@ const serverEnvSchema = z.object({
   MAIL_TRANSPORT: z.enum(["postmark", "fake"]).optional(),
   POSTMARK_SERVER_TOKEN: z.string().min(1).optional(),
   EMAIL_FROM: z.string().min(3).optional(),
+  BILLING_TRANSPORT: z.enum(["stripe", "fake"]).optional(),
+  STRIPE_SECRET_KEY: z.string().min(1).optional(),
+  STRIPE_WEBHOOK_SECRET: z.string().min(1).optional(),
   // Allows the fake mailer and /api/test/mailbox in a production build (E2E only).
   E2E_TEST_MODE: z.enum(["1"]).optional(),
 });

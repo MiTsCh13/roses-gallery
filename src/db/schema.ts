@@ -56,6 +56,8 @@ export const accounts = pgTable("accounts", {
   stripeSubscriptionId: text("stripe_subscription_id"),
   trialEndsAt: timestamp("trial_ends_at", { withTimezone: true }),
   currentPeriodEnd: timestamp("current_period_end", { withTimezone: true }),
+  // Time of the last applied billing webhook; guards against stale events.
+  billingEventAt: timestamp("billing_event_at", { withTimezone: true }),
   storageUsedBytes: bigint("storage_used_bytes", { mode: "number" })
     .notNull()
     .default(0),
