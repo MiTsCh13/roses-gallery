@@ -8,10 +8,6 @@
 
 | ID | Frage | Vorläufige Annahme | Benötigt bis |
 | --- | --- | --- | --- |
-| D-002 | `ui.shadcn.com` in der Netzwerk-Allowlist der Cloud-Umgebung freigeben? | Komponenten werden manuell angelegt | nicht blockierend |
-| D-005 | Testzugänge: Postmark-Server-Token + Google-OAuth-Client (für echten Login-Test) | Entwicklung mit Fake-Mailer; Google-Login ungetestet gegen echtes Google | M1-Abnahme (optional) |
-| D-006 | Stripe-Testmodus-Schlüssel + Webhook-Secret | Stripe-Client gemockt | M2-Abnahme |
-| D-007 | Cloudflare-R2- und Bunny-Stream-Testzugänge | Storage-/Video-Interface mit Fakes | M3/M4-Abnahme |
 
 Schlüssel bitte als Secrets in der Cloud-Umgebung (bzw. GitHub Actions Secrets) hinterlegen, nie ins Repo. Anleitung und Variablenliste: `docs/ZUGAENGE.md`.
 
@@ -33,3 +29,5 @@ Schlüssel bitte als Secrets in der Cloud-Umgebung (bzw. GitHub Actions Secrets)
 | D-109 | Feature-Zuschnitt (Annahme): Bud = Basis (unbegrenzte Galerien, 4K, Passwort, Wasserzeichen, Favoriten …); Bloom + Video-Cover, Branding & Socials, Trinkgeld, Premiere; Bouquet und Enterprise = alle Features inkl. Find my Face, White-Label, externe Download-Links, Video-Kapitel. Enterprise wird manuell am Account gesetzt (`plan=enterprise`, Status `active`), nicht über Checkout | Mitsch: „entscheide selbst und dokumentiere“; Speicherstaffel angepasst | 2026-10-27 |
 | D-004 | Branch-Schutz für `main` aktiv (PR + Statuschecks Pflicht) | von Mitsch eingerichtet | 2026-10-27 |
 | D-105–D-108 | Von Mitsch bestätigt (siehe oben) | – | 2026-10-27 |
+| D-002 | `ui.shadcn.com` bleibt gesperrt; shadcn-Komponenten werden manuell aus dem Registry-Quelltext angelegt | Kein Freigabebedarf, nur etwas Mehraufwand | 2026-10-27 |
+| D-005–D-007 | Zugänge (Postmark, Google-OAuth, Stripe-Testschlüssel, R2, Bunny Stream) liegen in den Umgebungsvariablen. Offen: `STRIPE_WEBHOOK_SECRET` (kommt erst mit öffentlicher Webhook-URL). Smoke-Tests gegen die echten Dienste stehen noch aus | Bestätigt von Mitsch | 2026-10-27 |
