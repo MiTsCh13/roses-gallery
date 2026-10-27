@@ -8,7 +8,8 @@
 
 | ID | Frage | Vorläufige Annahme | Benötigt bis |
 | --- | --- | --- | --- |
-| D-110 | Netzwerk-Allowlist der Cloud-Umgebung um `api.stripe.com`, `api.postmarkapp.com`, `video.bunnycdn.com` (und `*.b-cdn.net`) erweitern, damit echte Dienste getestet werden können | Bis dahin Fakes; R2-Bucket braucht für Browser-Uploads CORS mit `ExposeHeaders: ETag` (nicht prüfbar aus der Cloud) | Stripe-/Postmark-/Bunny-Abnahme |
+
+| D-111 | `BUNNY_STREAM_LIBRARY_ID` enthält den Platzhaltertext `BUNNY_STREAM_LIBRARY_ID` statt der numerischen Library-ID (Bunny: Stream → Library → API) | Bunny-Abnahme wartet; Video-Code (M4) gegen Fake | M4-Abnahme |
 
 Schlüssel bitte als Secrets in der Cloud-Umgebung (bzw. GitHub Actions Secrets) hinterlegen, nie ins Repo. Anleitung und Variablenliste: `docs/ZUGAENGE.md`.
 
@@ -32,3 +33,4 @@ Schlüssel bitte als Secrets in der Cloud-Umgebung (bzw. GitHub Actions Secrets)
 | D-105–D-108 | Von Mitsch bestätigt (siehe oben) | – | 2026-10-27 |
 | D-002 | `ui.shadcn.com` bleibt gesperrt; shadcn-Komponenten werden manuell aus dem Registry-Quelltext angelegt | Kein Freigabebedarf, nur etwas Mehraufwand | 2026-10-27 |
 | D-005–D-007 | Zugänge (Postmark, Google-OAuth, Stripe-Testschlüssel, R2, Bunny Stream) liegen in den Umgebungsvariablen. Offen: `STRIPE_WEBHOOK_SECRET` (kommt erst mit öffentlicher Webhook-URL). **Smoke-Test 2026-10-27:** R2 vollständig grün (put/get, Multipart mit signierter Part-URL inkl. ETag, signGet, head, delete). Stripe, Postmark und Bunny nicht erreichbar: Proxy der Cloud-Umgebung blockt `api.stripe.com`, `api.postmarkapp.com`, `video.bunnycdn.com` (CONNECT 403) → siehe D-110. Google-Login nicht automatisierbar | Bestätigt von Mitsch | 2026-10-27 |
+| D-110 | Netzwerk-Allowlist um Stripe, Postmark, Bunny erweitert. Smoke-Test 2026-10-27: Stripe (Testmodus, Checkout-Session) und Postmark (Server-Abfrage, keine Mail gesendet) grün; Bunny scheitert an D-111. Webhook-Secret und Google-Login weiter ungetestet. R2-Bucket braucht CORS mit `ExposeHeaders: ETag` (aus der Cloud nicht prüfbar) | Von Mitsch umgesetzt | 2026-10-27 |
