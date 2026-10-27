@@ -6,6 +6,8 @@ export default defineConfig({
   resolve: { tsconfigPaths: true },
   test: {
     environment: "node",
+    globalSetup: ["./src/test/db-global-setup.ts"],
+    fileParallelism: false,
     include: ["src/**/*.test.{ts,tsx}", "worker/**/*.test.ts"],
   },
 });
