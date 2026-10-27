@@ -25,8 +25,8 @@
 
 ## Nächste Schritte (M3, in dieser Reihenfolge)
 
-- [ ] `Storage`-Interface (signierte Multipart-URLs, Signed-GET, Delete) mit Fake (In-Memory/Dateisystem) + R2-Implementierung (S3-API)
-- [ ] Upload-API: Upload starten/Teile signieren/abschließen (Zod, `assertCanUpload` aus `lib/plans.ts`, accountId-Filter), Media-Zeile mit `processing_status`
+- [x] `Storage`-Interface mit Fake (Dateisystem) + R2 (`lib/storage`, R2 gegen echtes R2 ungetestet, D-007)
+- [x] Upload-API `/api/uploads/{start,sign,complete,abort}` (`lib/uploads.ts`); Enqueue von `process-photo` in `complete` folgt mit dem Worker-Job
 - [ ] Worker-Job `process-photo`: sharp → WebP 400/1200/2400, EXIF-Datum, Speicher auf `accounts.storage_used_bytes` buchen (inkrementell, Test mit echtem Redis/Postgres)
 - [ ] Ersetzen einer Datei (Revision: ID, Position, Favoriten bleiben)
 - [ ] Upload-UI mit Uppy (Drag & Drop, fortsetzbar, Fortschritt) + E2E mit Fake-Storage
@@ -45,6 +45,12 @@ Siehe `docs/DECISIONS.md` → Abschnitt „Offen“. Nichts davon blockiert M1.
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-10-27 – M3 Upload-API
+- `lib/uploads.ts` (Zod, Quota-Check beim Start und mit echter Größe beim Abschluss, accountId-Filter), Route `/api/uploads/[action]`, Fake-Storage-Route `/api/test/storage` (nur Nicht-Produktion/E2E). Tests gegen echtes Postgres.
+
+### 2026-10-27 – M3 Storage
+- `Storage`-Interface + `FakeStorage` (HMAC-signierte URLs) + `R2Storage`; `STORAGE_TRANSPORT`.
 
 ### 2026-10-27 – D-001 umgesetzt
 - Pläne: Free / Bud 10 € / Bloom 20 € / Bouquet 50 € / Enterprise (auf Anfrage), `PURCHASABLE_PLAN_IDS` für Checkout; Enterprise-Karte auf der Abo-Seite.
