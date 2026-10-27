@@ -1,4 +1,4 @@
-import { and, eq, max } from "drizzle-orm";
+import { and, eq, max, sql } from "drizzle-orm";
 import { z } from "zod";
 
 import type { Db } from "@/db";
@@ -184,4 +184,149 @@ export async function abortUpload(deps: Deps, input: unknown) {
   const row = await pendingPhoto(deps, data.mediaId);
   await deps.storage.abortMultipartUpload(row.originalKey, data.uploadId);
   await tenantDb(deps.db, deps.accountId).media.remove(row.id);
+}
+
+// --- Replacing a file (revision) -------------------------------------------
+// The live revision stays untouched until the new original is complete, so
+// ID, position and favorites survive and the gallery never shows a gap.
+
+export const startReplacementSchema = z.object({
+  mediaId: z.uuid(),
+  contentType: z.enum(PHOTO_CONTENT_TYPES),
+  sizeBytes: z.number().int().positive().max(MAX_PHOTO_BYTES),
+});
+
+/** A photo that is allowed to receive a new revision (own account only). */
+async function replaceablePhoto(deps: Deps, mediaId: string) {
+  const row = await tenantDb(deps.db, deps.accountId).media.get(mediaId);
+  if (!row) throw new UploadError("not_found", "Media not found.");
+  if (
+    row.type !== "photo" ||
+    !["ready", "failed"].includes(row.processingStatus)
+  ) {
+    throw new UploadError("invalid_state", "Media cannot be replaced now.");
+  }
+  return {
+    ...row,
+    nextKey: originalKey(deps.accountId, row.id, row.revision + 1),
+  };
+}
+
+export async function startReplacement(deps: Deps, input: unknown) {
+  const data = startReplacementSchema.parse(input);
+  const row = await replaceablePhoto(deps, data.mediaId);
+  const account = await loadAccount(deps);
+  // The old revision is released on completion, so only the growth counts.
+  assertCanUpload(account, Math.max(0, data.sizeBytes - row.sizeBytes));
+
+  const uploadId = await deps.storage.createMultipartUpload(
+    row.nextKey,
+    data.contentType,
+  );
+  return {
+    mediaId: row.id,
+    uploadId,
+    partSize: PART_SIZE,
+    partCount: Math.ceil(data.sizeBytes / PART_SIZE),
+  };
+}
+
+export async function signReplacementPart(deps: Deps, input: unknown) {
+  const data = signPartSchema.parse(input);
+  const row = await replaceablePhoto(deps, data.mediaId);
+  const url = await deps.storage.signUploadPart(
+    row.nextKey,
+    data.uploadId,
+    data.partNumber,
+    SIGN_TTL_SECONDS,
+  );
+  return { url };
+}
+
+export async function abortReplacement(deps: Deps, input: unknown) {
+  const data = abortUploadSchema.parse(input);
+  const row = await replaceablePhoto(deps, data.mediaId);
+  await deps.storage.abortMultipartUpload(row.nextKey, data.uploadId);
+}
+
+export async function completeReplacement(
+  deps: Deps,
+  input: unknown,
+  onUploaded: (media: { id: string; revision: number }) => Promise<void>,
+) {
+  const data = completeUploadSchema.parse(input);
+  const row = await replaceablePhoto(deps, data.mediaId);
+  await deps.storage.completeMultipartUpload(
+    row.nextKey,
+    data.uploadId,
+    data.parts,
+  );
+  const head = await deps.storage.head(row.nextKey);
+  if (!head) throw new UploadError("size_mismatch", "Upload is missing.");
+
+  const oldVariants = Object.values(
+    row.variants as Record<string, { key: string; size: number }>,
+  );
+  // Bytes booked for the old revision (original + variants); 0 if it never
+  // finished processing.
+  const oldBooked =
+    row.processingStatus === "ready"
+      ? row.sizeBytes + oldVariants.reduce((n, v) => n + v.size, 0)
+      : 0;
+  const account = await loadAccount(deps);
+  try {
+    assertCanUpload(
+      { ...account, storageUsedBytes: account.storageUsedBytes - oldBooked },
+      head.size,
+    );
+    if (head.size > MAX_PHOTO_BYTES) {
+      throw new UploadError("size_mismatch", "Upload is too large.");
+    }
+  } catch (error) {
+    await deps.storage.delete(row.nextKey);
+    throw error;
+  }
+
+  const revision = row.revision + 1;
+  const switched = await deps.db.transaction(async (tx) => {
+    const updated = await tx
+      .update(media)
+      .set({
+        revision,
+        originalKey: row.nextKey,
+        sizeBytes: head.size,
+        variants: {},
+        width: null,
+        height: null,
+        takenAt: null,
+        processingStatus: "pending",
+      })
+      .where(
+        and(
+          eq(media.id, row.id),
+          eq(media.accountId, deps.accountId),
+          eq(media.revision, row.revision),
+        ),
+      )
+      .returning({ id: media.id });
+    if (updated.length === 0) return false;
+    await tx
+      .update(accounts)
+      .set({
+        storageUsedBytes: sql`greatest(0, ${accounts.storageUsedBytes} - ${oldBooked})`,
+      })
+      .where(eq(accounts.id, deps.accountId));
+    return true;
+  });
+  if (!switched) {
+    await deps.storage.delete(row.nextKey);
+    throw new UploadError("invalid_state", "Media was changed meanwhile.");
+  }
+
+  // Old files are no longer referenced; removal is idempotent.
+  if (row.originalKey) await deps.storage.delete(row.originalKey);
+  for (const variant of oldVariants) await deps.storage.delete(variant.key);
+
+  await onUploaded({ id: row.id, revision });
+  return { mediaId: row.id, revision };
 }

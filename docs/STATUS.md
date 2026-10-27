@@ -28,7 +28,7 @@
 - [x] `Storage`-Interface mit Fake (Dateisystem) + R2 (`lib/storage`, R2 gegen echtes R2 ungetestet, D-007)
 - [x] Upload-API `/api/uploads/{start,sign,complete,abort}` (`lib/uploads.ts`); Enqueue von `process-photo` in `complete` folgt mit dem Worker-Job
 - [x] Worker-Job `process-photo` (`lib/photos.ts`): sharp → WebP 400/1200/2400 (kein Upscaling), EXIF-Datum, Buchung auf `accounts.storage_used_bytes` genau einmal beim Übergang zu `ready`; `/api/uploads/complete` reiht den Job ein. Tests gegen echtes Postgres (Redis-Roundtrip nur manuell)
-- [ ] Ersetzen einer Datei (Revision: ID, Position, Favoriten bleiben)
+- [x] Ersetzen einer Datei (`replace-start/sign/complete/abort` in `lib/uploads.ts`): ID, Position, Favoriten bleiben; Revision +1, alte Dateien werden gelöscht und ihre Bytes freigegeben, Quota prüft nur den Zuwachs. Bis der Worker fertig ist, hat das Bild keine Varianten (Status `pending`) – UI muss das als „wird verarbeitet“ zeigen
 - [ ] Upload-UI mit Uppy (Drag & Drop, fortsetzbar, Fortschritt) + E2E mit Fake-Storage
 - [ ] Limits verdrahten: Galerie anlegen (`assertCanCreateGallery`) sobald M5-Action existiert
 
@@ -45,6 +45,9 @@ Siehe `docs/DECISIONS.md` → Abschnitt „Offen“. Nichts davon blockiert M1.
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-10-27 – M3 Ersetzen (Revision)
+- Eigener Multipart-Ablauf für Ersetzungen; live bleibt die alte Revision bis der neue Upload komplett ist. Tests gegen echtes Postgres (Revision, Byte-Freigabe, Quota, Mandantentrennung). Alte Revisionen werden nicht archiviert (Annahme; Spec F-UP-05 verlangt nur Erhalt von URL/Favoriten/Reihenfolge).
 
 ### 2026-10-27 – M3 process-photo
 - Job `process-photo` (Zod-Payload, idempotent, accountId-gefiltert), Varianten in `media.variants`, `width/height/takenAt`; Fehler → Status `failed` + BullMQ-Retry. HEIC/RAW noch nicht (Upload-API erlaubt nur JPEG/PNG/WebP/TIFF).

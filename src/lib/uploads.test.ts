@@ -20,8 +20,10 @@ import { FakeStorage } from "@/lib/storage/fake";
 import { createTestDb, resetDb } from "@/test/db";
 import {
   abortUpload,
+  completeReplacement,
   completeUpload,
   signUploadPart,
+  startReplacement,
   startUpload,
   UploadError,
 } from "./uploads";
@@ -179,5 +181,107 @@ describe("uploads", () => {
     expect(
       await tenantDb(db, accountId).media.get(start.mediaId),
     ).toBeUndefined();
+  });
+});
+
+describe("replacement", () => {
+  async function readyPhoto(body: Buffer) {
+    const { start, parts } = await uploadAll(body);
+    await completeUpload(
+      deps(),
+      { mediaId: start.mediaId, uploadId: start.uploadId, parts },
+      async () => {},
+    );
+    // Pretend the worker finished: one variant, bytes booked.
+    const variantKey = `${accountId}/${start.mediaId}/r1-400.webp`;
+    await storage.put(variantKey, Buffer.from("variant"));
+    await tenantDb(db, accountId).media.update(start.mediaId, {
+      processingStatus: "ready",
+      variants: { "400": { key: variantKey, size: 7 } },
+    });
+    await db
+      .update(accounts)
+      .set({ storageUsedBytes: body.length + 7 })
+      .where(eq(accounts.id, accountId));
+    return { mediaId: start.mediaId, variantKey };
+  }
+
+  it("keeps id and position, bumps the revision and releases old bytes", async () => {
+    await uploadAll(Buffer.from("first"));
+    const { mediaId, variantKey } = await readyPhoto(Buffer.from("old-bytes"));
+    const before = await tenantDb(db, accountId).media.get(mediaId);
+
+    const start = await startReplacement(deps(), {
+      mediaId,
+      contentType: "image/jpeg",
+      sizeBytes: 3,
+    });
+    const etag = await storage.storePart(start.uploadId, 1, Buffer.from("new"));
+    const onUploaded = vi.fn(async () => {});
+    await completeReplacement(
+      deps(),
+      { mediaId, uploadId: start.uploadId, parts: [{ partNumber: 1, etag }] },
+      onUploaded,
+    );
+
+    expect(onUploaded).toHaveBeenCalledWith({ id: mediaId, revision: 2 });
+    const row = await tenantDb(db, accountId).media.get(mediaId);
+    expect(row).toMatchObject({
+      id: mediaId,
+      position: before!.position,
+      revision: 2,
+      sizeBytes: 3,
+      processingStatus: "pending",
+      originalKey: `${accountId}/${mediaId}/original-2`,
+    });
+    expect(row?.variants).toEqual({});
+    expect(await storage.head(before!.originalKey!)).toBeNull();
+    expect(await storage.head(variantKey)).toBeNull();
+    const [acc] = await db
+      .select()
+      .from(accounts)
+      .where(eq(accounts.id, accountId));
+    expect(acc.storageUsedBytes).toBe(0);
+  });
+
+  it("only replaces finished media of the own account", async () => {
+    const { start } = await uploadAll(Buffer.from("pending"));
+    const input = {
+      mediaId: start.mediaId,
+      contentType: "image/jpeg",
+      sizeBytes: 1,
+    };
+    await expect(startReplacement(deps(), input)).rejects.toMatchObject({
+      code: "invalid_state",
+    });
+    const { mediaId } = await readyPhoto(Buffer.from("x"));
+    await expect(
+      startReplacement(
+        { db, storage, accountId: otherId },
+        { ...input, mediaId },
+      ),
+    ).rejects.toMatchObject({ code: "not_found" });
+  });
+
+  it("checks the quota for the growth only", async () => {
+    const { mediaId } = await readyPhoto(Buffer.from("12345"));
+    await db
+      .update(accounts)
+      .set({ storageUsedBytes: 2 * 1024 ** 3 })
+      .where(eq(accounts.id, accountId));
+    await expect(
+      startReplacement(deps(), {
+        mediaId,
+        contentType: "image/jpeg",
+        sizeBytes: 5,
+      }),
+    ).resolves.toBeDefined();
+    await expect(
+      startReplacement(deps(), {
+        mediaId,
+        contentType: "image/jpeg",
+        sizeBytes: 50,
+      }),
+    ).rejects.toBeInstanceOf(PlanLimitError);
   });
 });
