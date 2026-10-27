@@ -8,7 +8,6 @@
 
 | ID | Frage | Vorläufige Annahme | Benötigt bis |
 | --- | --- | --- | --- |
-
 | D-111 | `BUNNY_STREAM_LIBRARY_ID` enthält den Platzhaltertext `BUNNY_STREAM_LIBRARY_ID` statt der numerischen Library-ID (Bunny: Stream → Library → API) | Bunny-Abnahme wartet; Video-Code (M4) gegen Fake | M4-Abnahme |
 
 Schlüssel bitte als Secrets in der Cloud-Umgebung (bzw. GitHub Actions Secrets) hinterlegen, nie ins Repo. Anleitung und Variablenliste: `docs/ZUGAENGE.md`.
