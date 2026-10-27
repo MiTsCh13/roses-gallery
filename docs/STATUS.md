@@ -4,8 +4,8 @@
 > und `docs/DECISIONS.md`. Log kurz halten (max. 10 Einträge, ältere löschen –
 > die Git-Historie bleibt).
 
-**Aktueller Meilenstein:** M2 – Abo & Planlimits
-**Stand main:** M0, M1 abgeschlossen
+**Aktueller Meilenstein:** M3 – Foto-Upload & Verarbeitung
+**Stand main:** M0–M2 abgeschlossen (M2: Abnahme gegen echtes Stripe offen, D-006)
 
 ## Meilensteine
 
@@ -13,8 +13,8 @@
 | --- | --- | --- |
 | M0 | Projekt-Setup | ✅ fertig |
 | M1 | Datenmodell & Login | ✅ fertig |
-| M2 | Abo & Planlimits | ⏭️ in Arbeit |
-| M3 | Foto-Upload & Verarbeitung | offen |
+| M2 | Abo & Planlimits | ✅ fertig (Stripe nur gegen Fake getestet) |
+| M3 | Foto-Upload & Verarbeitung | ⏭️ als Nächstes |
 | M4 | Video über Bunny Stream | offen |
 | M5 | Galerie-Verwaltung | offen |
 | M6 | Design-Editor | offen |
@@ -23,13 +23,14 @@
 | M9 | Auslieferung & Statistik | offen |
 | M10 | Härtung & Launch | offen |
 
-## Nächste Schritte (M2, in dieser Reihenfolge)
+## Nächste Schritte (M3, in dieser Reihenfolge)
 
-- [x] `lib/plans.ts` (Pläne, Limits, Feature-Flags, `assertCanUpload` etc.) + Abo-Felder am Account (Migration 0001)
-- [x] Billing-Interface (`BillingProvider`) mit Fake + Stripe-Implementierung: Checkout-Session (14 Tage Test, monatlich/jährlich), Customer-Portal-Session
-- [x] Stripe-Webhook `/api/stripe/webhook` (Signaturprüfung, idempotent): Abo-Status/Plan/Trial-Ende auf Account schreiben
-- [x] Abo-Seite im Dashboard (Plan wählen, Portal öffnen, Speicherverbrauch) + E2E mit Fake-Billing
-- [ ] Limits in Server Actions verdrahten (Galerie anlegen, Upload-Start) – sobald diese Actions existieren (M3/M5)
+- [ ] `Storage`-Interface (signierte Multipart-URLs, Signed-GET, Delete) mit Fake (In-Memory/Dateisystem) + R2-Implementierung (S3-API)
+- [ ] Upload-API: Upload starten/Teile signieren/abschließen (Zod, `assertCanUpload` aus `lib/plans.ts`, accountId-Filter), Media-Zeile mit `processing_status`
+- [ ] Worker-Job `process-photo`: sharp → WebP 400/1200/2400, EXIF-Datum, Speicher auf `accounts.storage_used_bytes` buchen (inkrementell, Test mit echtem Redis/Postgres)
+- [ ] Ersetzen einer Datei (Revision: ID, Position, Favoriten bleiben)
+- [ ] Upload-UI mit Uppy (Drag & Drop, fortsetzbar, Fortschritt) + E2E mit Fake-Storage
+- [ ] Limits verdrahten: Galerie anlegen (`assertCanCreateGallery`) sobald M5-Action existiert
 
 ## Entscheidungsbedarf
 
@@ -44,6 +45,9 @@ Siehe `docs/DECISIONS.md` → Abschnitt „Offen“. Nichts davon blockiert M1.
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-10-27 – M2 abgeschlossen
+- Fertig-Kriterium: Testabo-Fluss (Checkout → Webhook → Plan) per E2E gegen Fake, Limits per Unit-Tests. Echte Stripe-Abnahme wartet auf D-006. M3 aufgeschlüsselt.
 
 ### 2026-10-27 – M2 Abo-Seite
 - `/dashboard/billing`: Plan, Status, Trial-Ende, Speicherbalken, Plan-Wahl (monatlich/jährlich) → Checkout, „Abo verwalten“ → Portal. E2E mit Fake-Billing inkl. simuliertem Webhook.
