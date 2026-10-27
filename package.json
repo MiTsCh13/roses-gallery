@@ -22,6 +22,8 @@
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.11.3",
+    "@aws-sdk/client-s3": "^3.1157.0",
+    "@aws-sdk/s3-request-presigner": "^3.1157.0",
     "@radix-ui/react-slot": "^1.5.0",
     "bullmq": "^6.5.0",
     "class-variance-authority": "^0.7.1",

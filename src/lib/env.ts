@@ -17,6 +17,12 @@ const serverEnvSchema = z.object({
   BILLING_TRANSPORT: z.enum(["stripe", "fake"]).optional(),
   STRIPE_SECRET_KEY: z.string().min(1).optional(),
   STRIPE_WEBHOOK_SECRET: z.string().min(1).optional(),
+  STORAGE_TRANSPORT: z.enum(["r2", "fake"]).optional(),
+  STORAGE_FAKE_DIR: z.string().min(1).optional(),
+  R2_ACCOUNT_ID: z.string().min(1).optional(),
+  R2_ACCESS_KEY_ID: z.string().min(1).optional(),
+  R2_SECRET_ACCESS_KEY: z.string().min(1).optional(),
+  R2_BUCKET: z.string().min(1).optional(),
   // Allows the fake mailer and /api/test/mailbox in a production build (E2E only).
   E2E_TEST_MODE: z.enum(["1"]).optional(),
 });
