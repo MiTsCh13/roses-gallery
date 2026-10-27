@@ -8,6 +8,13 @@
       "when": 1793099358474,
       "tag": "0000_daffy_bill_hollister",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793100164264,
+      "tag": "0001_small_wild_child",
+      "breakpoints": true
     }
   ]
 }

@@ -4,16 +4,16 @@
 > und `docs/DECISIONS.md`. Log kurz halten (max. 10 Einträge, ältere löschen –
 > die Git-Historie bleibt).
 
-**Aktueller Meilenstein:** M1 – Datenmodell & Login
-**Stand main:** M0 abgeschlossen
+**Aktueller Meilenstein:** M2 – Abo & Planlimits
+**Stand main:** M0, M1 abgeschlossen
 
 ## Meilensteine
 
 | # | Meilenstein | Status |
 | --- | --- | --- |
 | M0 | Projekt-Setup | ✅ fertig |
-| M1 | Datenmodell & Login | ⏭️ als Nächstes |
-| M2 | Abo & Planlimits | offen |
+| M1 | Datenmodell & Login | ✅ fertig |
+| M2 | Abo & Planlimits | ⏭️ in Arbeit |
 | M3 | Foto-Upload & Verarbeitung | offen |
 | M4 | Video über Bunny Stream | offen |
 | M5 | Galerie-Verwaltung | offen |
@@ -23,13 +23,13 @@
 | M9 | Auslieferung & Statistik | offen |
 | M10 | Härtung & Launch | offen |
 
-## Nächste Schritte (M1, in dieser Reihenfolge)
+## Nächste Schritte (M2, in dieser Reihenfolge)
 
-- [x] Drizzle-Schema: Account, User, Gallery, Set, Media, Visitor, FavoriteList, Favorite, Theme, Event (+ Auth.js-Tabellen), erste Migration
-- [x] DB-Integrationstests gegen echtes Postgres (lokal: `postgres` 16 installiert; CI: Service-Container)
-- [x] Mandanten-Helper: jede Abfrage auf accountId eingeschränkt + Test „Creator liest keine fremde Galerie“
-- [x] Auth.js: Magic Link (Postmark, mit Fake-Transport für Tests) und Google-Login; Registrierung legt Account an
-- [x] Login-/Registrierungsseiten (Texte via next-intl), E2E-Test des Magic-Link-Flows mit Fake-Mailer
+- [x] `lib/plans.ts` (Pläne, Limits, Feature-Flags, `assertCanUpload` etc.) + Abo-Felder am Account (Migration 0001)
+- [ ] Billing-Interface (`BillingProvider`) mit Fake + Stripe-Implementierung: Checkout-Session (14 Tage Test, monatlich/jährlich), Customer-Portal-Session
+- [ ] Stripe-Webhook `/api/stripe/webhook` (Signaturprüfung, idempotent): Abo-Status/Plan/Trial-Ende auf Account schreiben
+- [ ] Abo-Seite im Dashboard (Plan wählen, Portal öffnen, Speicherverbrauch) + E2E mit Fake-Billing
+- [ ] Limits in Server Actions verdrahten (Galerie anlegen, Upload-Start) – sobald diese Actions existieren (M3/M5)
 
 ## Entscheidungsbedarf
 
@@ -44,6 +44,9 @@ Siehe `docs/DECISIONS.md` → Abschnitt „Offen“. Nichts davon blockiert M1.
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-10-27 – M2 Planlimits
+- `lib/plans.ts` mit Platzhalterplänen (D-001), Abo-Spalten am Account, Tests der Limit-/Feature-Prüfung. M1-Fertig-Kriterium (Registrieren + Einloggen) per E2E erfüllt.
 
 ### 2026-10-27 – M1 Datenmodell (Teil 1)
 - Drizzle-Schema + Migration (inkl. Auth.js-Tabellen `auth_*`), DB-Integrationstests gegen echtes Postgres (CI-Service-Container; lokal: `service postgresql start`, Rolle/DB `roses`).
