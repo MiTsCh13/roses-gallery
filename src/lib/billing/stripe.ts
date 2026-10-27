@@ -1,7 +1,7 @@
 import Stripe from "stripe";
 
 import {
-  isPlanId,
+  isPurchasablePlan,
   PLANS,
   TRIAL_DAYS,
   type SubscriptionStatus,
@@ -33,7 +33,7 @@ export function subscriptionEventFrom(
   subscription: Stripe.Subscription,
 ): SubscriptionEvent | null {
   const { plan, interval, accountId } = subscription.metadata ?? {};
-  if (!plan || !isPlanId(plan) || plan === "free") return null;
+  if (!plan || !isPurchasablePlan(plan)) return null;
   if (interval !== "month" && interval !== "year") return null;
   const status = STATUS_MAP[subscription.status];
   if (!status) return null;

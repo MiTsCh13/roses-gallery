@@ -31,7 +31,7 @@ test("free plan by default, then a trial subscription unlocks the plan", async (
 
   // Fake checkout returns straight to the success URL.
   await page
-    .getByTestId("plan-side_line")
+    .getByTestId("plan-bloom")
     .getByRole("button", { name: /\/ Monat/ })
     .click();
   await expect(page).toHaveURL(/checkout=success/);
@@ -50,7 +50,7 @@ test("free plan by default, then a trial subscription unlocks the plan", async (
       accountId,
       customerId: "cus_e2e",
       subscriptionId: "sub_e2e",
-      plan: "side_line",
+      plan: "bloom",
       interval: "month",
       status: "trialing",
       trialEndsAt: new Date(Date.now() + 14 * 864e5).toISOString(),
@@ -61,9 +61,9 @@ test("free plan by default, then a trial subscription unlocks the plan", async (
 
   await page.goto("/dashboard/billing");
   await expect(page.getByTestId("current-plan")).toContainText(
-    "Side Line · Testphase",
+    "Bloom · Testphase",
   );
-  await expect(page.getByTestId("storage-usage")).toContainText("von 100 GB");
+  await expect(page.getByTestId("storage-usage")).toContainText("von 250 GB");
   await expect(
     page.getByRole("button", { name: "Abo verwalten" }),
   ).toBeVisible();

@@ -44,18 +44,18 @@ describe("effectivePlan", () => {
       "active",
       "past_due",
     ] as const) {
-      expect(effectivePlan({ plan: "side_line", subscriptionStatus }).id).toBe(
-        "side_line",
+      expect(effectivePlan({ plan: "bloom", subscriptionStatus }).id).toBe(
+        "bloom",
       );
     }
   });
 
   it("falls back to free without a running subscription or with an unknown plan", () => {
     expect(
-      effectivePlan({ plan: "studio", subscriptionStatus: "canceled" }).id,
+      effectivePlan({ plan: "bouquet", subscriptionStatus: "canceled" }).id,
     ).toBe("free");
     expect(
-      effectivePlan({ plan: "studio", subscriptionStatus: "none" }).id,
+      effectivePlan({ plan: "bouquet", subscriptionStatus: "none" }).id,
     ).toBe("free");
     expect(effectivePlan(active("bogus")).id).toBe("free");
   });
@@ -63,40 +63,40 @@ describe("effectivePlan", () => {
 
 describe("feature flags", () => {
   it("gates features by plan", () => {
-    expect(hasFeature(active("starter"), "tips")).toBe(false);
-    expect(hasFeature(active("side_line"), "tips")).toBe(true);
-    expect(hasFeature(active("side_line"), "white_label")).toBe(false);
-    expect(hasFeature(active("advanced"), "white_label")).toBe(true);
-    expect(hasFeature(active("studio"), "video_chapters")).toBe(true);
+    expect(hasFeature(active("bud"), "tips")).toBe(false);
+    expect(hasFeature(active("bloom"), "tips")).toBe(true);
+    expect(hasFeature(active("bloom"), "white_label")).toBe(false);
+    expect(hasFeature(active("bouquet"), "white_label")).toBe(true);
+    expect(hasFeature(active("bouquet"), "video_chapters")).toBe(true);
   });
 
   it("assertFeature throws a PlanLimitError", () => {
-    expect(() => assertFeature(active("starter"), "premiere")).toThrow(
+    expect(() => assertFeature(active("bud"), "premiere")).toThrow(
       PlanLimitError,
     );
-    expect(() => assertFeature(active("side_line"), "premiere")).not.toThrow();
+    expect(() => assertFeature(active("bloom"), "premiere")).not.toThrow();
   });
 });
 
 describe("assertCanUpload", () => {
   const account = (used: number) => ({
-    ...active("starter"),
+    ...active("bud"),
     storageUsedBytes: used,
   });
 
   it("allows uploads up to exactly the quota", () => {
-    expect(() => assertCanUpload(account(19 * GB), 1 * GB)).not.toThrow();
+    expect(() => assertCanUpload(account(49 * GB), 1 * GB)).not.toThrow();
   });
 
   it("blocks uploads above the quota", () => {
-    expect(() => assertCanUpload(account(19 * GB), 1 * GB + 1)).toThrowError(
+    expect(() => assertCanUpload(account(49 * GB), 1 * GB + 1)).toThrowError(
       expect.objectContaining({ code: "storage_exceeded" }),
     );
   });
 
   it("applies the free quota after cancellation", () => {
     const canceled = {
-      plan: "starter",
+      plan: "bud",
       subscriptionStatus: "canceled" as const,
       storageUsedBytes: 3 * GB,
     };
@@ -116,8 +116,21 @@ describe("assertCanCreateGallery", () => {
     expect(() => assertCanCreateGallery(free, 3)).toThrowError(
       expect.objectContaining({ code: "gallery_limit" }),
     );
-    expect(() =>
-      assertCanCreateGallery(active("starter"), 10_000),
-    ).not.toThrow();
+    expect(() => assertCanCreateGallery(active("bud"), 10_000)).not.toThrow();
+  });
+});
+
+describe("D-001 price list", () => {
+  it("sells Bud, Bloom and Bouquet at 10, 20 and 50 EUR and keeps Enterprise on request", () => {
+    expect(PLANS.bud.priceMonthlyCents).toBe(1000);
+    expect(PLANS.bloom.priceMonthlyCents).toBe(2000);
+    expect(PLANS.bouquet.priceMonthlyCents).toBe(5000);
+    expect(PLANS.enterprise.priceMonthlyCents).toBeNull();
+    expect(PLANS.enterprise.priceYearlyCents).toBeNull();
+  });
+
+  it("gives Enterprise every feature", () => {
+    expect(hasFeature(active("enterprise"), "face_search")).toBe(true);
+    expect(hasFeature(active("enterprise"), "white_label")).toBe(true);
   });
 });
