@@ -34,7 +34,7 @@
 
 ## Entscheidungsbedarf
 
-Siehe `docs/DECISIONS.md` → Abschnitt „Offen“. Nichts davon blockiert M1.
+Keine offenen Fragen. Zugänge sind in der Umgebung (D-005–D-007); nächster Lauf: Smoke-Tests gegen R2, Stripe (Testmodus), Postmark und Bunny, danach Upload-UI.
 
 ## Umgebung (Cloud-Sessions)
 
