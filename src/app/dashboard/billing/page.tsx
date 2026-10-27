@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { formatBytes, formatEuro } from "@/lib/format";
 import {
   effectivePlan,
-  PLAN_IDS,
+  PURCHASABLE_PLAN_IDS,
   PLANS,
   type SubscriptionStatus,
 } from "@/lib/plans";
@@ -86,7 +86,7 @@ async function BillingContent() {
           </h2>
           <p className="text-sm text-muted-foreground">{t("trialHint")}</p>
           <ul className="grid gap-3 sm:grid-cols-2">
-            {PLAN_IDS.filter((id) => id !== "free").map((id) => {
+            {PURCHASABLE_PLAN_IDS.map((id) => {
               const plan = PLANS[id];
               return (
                 <li
@@ -125,6 +125,16 @@ async function BillingContent() {
                 </li>
               );
             })}
+            <li
+              className="space-y-2 rounded-lg border border-dashed p-4"
+              data-testid="plan-enterprise"
+            >
+              <h3 className="font-medium">{PLANS.enterprise.name}</h3>
+              <p className="text-sm text-muted-foreground">
+                {t("enterpriseHint")}
+              </p>
+              <p className="text-sm font-medium">{t("onRequest")}</p>
+            </li>
           </ul>
         </section>
       )}

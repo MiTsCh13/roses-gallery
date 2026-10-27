@@ -21,7 +21,7 @@ const body = () =>
     accountId,
     customerId: "cus_1",
     subscriptionId: "sub_1",
-    plan: "studio",
+    plan: "bouquet",
     interval: "year",
     status: "active",
     trialEndsAt: null,
@@ -54,7 +54,10 @@ describe("POST /api/stripe/webhook", () => {
       .select()
       .from(accounts)
       .where(eq(accounts.id, accountId));
-    expect(row).toMatchObject({ plan: "studio", subscriptionStatus: "active" });
+    expect(row).toMatchObject({
+      plan: "bouquet",
+      subscriptionStatus: "active",
+    });
   });
 
   it("rejects an unsigned or wrongly signed request with 400 and changes nothing", async () => {

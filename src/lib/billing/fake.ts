@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { PLAN_IDS } from "@/lib/plans";
+import { PURCHASABLE_PLAN_IDS } from "@/lib/plans";
 import {
   InvalidWebhookError,
   type BillingProvider,
@@ -16,7 +16,7 @@ const payloadSchema = z.object({
   accountId: z.string().nullable(),
   customerId: z.string(),
   subscriptionId: z.string(),
-  plan: z.enum(PLAN_IDS),
+  plan: z.enum(PURCHASABLE_PLAN_IDS),
   interval: z.enum(["month", "year"]),
   status: z.enum(["none", "trialing", "active", "past_due", "canceled"]),
   trialEndsAt: z.iso.datetime().nullable(),

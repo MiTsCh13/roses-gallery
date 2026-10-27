@@ -46,6 +46,9 @@ Siehe `docs/DECISIONS.md` → Abschnitt „Offen“. Nichts davon blockiert M1.
 
 ## Log
 
+### 2026-10-27 – D-001 umgesetzt
+- Pläne: Free / Bud 10 € / Bloom 20 € / Bouquet 50 € / Enterprise (auf Anfrage), `PURCHASABLE_PLAN_IDS` für Checkout; Enterprise-Karte auf der Abo-Seite.
+
 ### 2026-10-27 – M2 abgeschlossen
 - Fertig-Kriterium: Testabo-Fluss (Checkout → Webhook → Plan) per E2E gegen Fake, Limits per Unit-Tests. Echte Stripe-Abnahme wartet auf D-006. M3 aufgeschlüsselt.
 

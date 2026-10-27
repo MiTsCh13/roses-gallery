@@ -1,20 +1,27 @@
 // Single source of truth for plan limits and feature flags (F-ACC-03).
 // Never compare plan names elsewhere – use the helpers below.
-// Plan names and prices are placeholders until D-001 is decided.
+// Names, prices and feature split: see D-001 / D-109 in docs/DECISIONS.md.
 
 const GB = 1024 ** 3;
 
 export const PLAN_IDS = [
   "free",
-  "starter",
-  "side_line",
-  "advanced",
-  "ultimate",
-  "studio",
-  "power_creator",
+  "bud",
+  "bloom",
+  "bouquet",
+  "enterprise",
 ] as const;
 
 export type PlanId = (typeof PLAN_IDS)[number];
+
+/** Plans bookable through Checkout; Enterprise is agreed individually. */
+export const PURCHASABLE_PLAN_IDS = ["bud", "bloom", "bouquet"] as const;
+
+export type PurchasablePlanId = (typeof PURCHASABLE_PLAN_IDS)[number];
+
+export function isPurchasablePlan(value: string): value is PurchasablePlanId {
+  return (PURCHASABLE_PLAN_IDS as readonly string[]).includes(value);
+}
 
 export const FEATURES = [
   "video_cover",
@@ -31,10 +38,9 @@ export type Feature = (typeof FEATURES)[number];
 
 export type Plan = {
   id: PlanId;
-  /** Placeholder display name (D-001). */
   name: string;
   storageBytes: number;
-  /** Prices in EUR cent; `null` = not purchasable (free plan). */
+  /** Prices in EUR cent; `null` = not bookable (Free, Enterprise on request). */
   priceMonthlyCents: number | null;
   priceYearlyCents: number | null;
   /** `null` = unlimited. */
@@ -42,12 +48,11 @@ export type Plan = {
   features: ReadonlySet<Feature>;
 };
 
-const SIDE_LINE: Feature[] = [
+const BLOOM: Feature[] = [
   "video_cover",
   "branding_socials",
   "tips",
   "premiere",
-  "face_search",
 ];
 const ALL: Feature[] = [...FEATURES];
 
@@ -76,22 +81,11 @@ function plan(
 
 export const PLANS: Record<PlanId, Plan> = {
   free: plan("free", "Free", 2, null, [], 3),
-  starter: plan("starter", "Starter", 20, 1400, []),
-  side_line: plan("side_line", "Side Line", 100, 2400, SIDE_LINE),
-  advanced: plan("advanced", "Advanced", 600, 4500, [
-    ...SIDE_LINE,
-    "white_label",
-    "external_download_links",
-    "video_chapters",
-  ]),
-  ultimate: plan("ultimate", "Ultimate", 1200, 6200, [
-    ...SIDE_LINE,
-    "white_label",
-    "external_download_links",
-    "video_chapters",
-  ]),
-  studio: plan("studio", "Studio", 2 * 1024, 9900, ALL),
-  power_creator: plan("power_creator", "Power Creator", 5 * 1024, 19900, ALL),
+  bud: plan("bud", "Bud", 50, 1000, []),
+  bloom: plan("bloom", "Bloom", 250, 2000, BLOOM),
+  bouquet: plan("bouquet", "Bouquet", 1024, 5000, ALL),
+  // Default quota; the real contract value is set per account on request.
+  enterprise: plan("enterprise", "Enterprise", 5 * 1024, null, ALL),
 };
 
 export const TRIAL_DAYS = 14;

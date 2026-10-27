@@ -15,7 +15,7 @@ const event = (over: Partial<SubscriptionEvent> = {}): SubscriptionEvent => ({
   accountId,
   customerId: "cus_1",
   subscriptionId: "sub_1",
-  plan: "side_line",
+  plan: "bloom",
   interval: "month",
   status: "trialing",
   trialEndsAt: new Date("2026-11-10T10:00:00Z"),
@@ -39,7 +39,7 @@ describe("applySubscriptionEvent", () => {
   it("writes plan, status and Stripe ids onto the account", async () => {
     expect(await applySubscriptionEvent(db as never, event())).toBe(true);
     expect(await load()).toMatchObject({
-      plan: "side_line",
+      plan: "bloom",
       subscriptionStatus: "trialing",
       billingInterval: "month",
       stripeCustomerId: "cus_1",
