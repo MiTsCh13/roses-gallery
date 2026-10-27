@@ -1,0 +1,187 @@
+import { and, eq, max } from "drizzle-orm";
+import { z } from "zod";
+
+import type { Db } from "@/db";
+import { accounts, media } from "@/db/schema";
+import { tenantDb } from "@/db/tenant";
+import { assertCanUpload, type SubscriptionStatus } from "@/lib/plans";
+import { originalKey, type Storage } from "@/lib/storage/types";
+
+export const PHOTO_CONTENT_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/tiff",
+] as const;
+
+export const MAX_PHOTO_BYTES = 100 * 1024 * 1024;
+/** S3 multipart parts must be ≥ 5 MiB except the last one. */
+export const PART_SIZE = 8 * 1024 * 1024;
+export const SIGN_TTL_SECONDS = 15 * 60;
+
+export class UploadError extends Error {
+  constructor(
+    readonly code: "not_found" | "invalid_state" | "size_mismatch",
+    message: string,
+  ) {
+    super(message);
+    this.name = "UploadError";
+  }
+}
+
+export const startUploadSchema = z.object({
+  setId: z.uuid(),
+  contentType: z.enum(PHOTO_CONTENT_TYPES),
+  sizeBytes: z.number().int().positive().max(MAX_PHOTO_BYTES),
+});
+
+export const signPartSchema = z.object({
+  mediaId: z.uuid(),
+  uploadId: z.string().min(1).max(1024),
+  partNumber: z.number().int().min(1).max(10_000),
+});
+
+export const completeUploadSchema = z.object({
+  mediaId: z.uuid(),
+  uploadId: z.string().min(1).max(1024),
+  parts: z
+    .array(
+      z.object({
+        partNumber: z.number().int().min(1).max(10_000),
+        etag: z.string().min(1).max(256),
+      }),
+    )
+    .min(1)
+    .max(10_000),
+});
+
+export const abortUploadSchema = z.object({
+  mediaId: z.uuid(),
+  uploadId: z.string().min(1).max(1024),
+});
+
+type Deps = { db: Db; storage: Storage; accountId: string };
+
+async function loadAccount({ db, accountId }: Deps) {
+  const [account] = await db
+    .select()
+    .from(accounts)
+    .where(eq(accounts.id, accountId))
+    .limit(1);
+  if (!account) throw new UploadError("not_found", "Account not found.");
+  return {
+    ...account,
+    subscriptionStatus: account.subscriptionStatus as SubscriptionStatus,
+  };
+}
+
+/** A media row that is still waiting for its original (own account only). */
+async function pendingPhoto(deps: Deps, mediaId: string) {
+  const row = await tenantDb(deps.db, deps.accountId).media.get(mediaId);
+  if (!row) throw new UploadError("not_found", "Media not found.");
+  if (
+    row.type !== "photo" ||
+    row.processingStatus !== "pending" ||
+    !row.originalKey
+  ) {
+    throw new UploadError("invalid_state", "Upload is not in progress.");
+  }
+  return { ...row, originalKey: row.originalKey };
+}
+
+export async function startUpload(deps: Deps, input: unknown) {
+  const data = startUploadSchema.parse(input);
+  const account = await loadAccount(deps);
+  assertCanUpload(account, data.sizeBytes);
+
+  const t = tenantDb(deps.db, deps.accountId);
+  const set = await t.sets.get(data.setId);
+  if (!set || set.type !== "photo") {
+    throw new UploadError("not_found", "Photo set not found.");
+  }
+
+  const [{ top }] = await deps.db
+    .select({ top: max(media.position) })
+    .from(media)
+    .where(and(eq(media.accountId, deps.accountId), eq(media.setId, set.id)));
+
+  const row = await t.media.create({
+    setId: set.id,
+    type: "photo",
+    sizeBytes: data.sizeBytes,
+    position: (top ?? -1) + 1,
+    revision: 1,
+    processingStatus: "pending",
+  });
+  const key = originalKey(deps.accountId, row.id, row.revision);
+  await t.media.update(row.id, { originalKey: key });
+
+  const uploadId = await deps.storage.createMultipartUpload(
+    key,
+    data.contentType,
+  );
+  return {
+    mediaId: row.id,
+    uploadId,
+    partSize: PART_SIZE,
+    partCount: Math.ceil(data.sizeBytes / PART_SIZE),
+  };
+}
+
+export async function signUploadPart(deps: Deps, input: unknown) {
+  const data = signPartSchema.parse(input);
+  const row = await pendingPhoto(deps, data.mediaId);
+  const url = await deps.storage.signUploadPart(
+    row.originalKey,
+    data.uploadId,
+    data.partNumber,
+    SIGN_TTL_SECONDS,
+  );
+  return { url };
+}
+
+/**
+ * Finishes the multipart upload, books the real size against the quota check
+ * and hands the media to `onUploaded` (enqueues processing).
+ */
+export async function completeUpload(
+  deps: Deps,
+  input: unknown,
+  onUploaded: (media: { id: string; revision: number }) => Promise<void>,
+) {
+  const data = completeUploadSchema.parse(input);
+  const row = await pendingPhoto(deps, data.mediaId);
+  await deps.storage.completeMultipartUpload(
+    row.originalKey,
+    data.uploadId,
+    data.parts,
+  );
+  const head = await deps.storage.head(row.originalKey);
+  if (!head) throw new UploadError("size_mismatch", "Upload is missing.");
+
+  const account = await loadAccount(deps);
+  try {
+    // The declared size was only a promise; check the real one.
+    assertCanUpload(account, head.size);
+    if (head.size > MAX_PHOTO_BYTES) {
+      throw new UploadError("size_mismatch", "Upload is too large.");
+    }
+  } catch (error) {
+    await deps.storage.delete(row.originalKey);
+    await tenantDb(deps.db, deps.accountId).media.remove(row.id);
+    throw error;
+  }
+
+  await tenantDb(deps.db, deps.accountId).media.update(row.id, {
+    sizeBytes: head.size,
+  });
+  await onUploaded({ id: row.id, revision: row.revision });
+  return { mediaId: row.id };
+}
+
+export async function abortUpload(deps: Deps, input: unknown) {
+  const data = abortUploadSchema.parse(input);
+  const row = await pendingPhoto(deps, data.mediaId);
+  await deps.storage.abortMultipartUpload(row.originalKey, data.uploadId);
+  await tenantDb(deps.db, deps.accountId).media.remove(row.id);
+}
