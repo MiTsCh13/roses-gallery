@@ -8,6 +8,14 @@ const serverEnvSchema = z.object({
     .default("development"),
   DATABASE_URL: z.url(),
   REDIS_URL: z.url(),
+  AUTH_SECRET: z.string().min(16).optional(),
+  AUTH_GOOGLE_ID: z.string().min(1).optional(),
+  AUTH_GOOGLE_SECRET: z.string().min(1).optional(),
+  MAIL_TRANSPORT: z.enum(["postmark", "fake"]).optional(),
+  POSTMARK_SERVER_TOKEN: z.string().min(1).optional(),
+  EMAIL_FROM: z.string().min(3).optional(),
+  // Allows the fake mailer and /api/test/mailbox in a production build (E2E only).
+  E2E_TEST_MODE: z.enum(["1"]).optional(),
 });
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>;

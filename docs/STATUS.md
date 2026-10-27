@@ -28,8 +28,8 @@
 - [x] Drizzle-Schema: Account, User, Gallery, Set, Media, Visitor, FavoriteList, Favorite, Theme, Event (+ Auth.js-Tabellen), erste Migration
 - [x] DB-Integrationstests gegen echtes Postgres (lokal: `postgres` 16 installiert; CI: Service-Container)
 - [x] Mandanten-Helper: jede Abfrage auf accountId eingeschränkt + Test „Creator liest keine fremde Galerie“
-- [ ] Auth.js: Magic Link (Postmark, mit Fake-Transport für Tests) und Google-Login; Registrierung legt Account an
-- [ ] Login-/Registrierungsseiten (Texte via next-intl), E2E-Test des Magic-Link-Flows mit Fake-Mailer
+- [x] Auth.js: Magic Link (Postmark, mit Fake-Transport für Tests) und Google-Login; Registrierung legt Account an
+- [x] Login-/Registrierungsseiten (Texte via next-intl), E2E-Test des Magic-Link-Flows mit Fake-Mailer
 
 ## Entscheidungsbedarf
 
@@ -48,7 +48,10 @@ Siehe `docs/DECISIONS.md` → Abschnitt „Offen“. Nichts davon blockiert M1.
 ### 2026-10-27 – M1 Datenmodell (Teil 1)
 - Drizzle-Schema + Migration (inkl. Auth.js-Tabellen `auth_*`), DB-Integrationstests gegen echtes Postgres (CI-Service-Container; lokal: `service postgresql start`, Rolle/DB `roses`).
 - `src/db/tenant.ts`: `tenantDb(db, accountId)` erzwingt accountId bei list/get/create/update/remove; Test „Creator liest keine fremde Galerie“.
-- Offen: Auth.js (Magic Link + Google), Login-/Registrierungsseiten, E2E.
+
+### 2026-10-27 – M1 Auth
+- Auth.js v5: Magic Link (Postmark-Mailer + Fake-Mailer, `MAIL_TRANSPORT`), optional Google; Adapter legt bei Registrierung Account + Owner-User an. `/login`, `/login/check-email`, `/dashboard` (Platzhalter), E2E des Magic-Link-Flows (CI-E2E mit Postgres).
+- `.env.local` für Dev: `AUTH_SECRET` (≥16 Zeichen), `AUTH_URL`; ohne Postmark-Token wird automatisch der Fake-Mailer genutzt (nur Nicht-Produktion).
 
 ### 2026-10-27 – M0 Projekt-Setup
 - Spec, Umsetzungsplan, CLAUDE.md nach `main`.
