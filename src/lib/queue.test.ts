@@ -9,6 +9,15 @@ describe("job registry", () => {
     expect(isJobName("unknown")).toBe(false);
   });
 
+  it("registers process-photo", () => {
+    const ids = {
+      accountId: crypto.randomUUID(),
+      mediaId: crypto.randomUUID(),
+    };
+    expect(parseJobPayload("process-photo", ids)).toEqual(ids);
+    expect(() => parseJobPayload("process-photo", { mediaId: "x" })).toThrow();
+  });
+
   it("validates payloads", () => {
     const requestedAt = new Date().toISOString();
     expect(parseJobPayload("ping", { requestedAt })).toEqual({ requestedAt });

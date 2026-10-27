@@ -1,8 +1,10 @@
 import { ZodError } from "zod";
 
 import { auth } from "@/auth";
+import { serverEnv } from "@/lib/env";
 import { db } from "@/db";
 import { PlanLimitError } from "@/lib/plans";
+import { createQueue, enqueue } from "@/lib/queue";
 import { getStorage } from "@/lib/storage";
 import {
   abortUpload,
@@ -11,6 +13,12 @@ import {
   startUpload,
   UploadError,
 } from "@/lib/uploads";
+
+let uploadQueue: ReturnType<typeof createQueue> | undefined;
+function queue() {
+  uploadQueue ??= createQueue(serverEnv().REDIS_URL);
+  return uploadQueue;
+}
 
 // JSON API for the Uppy multipart flow. The account always comes from the
 // session, never from the request body.
@@ -38,8 +46,14 @@ export async function POST(
       case "sign":
         return Response.json(await signUploadPart(deps, body));
       case "complete":
-        // Processing is enqueued here once the process-photo job exists.
-        return Response.json(await completeUpload(deps, body, async () => {}));
+        return Response.json(
+          await completeUpload(deps, body, async (uploaded) => {
+            await enqueue(queue(), "process-photo", {
+              accountId,
+              mediaId: uploaded.id,
+            });
+          }),
+        );
       case "abort":
         await abortUpload(deps, body);
         return Response.json({ ok: true });
