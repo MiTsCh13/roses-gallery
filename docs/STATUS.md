@@ -32,6 +32,14 @@
 - [ ] Fertig-Kriterium M4: Upload→Encoding gegen echtes Bunny verifiziert (D-116, 720p-Testvideo); Abspielen im Dashboard braucht D-115 (Embed-Host), 4K-Test steht aus
 - [ ] Limit „Galerie anlegen“ (`assertCanCreateGallery`) mit M5
 
+## Vorbereitet: M5 (Galerie-Verwaltung), nächste Schritte nach M4-Rest
+
+- [ ] Galerie anlegen/bearbeiten (Server Actions + Zod: Titel, Datum, Slug eindeutig je Account, Status, Ablaufdatum), `assertCanCreateGallery` verdrahten
+- [ ] Sets anlegen (Foto/Video) und Drag-and-Drop-Sortierung von Sets und Medien (`position`), `/api/test/seed-set` ablösen
+- [ ] Cover wählen; Galerie-Übersicht mit Status, Speicher, Ablauf (F-DASH-01)
+- [ ] Täglicher Job: abgelaufene Galerien → „abgelaufen“, Erinnerung 7 Tage vorher (Postmark-Fake)
+- [ ] Miniaturen im Dashboard über signierte Varianten-URLs
+
 ## Entscheidungsbedarf
 
 D-115 (Bunny: Original behalten, CDN-Hostname, Allowlist, Test-Video löschen). Bunny-Library-ID ist ergänzt (D-111) → Bunny-Smoke-Test zu Beginn von M4. R2-Lifecycle steht (D-113).
