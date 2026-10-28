@@ -9,6 +9,7 @@
 | ID | Frage | Vorläufige Annahme | Benötigt bis |
 | --- | --- | --- | --- |
 | D-111 | `BUNNY_STREAM_LIBRARY_ID` enthält den Platzhaltertext `BUNNY_STREAM_LIBRARY_ID` statt der numerischen Library-ID (Bunny: Stream → Library → API) | Bunny-Abnahme wartet; Video-Code (M4) gegen Fake | M4-Abnahme |
+| D-113 | R2-Bucket: Lifecycle-Regel „Unvollständige Multipart-Uploads nach 1 Tag abbrechen“ aktivieren (Cloudflare → R2 → Bucket → Einstellungen); der Cleanup-Job kennt die `uploadId` nicht und kann sie nicht abbrechen | Verwaiste Teile bleiben bis dahin kostenpflichtig im Bucket | vor Launch |
 
 Schlüssel bitte als Secrets in der Cloud-Umgebung (bzw. GitHub Actions Secrets) hinterlegen, nie ins Repo. Anleitung und Variablenliste: `docs/ZUGAENGE.md`.
 

@@ -9,6 +9,10 @@ describe("job registry", () => {
     expect(isJobName("unknown")).toBe(false);
   });
 
+  it("registers cleanup-stale-uploads", () => {
+    expect(parseJobPayload("cleanup-stale-uploads", {})).toEqual({});
+  });
+
   it("registers process-photo", () => {
     const ids = {
       accountId: crypto.randomUUID(),

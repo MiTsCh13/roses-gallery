@@ -29,7 +29,8 @@
 - [x] Upload-API `/api/uploads/{start,sign,complete,abort}` (`lib/uploads.ts`); Enqueue von `process-photo` in `complete` folgt mit dem Worker-Job
 - [x] Worker-Job `process-photo` (`lib/photos.ts`): sharp → WebP 400/1200/2400 (kein Upscaling), EXIF-Datum, Buchung auf `accounts.storage_used_bytes` genau einmal beim Übergang zu `ready`; `/api/uploads/complete` reiht den Job ein. Tests gegen echtes Postgres (Redis-Roundtrip nur manuell)
 - [x] Ersetzen einer Datei (`replace-start/sign/complete/abort` in `lib/uploads.ts`): ID, Position, Favoriten bleiben; Revision +1, alte Dateien werden gelöscht und ihre Bytes freigegeben, Quota prüft nur den Zuwachs. Bis der Worker fertig ist, hat das Bild keine Varianten (Status `pending`) – UI muss das als „wird verarbeitet“ zeigen
-- [x] Upload-UI (`PhotoUploader`, Seite `/dashboard/sets/[setId]`): Drag & Drop, Fortschritt je Datei, Abbrechen, Teil-Retry, E2E mit Fake-Storage. **Eigener Uploader statt Uppy** (D-112). Offen: Fortsetzen nach Seiten-Reload, Miniaturen (brauchen signierte Varianten-URLs, mit M5), Aufräumen verwaister `pending`-Uploads
+- [x] Upload-UI (`PhotoUploader`, Seite `/dashboard/sets/[setId]`): Drag & Drop, Fortschritt je Datei, Abbrechen, Teil-Retry, E2E mit Fake-Storage. **Eigener Uploader statt Uppy** (D-112). Offen: Fortsetzen nach Seiten-Reload, Miniaturen (brauchen signierte Varianten-URLs, mit M5)
+- [x] Aufräumen: Job `cleanup-stale-uploads` (stündlich, `lib/upload-cleanup.ts`): `pending` > 24 h ohne Original → Zeile löschen; Original vorhanden → Verarbeitung erneut. Unvollständige Multipart-Teile braucht eine R2-Lifecycle-Regel (siehe D-113)
 - [ ] Limits verdrahten: Galerie anlegen (`assertCanCreateGallery`) sobald M5-Action existiert
 
 ## Entscheidungsbedarf
@@ -45,6 +46,9 @@ Keine offenen Fragen. Zugänge sind in der Umgebung (D-005–D-007); nächster L
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-10-28 – M3 Aufräumen
+- Wartungsjob für verwaiste/steckengebliebene `pending`-Uploads, im Worker als Job-Scheduler (stündlich). Tests gegen echtes Postgres.
 
 ### 2026-10-27 – M3 Upload-UI
 - `lib/upload-client.ts` (Multipart je Teil mit Retry/neuer Signatur, Abbruch → `abort`), `PhotoUploader`, Set-Seite mit Foto-Liste und Auto-Refresh bei `pending`; Test-Route `/api/test/seed-set` bis M5. CI-E2E bekommt Redis (Enqueue in `complete`), E2E nutzt `STORAGE_TRANSPORT=fake`.

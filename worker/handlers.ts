@@ -1,5 +1,6 @@
 import { db } from "@/db";
 import { processPhoto } from "@/lib/photos";
+import { cleanupStaleUploads } from "@/lib/upload-cleanup";
 import { getStorage } from "@/lib/storage";
 import {
   isJobName,
@@ -16,6 +17,8 @@ export const handlers: Handlers = {
   ping: async ({ requestedAt }) => ({ pong: true, requestedAt }),
   "process-photo": async (payload) =>
     processPhoto({ db: db(), storage: getStorage() }, payload),
+  "cleanup-stale-uploads": async () =>
+    cleanupStaleUploads({ db: db(), storage: getStorage() }),
 };
 
 export async function dispatch(name: string, data: unknown) {
