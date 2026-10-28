@@ -34,7 +34,7 @@
 
 ## Nächste Schritte (M7, in dieser Reihenfolge)
 
-- [ ] Öffentliche Route `/g/[slug]` (server-gerendert, mobile-first): Galerie nur bei Status `published` und nicht abgelaufen, sonst 404; Theme/Overrides + Logo (signierte URL) über `GalleryView`; slug ist pro Account eindeutig → Auflösung der Account-Zuordnung klären (Annahme in DECISIONS.md eintragen, z. B. globaler Slug oder `/g/[account]/[slug]`)
+- [ ] Öffentliche Route `/g/[slug]` (server-gerendert, mobile-first): Galerie nur bei Status `published` und nicht abgelaufen, sonst 404; Theme/Overrides + Logo (signierte URL) über `GalleryView`; Slugs werden dafür global eindeutig (Annahme D-120, Migration + `freeSlug` global)
 - [ ] Foto-Sets: Raster mit echten Fotos (signierte Variantenlinks, `srcset`, lazy loading), Cover aus `coverMediaId`
 - [ ] Lightbox (Tastatur, Wischen, Vor/Zurück), E2E
 - [ ] Video-Reihen im Netflix-Stil (Hero-Video + Reihen je Video-Set), Hybrid-Galerie (F-GAL-03)
