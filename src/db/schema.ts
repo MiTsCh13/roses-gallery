@@ -164,6 +164,8 @@ export const galleries = pgTable(
     themeId: uuid("theme_id").references(() => themes.id, {
       onDelete: "set null",
     }),
+    // full ThemeConfig customised in the design editor; null = theme as is
+    themeOverrides: jsonb("theme_overrides").$type<Record<string, unknown>>(),
     coverMediaId: uuid("cover_media_id"),
     passwordHash: text("password_hash"),
     expiresAt: timestamp("expires_at", { withTimezone: true }),

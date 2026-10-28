@@ -13,6 +13,7 @@ import {
   setGalleryCover,
   updateGallery,
 } from "@/lib/galleries";
+import { saveGalleryDesign } from "@/lib/gallery-design";
 import { PlanLimitError } from "@/lib/plans";
 import { requireAccount } from "@/lib/session";
 import { ZodError } from "zod";
@@ -118,4 +119,26 @@ export async function setCoverAction(formData: FormData) {
     errorCode(e);
   }
   redirect(`/dashboard/sets/${setId}?cover=1`);
+}
+
+export async function saveDesignAction(formData: FormData) {
+  const { account } = await requireAccount();
+  const galleryId = field(formData, "galleryId") ?? "";
+  try {
+    await saveGalleryDesign(
+      { db: db(), accountId: account.id },
+      {
+        galleryId,
+        themeId: field(formData, "themeId"),
+        config: JSON.parse(field(formData, "config") ?? "null"),
+      },
+    );
+  } catch (e) {
+    if (e instanceof SyntaxError) {
+      redirect(`/dashboard/galleries/${galleryId}/design?error=invalid`);
+    }
+    redirect(`/dashboard/galleries/${galleryId}/design?error=${errorCode(e)}`);
+  }
+  revalidatePath(`/dashboard/galleries/${galleryId}`);
+  redirect(`/dashboard/galleries/${galleryId}/design?saved=1`);
 }

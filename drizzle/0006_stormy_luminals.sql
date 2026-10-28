@@ -1,0 +1,1 @@
+ALTER TABLE "galleries" ADD COLUMN "theme_overrides" jsonb;

@@ -49,6 +49,12 @@ async function GalleryContent({
         {t("back")}
       </Link>
       <h1 className="text-2xl font-semibold tracking-tight">{gallery.title}</h1>
+      <Link
+        href={`/dashboard/galleries/${gallery.id}/design`}
+        className="text-sm underline"
+      >
+        {t("design")}
+      </Link>
       {error && (
         <p role="alert" className="text-sm text-destructive">
           {t.has(`error.${error}`) ? t(`error.${error}`) : t("error.invalid")}

@@ -8,6 +8,7 @@ import {
   galleries,
   media,
   sets,
+  themes,
   visitors,
 } from "./schema";
 
@@ -83,6 +84,7 @@ export function tenantDb(db: Db, accountId: string) {
     visitors: scoped(db, visitors, accountId),
     favoriteLists: scoped(db, favoriteLists, accountId),
     events: scoped(db, events, accountId),
+    themes: scoped(db, themes, accountId),
   };
 }
 
