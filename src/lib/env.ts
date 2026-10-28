@@ -23,6 +23,10 @@ const serverEnvSchema = z.object({
   R2_ACCESS_KEY_ID: z.string().min(1).optional(),
   R2_SECRET_ACCESS_KEY: z.string().min(1).optional(),
   R2_BUCKET: z.string().min(1).optional(),
+  VIDEO_TRANSPORT: z.enum(["bunny", "fake"]).optional(),
+  BUNNY_STREAM_LIBRARY_ID: z.string().min(1).optional(),
+  BUNNY_STREAM_API_KEY: z.string().min(1).optional(),
+  BUNNY_STREAM_TOKEN_KEY: z.string().min(1).optional(),
   // Allows the fake mailer and /api/test/mailbox in a production build (E2E only).
   E2E_TEST_MODE: z.enum(["1"]).optional(),
 });
