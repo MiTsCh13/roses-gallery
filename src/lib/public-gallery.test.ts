@@ -155,6 +155,8 @@ describe("loadPublicGallery", () => {
     expect(photos[0].srcSet).toMatch(/400w.*1200w.*2400w/);
     expect(photos[0].src).toContain("-1200.webp");
     expect(r!.coverUrl).toContain("b-2400.webp");
+    expect(r!.coverSrcSet).toContain("b-400.webp");
+    expect(r!.coverSrcSet).toContain("2400w");
   });
 
   it("does not leak another account's media into the gallery", async () => {

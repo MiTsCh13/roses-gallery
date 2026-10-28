@@ -79,4 +79,20 @@ describe("GalleryView", () => {
     expect(html).toContain('srcSet="https://x.test/400.webp 400w');
     expect(html).toContain('loading="lazy"');
   });
+
+  it("loads the cover with srcset and high fetch priority (LCP)", () => {
+    const html = renderToStaticMarkup(
+      <GalleryView
+        config={SYSTEM_THEMES[0].config}
+        title="T"
+        coverUrl="https://x.test/2400.webp"
+        coverSrcSet="https://x.test/400.webp 400w, https://x.test/2400.webp 2400w"
+        sets={[]}
+      />,
+    );
+    expect(html).toContain('srcSet="https://x.test/400.webp 400w');
+    expect(html).toContain('sizes="100vw"');
+    expect(html).toContain('fetchPriority="high"');
+    expect(html).not.toContain('loading="lazy"');
+  });
 });
