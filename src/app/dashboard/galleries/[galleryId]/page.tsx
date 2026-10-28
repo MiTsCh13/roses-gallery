@@ -12,7 +12,12 @@ import { db } from "@/db";
 import { sets } from "@/db/schema";
 import { tenantDb } from "@/db/tenant";
 import { requireAccount } from "@/lib/session";
-import { createSetAction, updateGalleryAction } from "../actions";
+import { SortableList } from "@/components/sortable-list";
+import {
+  createSetAction,
+  reorderSetsAction,
+  updateGalleryAction,
+} from "../actions";
 
 const STATUSES = ["draft", "published", "expired", "archived"] as const;
 const isoDay = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : "");
@@ -102,18 +107,21 @@ async function GalleryContent({
         <h2 id="sets-title" className="text-lg font-medium">
           {t("sets", { count: gallerySets.length })}
         </h2>
-        <ul className="space-y-2" data-testid="set-list">
-          {gallerySets.map((s) => (
-            <li key={s.id} className="rounded-md border p-3 text-sm">
+        <SortableList
+          testId="set-list"
+          items={gallerySets.map((s) => ({
+            id: s.id,
+            label: s.title,
+            detail: t(`setType.${s.type}`),
+            extra: (
               <Link href={`/dashboard/sets/${s.id}`} className="underline">
-                {s.title}
-              </Link>{" "}
-              <span className="text-muted-foreground">
-                · {t(`setType.${s.type}`)}
-              </span>
-            </li>
-          ))}
-        </ul>
+                {t("open")}
+              </Link>
+            ),
+          }))}
+          onReorder={reorderSetsAction.bind(null, gallery.id)}
+          labels={{ up: t("moveUp"), down: t("moveDown"), handle: t("drag") }}
+        />
         <form action={createSetAction} className="flex flex-wrap gap-2">
           <input type="hidden" name="galleryId" value={gallery.id} />
           <Input
