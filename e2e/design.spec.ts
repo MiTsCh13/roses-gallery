@@ -44,9 +44,21 @@ test("switch theme and viewport in the design editor, then persist", async ({
     .setInputFiles({ name: "logo.png", mimeType: "image/png", buffer: png });
   await page.getByRole("button", { name: "Logo hochladen" }).click();
   await expect(page.getByTestId("gallery-logo")).toBeVisible();
-  await page.getByLabel("Theme").selectOption({ label: "Dunkel" });
+  // the upload reloads the page; a selection made before hydration is lost
+  await expect(async () => {
+    await page.getByLabel("Theme").selectOption({ label: "Dunkel" });
+    await expect(view).toHaveAttribute("data-layout", "rows", {
+      timeout: 1000,
+    });
+  }).toPass();
 
-  await page.getByRole("button", { name: "Design speichern" }).click();
+  // the logo upload already redirected to ?saved=1, so wait for the save itself
+  await Promise.all([
+    page.waitForResponse(
+      (r) => r.request().method() === "POST" && r.url().includes("/design"),
+    ),
+    page.getByRole("button", { name: "Design speichern" }).click(),
+  ]);
   await expect(page.getByText("Design gespeichert.")).toBeVisible();
   await page.reload();
   await expect(page.getByTestId("gallery-view")).toHaveAttribute(
