@@ -15,6 +15,7 @@ import {
   resolveVisitor,
   visitorCookieName,
 } from "@/lib/favorites";
+import { ShareLinkButton } from "@/components/gallery/share";
 import { GalleryView } from "@/components/gallery/gallery-view";
 import { db } from "@/db";
 import { Button } from "@/components/ui/button";
@@ -128,9 +129,15 @@ async function GalleryContent({
               srcSet: p.srcSet,
               alt: t("photoAlt", { n: n + 1 }),
               downloads: p.downloads,
+              story: p.downloads.web
+                ? `/api/g/${encodeURIComponent(gallery.slug)}/story/${p.id}`
+                : undefined,
             })),
           }))}
         />
+        <div className="mx-auto w-full max-w-xl px-6 pt-10">
+          <ShareLinkButton path={`/g/${encodeURIComponent(gallery.slug)}`} />
+        </div>
         {photoSets.length > 0 && <FavoritesPanel />}
         {photoSets.length > 0 && (
           <section className="mx-auto w-full max-w-xl space-y-3 px-6 py-10">

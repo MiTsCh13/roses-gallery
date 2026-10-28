@@ -6,27 +6,39 @@ import { media, sets } from "@/db/schema";
 import { findVisibleGallery } from "@/lib/downloads";
 import type { PhotoVariants } from "@/lib/photos";
 import type { Storage } from "@/lib/storage/types";
+import type { DownloadPolicy } from "@/lib/download-policy";
 import { ensureWatermarked } from "@/lib/watermark";
 
 export const GALLERY_IMAGE_URL_TTL_SECONDS = 60 * 60;
 
 export type GalleryImageResult = { ok: true; url: string } | { ok: false };
 
+type ImageDeps = {
+  db: Db;
+  storage: Storage;
+  accessSecret?: string;
+  accessToken?: (galleryId: string) => string | undefined;
+  now?: Date;
+};
+
+type ImageKey =
+  | {
+      ok: true;
+      key: string;
+      gallery: NonNullable<Awaited<ReturnType<typeof findVisibleGallery>>>;
+      setPolicy: DownloadPolicy | null;
+    }
+  | { ok: false };
+
 /**
- * Signed URL for one photo width of a public gallery: the watermarked copy
+ * Storage key of one photo width of a public gallery: the watermarked copy
  * when the gallery enables it, else the plain variant. Same visibility rules
  * as the gallery itself.
  */
-export async function resolveGalleryImage(
-  deps: {
-    db: Db;
-    storage: Storage;
-    accessSecret?: string;
-    accessToken?: (galleryId: string) => string | undefined;
-    now?: Date;
-  },
+export async function resolveImageKey(
+  deps: ImageDeps,
   input: { slug: string; mediaId: string; width: number },
-): Promise<GalleryImageResult> {
+): Promise<ImageKey> {
   if (!z.uuid().safeParse(input.mediaId).success) return { ok: false };
   const gallery = await findVisibleGallery(
     deps,
@@ -35,7 +47,7 @@ export async function resolveGalleryImage(
   );
   if (!gallery) return { ok: false };
   const [row] = await deps.db
-    .select({ media })
+    .select({ media, setPolicy: sets.downloadPolicy })
     .from(media)
     .innerJoin(sets, eq(sets.id, media.setId))
     .where(
@@ -60,8 +72,18 @@ export async function resolveGalleryImage(
     });
     if (stamped) key = stamped.key;
   }
+  return { ok: true, key, gallery, setPolicy: row.setPolicy };
+}
+
+/** Signed URL for one photo width of a public gallery. */
+export async function resolveGalleryImage(
+  deps: ImageDeps,
+  input: { slug: string; mediaId: string; width: number },
+): Promise<GalleryImageResult> {
+  const r = await resolveImageKey(deps, input);
+  if (!r.ok) return { ok: false };
   return {
     ok: true,
-    url: await deps.storage.signGet(key, GALLERY_IMAGE_URL_TTL_SECONDS),
+    url: await deps.storage.signGet(r.key, GALLERY_IMAGE_URL_TTL_SECONDS),
   };
 }
