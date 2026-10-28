@@ -57,6 +57,23 @@ describe("BunnyVideoProvider", () => {
     expect(() => provider.signOriginalUrl("vid", 60)).toThrow("CDN_HOSTNAME");
   });
 
+  it("prefers the dedicated CDN token key for original URLs", () => {
+    const cdn = new BunnyVideoProvider({
+      libraryId: "123",
+      apiKey: "api-key",
+      tokenKey: "token-key",
+      cdnHostname: "vz-test.b-cdn.net",
+      cdnTokenKey: "cdn-key",
+    });
+    const url = new URL(cdn.signOriginalUrl("vid", 60));
+    const expires = url.searchParams.get("expires")!;
+    expect(url.searchParams.get("token")).toBe(
+      createHash("sha256")
+        .update(`cdn-key/vid/original${expires}`)
+        .digest("base64url"),
+    );
+  });
+
   it("creates, reads and deletes videos via the API", async () => {
     const fetchMock = vi
       .fn()

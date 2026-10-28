@@ -29,7 +29,7 @@
 - [x] `VideoProvider` (Bunny + Fake, `VIDEO_TRANSPORT`), `lib/videos.ts` (start → tus-Parameter, Sync, Buchung genau einmal bei `ready`, signierte Embed-URL, Löschen), API `/api/videos/{start,refresh,playback,remove}`, Webhook `/api/bunny/webhook` (Body nicht vertraut, Status wird per API geholt). Gegen echtes Bunny nur Smoke-Test, kein Upload
 - [x] Upload-UI für Video-Sets (`VideoUploader`, tus-js-client, Fortschritt, Abbrechen) + Player-Vorschau (signierte Embed-URL erst per Klick) auf `/dashboard/sets/[setId]`; Seite zieht den Status offener Videos selbst nach (webhook-unabhängig). E2E gegen Fake-tus (`/api/test/tus`). Offen: Fortsetzen nach Reload
 - [x] Original-Download: signierte CDN-URL (`signOriginalUrl`, Token `base64url(sha256(key+pfad+expires))`), Aktion `/api/videos/original`, Button im Dashboard. **Live ungeprüft:** `BUNNY_STREAM_CDN_HOSTNAME` steht erst im nächsten Lauf in der Umgebung → dann Original-URL des Test-Videos abrufen (Token-Pfad-Format prüfen)
-- [ ] Fertig-Kriterium M4: Upload→Encoding und Embed-Token gegen echtes Bunny verifiziert (720p, Embed 200); offen: 4K-Test und Original-URL live (nächster Lauf)
+- [ ] Fertig-Kriterium M4: Upload→Encoding, 4K (D-118) und Embed-Token live verifiziert. **Offen nur Original-URL live:** 403 mit dem Embed-Key, vermutlich eigener Pull-Zone-Key → D-117 (Mitsch)
 - [ ] Limit „Galerie anlegen“ (`assertCanCreateGallery`) mit M5
 
 ## Vorbereitet: M5 (Galerie-Verwaltung), nächste Schritte nach M4-Rest
@@ -42,7 +42,7 @@
 
 ## Entscheidungsbedarf
 
-Bunny-Library-ID ist ergänzt (D-111) → Bunny-Smoke-Test zu Beginn von M4. R2-Lifecycle steht (D-113).
+D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (blockiert nur die Live-Abnahme des Original-Downloads, nicht M5).
 
 ## Umgebung (Cloud-Sessions)
 
@@ -53,6 +53,9 @@ Bunny-Library-ID ist ergänzt (D-111) → Bunny-Smoke-Test zu Beginn von M4. R2-
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-10-28 – M4 Live-Abnahme
+- 4K-Upload live grün; Original-URL 403 → optionaler `BUNNY_STREAM_CDN_TOKEN_KEY` (Fallback Embed-Key), Tests ergänzt. Frage D-117 offen.
 
 ### 2026-10-28 – M4 Original-Download
 - D-115 erledigt (Keep Originals, Allowlist, CDN-Hostname). Embed-Token live bestätigt. Original-URL + Download-Button, Tests inkl. E2E.

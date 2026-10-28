@@ -31,6 +31,8 @@ export class BunnyVideoProvider implements VideoProvider {
       apiKey: string;
       tokenKey: string;
       cdnHostname?: string;
+      // Pull-zone token key; Bunny keeps it separate from the embed key.
+      cdnTokenKey?: string;
     },
   ) {}
 
@@ -113,7 +115,9 @@ export class BunnyVideoProvider implements VideoProvider {
     const path = `/${videoId}/original`;
     // CDN token authentication: url-safe base64 of the raw SHA-256 digest.
     const token = createHash("sha256")
-      .update(`${this.config.tokenKey}${path}${expires}`)
+      .update(
+        `${this.config.cdnTokenKey ?? this.config.tokenKey}${path}${expires}`,
+      )
       .digest("base64url");
     return `https://${host}${path}?token=${token}&expires=${expires}`;
   }
