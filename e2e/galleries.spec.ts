@@ -51,6 +51,7 @@ test("create a gallery, edit it and add photo and video sets", async ({
 
   await page.getByRole("textbox", { name: "Titel des Sets" }).fill("Trauung");
   await page.getByRole("button", { name: "Set hinzufügen" }).click();
+  await expect(page.getByTestId("set-list").locator("li")).toHaveCount(1);
   await page.getByRole("textbox", { name: "Titel des Sets" }).fill("Film");
   await page
     .getByRole("combobox", { name: "Art des Sets" })
