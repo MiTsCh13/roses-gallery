@@ -35,7 +35,7 @@ describe("schema", () => {
     expect(await db.select().from(media)).toHaveLength(0);
   });
 
-  it("enforces unique gallery slugs per account only", async () => {
+  it("enforces globally unique gallery slugs", async () => {
     const [a, b] = await db
       .insert(accounts)
       .values([{ name: "A" }, { name: "B" }])
@@ -43,9 +43,9 @@ describe("schema", () => {
     await db
       .insert(galleries)
       .values({ accountId: a.id, slug: "x", title: "1" });
-    await db
-      .insert(galleries)
-      .values({ accountId: b.id, slug: "x", title: "2" });
+    await expect(
+      db.insert(galleries).values({ accountId: b.id, slug: "x", title: "2" }),
+    ).rejects.toThrow();
     await expect(
       db.insert(galleries).values({ accountId: a.id, slug: "x", title: "3" }),
     ).rejects.toThrow();

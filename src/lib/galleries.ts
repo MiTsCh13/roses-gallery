@@ -81,12 +81,7 @@ async function freeSlug(deps: Deps, base: string): Promise<string> {
     const [hit] = await deps.db
       .select({ id: galleries.id })
       .from(galleries)
-      .where(
-        and(
-          eq(galleries.accountId, deps.accountId),
-          eq(galleries.slug, candidate),
-        ),
-      )
+      .where(eq(galleries.slug, candidate))
       .limit(1);
     if (!hit) return candidate;
   }
@@ -114,19 +109,21 @@ export async function createGallery(deps: Deps, input: unknown) {
     n,
   );
 
-  const explicit = data.slug;
-  const slug = explicit ?? (await freeSlug(deps, slugify(data.title)));
-  try {
-    return await tenantDb(deps.db, deps.accountId).galleries.create({
-      title: data.title,
-      slug,
-      eventDate: data.eventDate,
-      expiresAt: data.expiresAt,
-    });
-  } catch (e) {
-    if (isUniqueViolation(e))
-      throw new GalleryError("slug_taken", "Slug already in use.");
-    throw e;
+  // A generated slug can lose a race against a concurrent create: retry.
+  for (let attempt = 0; ; attempt++) {
+    const slug = data.slug ?? (await freeSlug(deps, slugify(data.title)));
+    try {
+      return await tenantDb(deps.db, deps.accountId).galleries.create({
+        title: data.title,
+        slug,
+        eventDate: data.eventDate,
+        expiresAt: data.expiresAt,
+      });
+    } catch (e) {
+      if (!isUniqueViolation(e)) throw e;
+      if (data.slug || attempt >= 4)
+        throw new GalleryError("slug_taken", "Slug already in use.");
+    }
   }
 }
 
