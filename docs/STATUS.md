@@ -4,7 +4,7 @@
 > und `docs/DECISIONS.md`. Log kurz halten (max. 10 Einträge, ältere löschen –
 > die Git-Historie bleibt).
 
-**Aktueller Meilenstein:** M3 – Foto-Upload & Verarbeitung
+**Aktueller Meilenstein:** M4 – Video über Bunny Stream
 **Stand main:** M0–M2 abgeschlossen (M2: Abnahme gegen echtes Stripe offen, D-006)
 
 ## Meilensteine
@@ -14,8 +14,8 @@
 | M0 | Projekt-Setup | ✅ fertig |
 | M1 | Datenmodell & Login | ✅ fertig |
 | M2 | Abo & Planlimits | ✅ fertig (Stripe nur gegen Fake getestet) |
-| M3 | Foto-Upload & Verarbeitung | ⏭️ als Nächstes |
-| M4 | Video über Bunny Stream | offen |
+| M3 | Foto-Upload & Verarbeitung | ✅ fertig (Limit „Galerie anlegen“ folgt mit M5) |
+| M4 | Video über Bunny Stream | 🚧 in Arbeit |
 | M5 | Galerie-Verwaltung | offen |
 | M6 | Design-Editor | offen |
 | M7 | Galerie-Ansicht & Player | offen |
@@ -23,15 +23,14 @@
 | M9 | Auslieferung & Statistik | offen |
 | M10 | Härtung & Launch | offen |
 
-## Nächste Schritte (M3, in dieser Reihenfolge)
+## Nächste Schritte (M4, in dieser Reihenfolge)
 
-- [x] `Storage`-Interface mit Fake (Dateisystem) + R2 (`lib/storage`, R2 gegen echtes R2 ungetestet, D-007)
-- [x] Upload-API `/api/uploads/{start,sign,complete,abort}` (`lib/uploads.ts`); Enqueue von `process-photo` in `complete` folgt mit dem Worker-Job
-- [x] Worker-Job `process-photo` (`lib/photos.ts`): sharp → WebP 400/1200/2400 (kein Upscaling), EXIF-Datum, Buchung auf `accounts.storage_used_bytes` genau einmal beim Übergang zu `ready`; `/api/uploads/complete` reiht den Job ein. Tests gegen echtes Postgres (Redis-Roundtrip nur manuell)
-- [x] Ersetzen einer Datei (`replace-start/sign/complete/abort` in `lib/uploads.ts`): ID, Position, Favoriten bleiben; Revision +1, alte Dateien werden gelöscht und ihre Bytes freigegeben, Quota prüft nur den Zuwachs. Bis der Worker fertig ist, hat das Bild keine Varianten (Status `pending`) – UI muss das als „wird verarbeitet“ zeigen
-- [x] Upload-UI (`PhotoUploader`, Seite `/dashboard/sets/[setId]`): Drag & Drop, Fortschritt je Datei, Abbrechen, Teil-Retry, E2E mit Fake-Storage. **Eigener Uploader statt Uppy** (D-112). Offen: Fortsetzen nach Seiten-Reload, Miniaturen (brauchen signierte Varianten-URLs, mit M5)
-- [x] Aufräumen: Job `cleanup-stale-uploads` (stündlich, `lib/upload-cleanup.ts`): `pending` > 24 h ohne Original → Zeile löschen; Original vorhanden → Verarbeitung erneut. Unvollständige Multipart-Teile räumt die R2-Lifecycle-Regel (3 Tage, D-113)
-- [ ] Limits verdrahten: Galerie anlegen (`assertCanCreateGallery`) sobald M5-Action existiert
+- [x] Bunny-Smoke-Test (2026-10-28): Library erreichbar, API-Key gültig
+- [x] `VideoProvider` (Bunny + Fake, `VIDEO_TRANSPORT`), `lib/videos.ts` (start → tus-Parameter, Sync, Buchung genau einmal bei `ready`, signierte Embed-URL, Löschen), API `/api/videos/{start,refresh,playback,remove}`, Webhook `/api/bunny/webhook` (Body nicht vertraut, Status wird per API geholt). Gegen echtes Bunny nur Smoke-Test, kein Upload
+- [ ] Upload-UI für Video-Sets (tus-js-client, Fortschritt) + Player-Vorschau im Dashboard + E2E mit Fake
+- [ ] Original-Download (F-UP-04 „Original abrufbar“): Bunny-Original-Speicherung/URL klären
+- [ ] Fertig-Kriterium M4: 4K-Video hochgeladen und im Dashboard abspielbar (manuell gegen echtes Bunny)
+- [ ] Limit „Galerie anlegen“ (`assertCanCreateGallery`) mit M5
 
 ## Entscheidungsbedarf
 
@@ -46,6 +45,9 @@ Keine offenen Fragen. Bunny-Library-ID ist ergänzt (D-111) → Bunny-Smoke-Test
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-10-28 – M4 Bunny-Backend
+- Provider-Interface + Fake + Bunny, Video-Upload-API, Webhook, Buchung auf den Speicher beim Übergang zu `ready`. Tests gegen echtes Postgres bzw. gemocktes fetch. M3 abgeschlossen. Hinweis Cloud: Rolle/DB `roses` und `roses_gallery_test` müssen in frischer Umgebung per `su postgres` angelegt werden.
 
 ### 2026-10-28 – M3 Aufräumen
 - Wartungsjob für verwaiste/steckengebliebene `pending`-Uploads, im Worker als Job-Scheduler (stündlich). Tests gegen echtes Postgres.
