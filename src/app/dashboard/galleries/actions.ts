@@ -19,6 +19,7 @@ import { setGalleryPassword } from "@/lib/gallery-access";
 import { getStorage } from "@/lib/storage";
 import { saveGalleryDesign } from "@/lib/gallery-design";
 import { PlanLimitError } from "@/lib/plans";
+import { saveWatermarkConfig } from "@/lib/watermark";
 import { requireAccount } from "@/lib/session";
 import { ZodError } from "zod";
 
@@ -68,12 +69,32 @@ export async function updateGalleryAction(formData: FormData) {
         expiresAt: field(formData, "expiresAt"),
         status: field(formData, "status"),
         downloadPolicy: field(formData, "downloadPolicy"),
+        watermarkEnabled: field(formData, "watermarkEnabled") === "on",
       },
     );
   } catch (e) {
     redirect(`/dashboard/galleries/${galleryId}?error=${errorCode(e)}`);
   }
   revalidatePath("/dashboard/galleries");
+  redirect(`/dashboard/galleries/${galleryId}?saved=1`);
+}
+
+export async function saveWatermarkAction(formData: FormData) {
+  const { account } = await requireAccount();
+  const galleryId = field(formData, "galleryId") ?? "";
+  try {
+    await saveWatermarkConfig(
+      { db: db(), accountId: account.id },
+      {
+        position: field(formData, "position"),
+        opacity: field(formData, "opacity"),
+        scale: field(formData, "scale"),
+      },
+    );
+  } catch (e) {
+    redirect(`/dashboard/galleries/${galleryId}?error=${errorCode(e)}`);
+  }
+  revalidatePath(`/dashboard/galleries/${galleryId}`);
   redirect(`/dashboard/galleries/${galleryId}?saved=1`);
 }
 

@@ -123,6 +123,21 @@
       "web": "Web-Größe",
       "original": "Original"
     },
+    "watermarkTitle": "Wasserzeichen",
+    "watermarkEnable": "Wasserzeichen auf Web-Größen (Originale bleiben unberührt)",
+    "watermarkHint": "Dein Logo wird auf Anzeige und Web-Download gelegt. Einstellungen gelten für alle Galerien.",
+    "watermarkNoLogo": "Lade zuerst ein Logo hoch (Design-Editor), sonst wird kein Wasserzeichen gesetzt.",
+    "watermarkPosition": "Position",
+    "watermarkPositions": {
+      "center": "Mitte",
+      "top-left": "Oben links",
+      "top-right": "Oben rechts",
+      "bottom-left": "Unten links",
+      "bottom-right": "Unten rechts"
+    },
+    "watermarkOpacity": "Deckkraft (5–100 %)",
+    "watermarkScale": "Größe (5–60 % der Bildbreite)",
+    "watermarkSave": "Einstellungen übernehmen",
     "passwordTitle": "Passwortschutz",
     "passwordOn": "Die Galerie ist durch ein Passwort geschützt.",
     "passwordOff": "Die Galerie ist ohne Passwort über den Link erreichbar.",

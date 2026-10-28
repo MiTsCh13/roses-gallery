@@ -64,6 +64,13 @@
       "when": 1793225470067,
       "tag": "0008_hard_glorian",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793229111271,
+      "tag": "0009_fuzzy_tana_nile",
+      "breakpoints": true
     }
   ]
 }

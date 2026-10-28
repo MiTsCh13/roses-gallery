@@ -8,6 +8,7 @@ import { findVisibleGallery } from "@/lib/downloads";
 import type { Mailer } from "@/lib/mailer";
 import type { PhotoVariants } from "@/lib/photos";
 import type { Storage } from "@/lib/storage/types";
+import { ensureWatermarked, loadStamp } from "@/lib/watermark";
 import { buildZip, type ZipEntry } from "@/lib/zip-writer";
 
 export const ZIP_LINK_TTL_MS = 7 * 24 * 60 * 60 * 1000;
@@ -39,6 +40,8 @@ async function selectFiles(
   setId: string | null,
   size: "web" | "original",
   enforcePolicy = true,
+  /** Given by the worker only: stamps web sizes of watermarked galleries. */
+  storage?: Storage,
 ): Promise<ZipFile[]> {
   const rows = await db
     .select({ media, setTitle: sets.title, setPolicy: sets.downloadPolicy })
@@ -55,6 +58,10 @@ async function selectFiles(
     )
     .orderBy(asc(sets.position), asc(media.position), asc(media.createdAt));
 
+  const stamp =
+    storage && gallery.watermarkEnabled
+      ? await loadStamp(db, gallery.accountId)
+      : undefined;
   const counters = new Map<string, number>();
   const files: ZipFile[] = [];
   for (const row of rows) {
@@ -71,12 +78,25 @@ async function selectFiles(
       key = row.media.originalKey;
       bytes = row.media.sizeBytes;
     } else {
-      const largest = Object.values(row.media.variants as PhotoVariants).sort(
-        (x, y) => y.width - x.width,
-      )[0];
+      const [nominal, largest] =
+        Object.entries(row.media.variants as PhotoVariants).sort(
+          ([a], [b]) => Number(b) - Number(a),
+        )[0] ?? [];
       key = largest?.key ?? null;
       bytes = largest?.size ?? 0;
       ext = ".webp";
+      if (key && storage && gallery.watermarkEnabled) {
+        const stamped = await ensureWatermarked(
+          { db, storage },
+          {
+            accountId: gallery.accountId,
+            media: row.media,
+            width: Number(nominal),
+            stamp,
+          },
+        );
+        if (stamped) ({ key, size: bytes } = stamped);
+      }
     }
     if (!key) continue;
     const folder = safeName(row.setTitle);
@@ -212,7 +232,14 @@ export async function buildZipExport(
 
   let key = row.storageKey;
   if (!key) {
-    const files = await selectFiles(db, gallery, row.setId, row.size);
+    const files = await selectFiles(
+      db,
+      gallery,
+      row.setId,
+      row.size,
+      true,
+      storage,
+    );
     if (
       files.length === 0 ||
       files.reduce((sum, f) => sum + f.bytes, 0) > ZIP_MAX_BYTES

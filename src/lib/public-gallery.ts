@@ -139,6 +139,7 @@ export async function loadPublicGallery(
     .where(eq(accounts.id, accountId))
     .limit(1);
   const logoKey = account?.branding.logoKey;
+  const stamped = gallery.watermarkEnabled && typeof logoKey === "string";
   const logoUrl =
     typeof logoKey === "string"
       ? await deps.storage.signGet(logoKey, LOGO_URL_TTL_SECONDS)
@@ -220,14 +221,19 @@ export async function loadPublicGallery(
   let coverSrcSet: string | null = null;
   for (const m of ready) {
     if (!setIds.has(m.setId)) continue;
-    const variants = Object.values(m.variants as PhotoVariants).sort(
-      (x, y) => x.width - y.width,
-    );
+    const variants = Object.entries(m.variants as PhotoVariants)
+      .map(([nominal, v]) => ({ ...v, nominal }))
+      .sort(
+        (x, y) => x.width - y.width || Number(x.nominal) - Number(y.nominal),
+      );
     if (!variants.length) continue;
     const signed = await Promise.all(
       variants.map(async (v) => ({
         ...v,
-        url: await deps.storage.signGet(v.key, PHOTO_URL_TTL_SECONDS),
+        // watermarked galleries go through the stamping route (F-SEC-03)
+        url: stamped
+          ? `/api/g/${encodeURIComponent(gallery.slug)}/img/${m.id}?w=${v.nominal}`
+          : await deps.storage.signGet(v.key, PHOTO_URL_TTL_SECONDS),
       })),
     );
     // default src: the mid-size variant (second smallest, else the only one)
