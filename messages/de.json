@@ -215,6 +215,7 @@
     "play": "{title} abspielen",
     "quality": "Qualität",
     "qualityAuto": "Auto",
+    "cast": "Auf Gerät wiedergeben",
     "playerError": "Das Video konnte nicht geladen werden."
   }
 }

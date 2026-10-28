@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
+import { detectCast, promptCast, type CastMethod } from "./cast";
 import { readResume, writeResume } from "./resume-position";
 
 type Level = { index: number; label: string };
@@ -27,11 +28,13 @@ export function HlsPlayer({
   const [levels, setLevels] = useState<Level[]>([]);
   const [level, setLevel] = useState(-1);
   const [failed, setFailed] = useState(false);
+  const [cast, setCast] = useState<CastMethod | null>(null);
 
   useEffect(() => {
     const video = ref.current;
     if (!video) return;
     let cancelled = false;
+    setCast(detectCast(video));
 
     const resume = () => {
       const at = readResume(videoId, video.duration);
@@ -118,6 +121,16 @@ export function HlsPlayer({
             ))}
           </select>
         </label>
+      )}
+      {cast && (
+        <button
+          type="button"
+          onClick={() => ref.current && promptCast(ref.current, cast)}
+          className="absolute top-2 left-2 rounded bg-black/60 px-2 py-1 text-xs text-white"
+          data-testid="hls-cast"
+        >
+          {t("cast")}
+        </button>
       )}
       {failed && (
         <p
