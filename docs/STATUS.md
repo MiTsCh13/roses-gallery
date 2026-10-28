@@ -39,7 +39,7 @@
 - [x] Lightbox (`lightbox.tsx`, `gallery-grid.tsx` jetzt Client-Komponente): Klick öffnet, Pfeiltasten/Buttons/Wischen, Esc, Fokus + Scroll-Sperre; `/g/[slug]` reicht Fotos und Cover jetzt tatsächlich durch (zuvor `tiles: []`). Tests als jsdom-Komponententests; kein E2E mit echten Bildern (Worker läuft in E2E nicht)
 - [x] Video-Reihen im Netflix-Stil (`video-shelf.tsx`: Hero-Player + Reihe je Video-Set, signierte Embed-URL 4 h, iframe erst nach Klick), Hybrid-Galerie (Video- und Foto-Sets gemeinsam). Nur `ready`-Videos; Titel „Film n“ (Medien haben keinen Titel), keine Poster/Thumbnails (Provider liefert noch keine). Kein E2E mit echtem Video-Set (Worker/Bunny-Fake) – Unit- und Komponententests
 - [x] HLS-Player (`hls-player.tsx`, hls.js, nativer HLS-Fallback für Safari inkl. `x-webkit-airplay`): Qualitätswahl, Vollbild (native Controls), Fortsetzen (`resume-position.ts`, localStorage). Provider `signHlsUrl` (Bunny: verzeichnisweiter CDN-Token `token_path`) liefert nur mit `BUNNY_STREAM_CDN_TOKEN_KEY` eine URL, sonst bleibt das Embed-iframe. **Live ungeprüft** (D-117: Token-Format/Segmente, ggf. CORS der Pull-Zone). Tests: Unit + jsdom, kein E2E mit echtem HLS
-- [ ] AirPlay (Safari) und Chromecast (Cast SDK) – Fake/Feature-Detection für Tests
+- [x] AirPlay/Chromecast (`cast.ts`, Button im `HlsPlayer`): Remote Playback API, Fallback WebKit-Picker, Button nur bei Feature-Detection (D-121, kein Cast SDK). Tests: Unit + jsdom; echte Geräte ungeprüft
 - [ ] Performance: LCP < 2,5 s auf 4G prüfen (Lighthouse), Fertig-Kriterium M7
 
 ## Nächste Schritte (M6, erledigt)
@@ -68,6 +68,9 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-10-28 – M7 Cast
+- Cast-Button via Remote Playback API (D-121). Nächster Schritt: Lighthouse-LCP (<2,5 s) prüfen = letztes M7-Kriterium; Chromium ist vorinstalliert. Cloud: Rolle/DBs wie oben neu anlegen.
 
 ### 2026-10-28 – M7 HLS-Player
 - `HlsPlayer` + `signHlsUrl`, Fallback Embed ohne CDN-Key. Nächster Schritt: AirPlay/Chromecast (Cast SDK, Feature-Detection), dann Lighthouse-LCP. Live-Prüfung HLS hängt an D-117.
