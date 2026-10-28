@@ -5,7 +5,7 @@ import path from "node:path";
 import { eq } from "drizzle-orm";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 
-import { accounts, galleries, sets, themes } from "@/db/schema";
+import { accounts, galleries, media, sets, themes } from "@/db/schema";
 import { createTestDb, resetDb } from "@/test/db";
 import { FakeStorage } from "@/lib/storage/fake";
 import { SYSTEM_THEMES } from "@/lib/themes";
@@ -98,5 +98,80 @@ describe("loadPublicGallery", () => {
     await gallery();
     const r = await loadPublicGallery({ db, storage }, "anna-ben");
     expect(r?.logoUrl).toContain("logo.png");
+  });
+
+  it("lists ready photos in order with signed srcset and the cover", async () => {
+    const g = await gallery();
+    const [set] = await db
+      .insert(sets)
+      .values({ accountId, galleryId: g.id, title: "Trauung" })
+      .returning();
+    const variants = (id: string) => ({
+      "400": {
+        key: `${accountId}/d/${id}-400.webp`,
+        width: 400,
+        height: 300,
+        size: 1,
+      },
+      "1200": {
+        key: `${accountId}/d/${id}-1200.webp`,
+        width: 1200,
+        height: 900,
+        size: 1,
+      },
+      "2400": {
+        key: `${accountId}/d/${id}-2400.webp`,
+        width: 2400,
+        height: 1800,
+        size: 1,
+      },
+    });
+    const base = { accountId, setId: set.id, type: "photo" as const };
+    const [second, first] = await db
+      .insert(media)
+      .values([
+        {
+          ...base,
+          position: 1,
+          processingStatus: "ready",
+          variants: variants("b"),
+        },
+        {
+          ...base,
+          position: 0,
+          processingStatus: "ready",
+          variants: variants("a"),
+        },
+        { ...base, position: 2, processingStatus: "pending" },
+        { ...base, position: 3, processingStatus: "failed" },
+      ])
+      .returning();
+    await db.update(galleries).set({ coverMediaId: second.id });
+    const r = await loadPublicGallery({ db, storage }, "anna-ben");
+    const photos = r!.sets[0].photos;
+    expect(photos.map((p) => p.id)).toEqual([first.id, second.id]);
+    expect(photos[0].srcSet.split(", ")).toHaveLength(3);
+    expect(photos[0].srcSet).toMatch(/400w.*1200w.*2400w/);
+    expect(photos[0].src).toContain("-1200.webp");
+    expect(r!.coverUrl).toContain("b-2400.webp");
+  });
+
+  it("does not leak another account's media into the gallery", async () => {
+    const g = await gallery();
+    const [mine] = await db
+      .insert(sets)
+      .values({ accountId, galleryId: g.id, title: "Mein" })
+      .returning();
+    await db.insert(media).values({
+      accountId: otherId,
+      setId: mine.id,
+      type: "photo",
+      processingStatus: "ready",
+      variants: {
+        "400": { key: "x/400.webp", width: 400, height: 300, size: 1 },
+      },
+    });
+    const r = await loadPublicGallery({ db, storage }, "anna-ben");
+    expect(r!.sets[0].photos).toEqual([]);
   });
 });

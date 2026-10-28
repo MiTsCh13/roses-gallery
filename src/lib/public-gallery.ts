@@ -1,8 +1,9 @@
-import { and, asc, eq, isNull, or } from "drizzle-orm";
+import { and, asc, eq, inArray, isNull, or } from "drizzle-orm";
 
 import type { Db } from "@/db";
-import { accounts, galleries, sets, themes } from "@/db/schema";
+import { accounts, galleries, media, sets, themes } from "@/db/schema";
 import { LOGO_URL_TTL_SECONDS } from "@/lib/branding";
+import type { PhotoVariants } from "@/lib/photos";
 import type { Storage } from "@/lib/storage/types";
 import {
   DEFAULT_THEME,
@@ -19,8 +20,25 @@ export type PublicGallery = {
   eventDate: Date | null;
   config: ThemeConfig;
   logoUrl: string | null;
-  sets: { id: string; title: string; type: "photo" | "video" }[];
+  coverUrl: string | null;
+  sets: PublicSet[];
 };
+
+export type PublicPhoto = {
+  id: string;
+  src: string;
+  srcSet: string;
+  width: number;
+  height: number;
+};
+export type PublicSet = {
+  id: string;
+  title: string;
+  type: "photo" | "video";
+  photos: PublicPhoto[];
+};
+
+export const PHOTO_URL_TTL_SECONDS = 60 * 60;
 
 function parseConfig(raw: unknown): ThemeConfig | null {
   const r = themeConfigSchema.safeParse(raw);
@@ -83,6 +101,51 @@ export async function loadPublicGallery(
     .where(and(eq(sets.accountId, accountId), eq(sets.galleryId, gallery.id)))
     .orderBy(asc(sets.position));
 
+  const ready = rows.length
+    ? await deps.db
+        .select()
+        .from(media)
+        .where(
+          and(
+            eq(media.accountId, accountId),
+            inArray(
+              media.setId,
+              rows.map((r) => r.id),
+            ),
+            eq(media.type, "photo"),
+            eq(media.processingStatus, "ready"),
+          ),
+        )
+        .orderBy(asc(media.position), asc(media.createdAt))
+    : [];
+  const setIds = new Set(rows.map((r) => r.id));
+  const bySet = new Map<string, PublicPhoto[]>();
+  let coverUrl: string | null = null;
+  for (const m of ready) {
+    if (!setIds.has(m.setId)) continue;
+    const variants = Object.values(m.variants as PhotoVariants).sort(
+      (x, y) => x.width - y.width,
+    );
+    if (!variants.length) continue;
+    const signed = await Promise.all(
+      variants.map(async (v) => ({
+        ...v,
+        url: await deps.storage.signGet(v.key, PHOTO_URL_TTL_SECONDS),
+      })),
+    );
+    // default src: the mid-size variant (second smallest, else the only one)
+    const mid = signed[Math.min(1, signed.length - 1)];
+    const photo: PublicPhoto = {
+      id: m.id,
+      src: mid.url,
+      srcSet: signed.map((v) => `${v.url} ${v.width}w`).join(", "),
+      width: m.width ?? mid.width,
+      height: m.height ?? mid.height,
+    };
+    if (m.id === gallery.coverMediaId) coverUrl = signed.at(-1)!.url;
+    bySet.set(m.setId, [...(bySet.get(m.setId) ?? []), photo]);
+  }
+
   return {
     id: gallery.id,
     accountId,
@@ -90,6 +153,7 @@ export async function loadPublicGallery(
     eventDate: gallery.eventDate,
     config,
     logoUrl,
-    sets: rows,
+    coverUrl,
+    sets: rows.map((r) => ({ ...r, photos: bySet.get(r.id) ?? [] })),
   };
 }

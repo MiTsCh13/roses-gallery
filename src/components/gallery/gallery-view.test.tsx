@@ -54,4 +54,29 @@ describe("GalleryView", () => {
       expect(html).toContain(`data-cover="${theme.config.cover.style}"`);
     }
   });
+
+  it("renders responsive, lazy-loaded photos with a srcset", () => {
+    const html = renderToStaticMarkup(
+      <GalleryView
+        config={SYSTEM_THEMES[0].config}
+        title="T"
+        sets={[
+          {
+            id: "s",
+            title: "S",
+            tiles: [
+              {
+                id: "p",
+                src: "https://x.test/1200.webp",
+                srcSet:
+                  "https://x.test/400.webp 400w, https://x.test/1200.webp 1200w",
+              },
+            ],
+          },
+        ]}
+      />,
+    );
+    expect(html).toContain('srcSet="https://x.test/400.webp 400w');
+    expect(html).toContain('loading="lazy"');
+  });
 });
