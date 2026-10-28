@@ -12,11 +12,13 @@ import { db } from "@/db";
 import { sets } from "@/db/schema";
 import { tenantDb } from "@/db/tenant";
 import { DOWNLOAD_POLICIES } from "@/lib/download-policy";
+import { readWatermarkConfig, WATERMARK_POSITIONS } from "@/lib/watermark";
 import { requireAccount } from "@/lib/session";
 import { SortableList } from "@/components/sortable-list";
 import {
   createSetAction,
   reorderSetsAction,
+  saveWatermarkAction,
   setGalleryPasswordAction,
   updateGalleryAction,
 } from "../actions";
@@ -44,6 +46,8 @@ async function GalleryContent({
   if (!gallery) notFound();
   const gallerySets = await tenant.sets.list(eq(sets.galleryId, gallery.id));
   gallerySets.sort((a, b) => a.position - b.position);
+
+  const watermark = readWatermarkConfig(account.branding);
 
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-6 py-16">
@@ -122,8 +126,67 @@ async function GalleryContent({
             ))}
           </select>
         </label>
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            name="watermarkEnabled"
+            defaultChecked={gallery.watermarkEnabled}
+          />
+          <span>{t("watermarkEnable")}</span>
+        </label>
         <Button type="submit">{t("save")}</Button>
       </form>
+
+      <section aria-labelledby="watermark-title" className="max-w-md space-y-3">
+        <h2 id="watermark-title" className="text-lg font-medium">
+          {t("watermarkTitle")}
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          {typeof account.branding.logoKey === "string"
+            ? t("watermarkHint")
+            : t("watermarkNoLogo")}
+        </p>
+        <form action={saveWatermarkAction} className="space-y-3">
+          <input type="hidden" name="galleryId" value={gallery.id} />
+          <label className="block space-y-1 text-sm">
+            <span>{t("watermarkPosition")}</span>
+            <select
+              name="position"
+              defaultValue={watermark.position}
+              className="h-9 w-full rounded-md border bg-transparent px-3"
+            >
+              {WATERMARK_POSITIONS.map((p) => (
+                <option key={p} value={p}>
+                  {t(`watermarkPositions.${p}`)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="block space-y-1 text-sm">
+            <span>{t("watermarkOpacity")}</span>
+            <Input
+              name="opacity"
+              type="number"
+              min={5}
+              max={100}
+              defaultValue={watermark.opacity}
+            />
+          </label>
+          <label className="block space-y-1 text-sm">
+            <span>{t("watermarkScale")}</span>
+            <Input
+              name="scale"
+              type="number"
+              min={5}
+              max={60}
+              defaultValue={watermark.scale}
+            />
+          </label>
+          <Button type="submit" variant="outline">
+            {t("watermarkSave")}
+          </Button>
+        </form>
+      </section>
 
       <section aria-labelledby="password-title" className="max-w-md space-y-3">
         <h2 id="password-title" className="text-lg font-medium">

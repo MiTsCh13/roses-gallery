@@ -10,6 +10,7 @@ import {
   effectivePolicy,
 } from "@/lib/download-policy";
 import { GalleryError } from "@/lib/galleries";
+import { ensureWatermarked } from "@/lib/watermark";
 import { verifyAccessToken } from "@/lib/gallery-access";
 import type { PhotoVariants } from "@/lib/photos";
 import type { Storage } from "@/lib/storage/types";
@@ -120,11 +121,20 @@ export async function resolvePhotoDownload(
   if (input.size === "original") {
     key = row.media.originalKey;
   } else {
-    const largest = Object.values(row.media.variants as PhotoVariants).sort(
-      (x, y) => y.width - x.width,
-    )[0];
+    const [nominal, largest] =
+      Object.entries(row.media.variants as PhotoVariants).sort(
+        ([a], [b]) => Number(b) - Number(a),
+      )[0] ?? [];
     key = largest?.key ?? null;
     ext = ".webp";
+    if (key && gallery.watermarkEnabled) {
+      const stamped = await ensureWatermarked(deps, {
+        accountId: gallery.accountId,
+        media: row.media,
+        width: Number(nominal),
+      });
+      if (stamped) key = stamped.key;
+    }
   }
   if (!key) return { ok: false, reason: "not_found" };
 

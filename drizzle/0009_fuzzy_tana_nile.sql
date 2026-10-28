@@ -1,0 +1,1 @@
+ALTER TABLE "galleries" ADD COLUMN "watermark_enabled" boolean DEFAULT false NOT NULL;

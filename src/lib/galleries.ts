@@ -61,6 +61,7 @@ export const updateGallerySchema = z.object({
   status: z.enum(["draft", "published", "expired", "archived"]),
   coverMediaId: z.uuid().nullable().optional(),
   downloadPolicy: downloadPolicySchema.optional(),
+  watermarkEnabled: z.boolean().optional(),
 });
 
 export const createSetSchema = z.object({
@@ -163,6 +164,9 @@ export async function updateGallery(deps: Deps, input: unknown) {
       ...(expiryMoved ? { expiryReminderSentAt: null } : {}),
       status: data.status,
       ...(data.downloadPolicy ? { downloadPolicy: data.downloadPolicy } : {}),
+      ...(data.watermarkEnabled !== undefined
+        ? { watermarkEnabled: data.watermarkEnabled }
+        : {}),
       ...(data.coverMediaId !== undefined
         ? { coverMediaId: data.coverMediaId }
         : {}),

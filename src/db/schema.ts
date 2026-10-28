@@ -175,6 +175,8 @@ export const galleries = pgTable(
     premiereAt: timestamp("premiere_at", { withTimezone: true }),
     downloadPolicy: downloadPolicy("download_policy").notNull().default("web"),
     watermarkId: uuid("watermark_id"),
+    // F-SEC-03: web sizes carry the account's logo watermark; originals never do
+    watermarkEnabled: boolean("watermark_enabled").notNull().default(false),
     musicTrackId: uuid("music_track_id"),
     faceSearchEnabled: boolean("face_search_enabled").notNull().default(false),
     createdAt: createdAt(),

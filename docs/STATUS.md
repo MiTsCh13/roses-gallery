@@ -37,7 +37,7 @@
 - [x] Passwortschutz pro Galerie (F-SEC-01, D-122): `lib/gallery-access.ts` (scrypt-Hash, signiertes Zugangs-Cookie je Galerie, 7 Tage, ungültig nach Passwortwechsel), Redis-Rate-Limit (`lib/rate-limit.ts`, 5 Versuche/10 min je Besucher, 60/h je Galerie), Passwort-Formular auf `/g/[slug]` (gesperrte Galerie liefert nur Titel), Passwort setzen/entfernen im Dashboard. Tests: Unit (Postgres, Redis) + E2E
 - [x] Download-Rechte je Galerie und Set (F-SEC-02): `lib/download-policy.ts` (none/web/original, Set überschreibt Galerie), Auswahl im Dashboard (Galerie-Formular, Set-Seite), `GET /api/g/[slug]/download/[mediaId]?size=` → 302 auf signierte URL (60 s, `Content-Disposition`), gleiche Sichtbarkeitsregeln wie die Galerie (Passwort, Ablauf), Download-Links in der Lightbox. Offen/klein: Original-Download hat keine Dateiendung (Medien speichern keinen Dateinamen/Content-Type) – bei Bedarf Spalte ergänzen
 - [x] ZIP-Download als Worker-Job (F-SEC-02, D-123): Besucher gibt E-Mail an (`/g/[slug]`, Server Action, Rate-Limit 5/h), Job `build-zip` packt Fotos (`lib/zip-writer.ts`, Store-only, ohne Fremdpaket) nach `<account>/zips/<id>.zip` und mailt `/api/g/[slug]/zip/[id]` (302 auf signierte URL, 7 Tage gültig); Job `cleanup-zip-exports` stündlich. Tests: Unit gegen Postgres + unzip-Prüfung, kein E2E (Formular erscheint erst mit fertigen Fotos, Worker läuft in E2E nicht). Offen: ZIP nur Fotos (keine Videos), in-memory ≤ 1,5 GB (kein Streaming/ZIP64), `AUTH_URL` muss im Worker gesetzt sein (sonst `http://localhost:3000` im Link)
-- [ ] Wasserzeichen auf Web-Größen (F-SEC-03): Logo, Position, Deckkraft; Original unberührt
+- [x] Wasserzeichen auf Web-Größen (F-SEC-03, D-124): Logo des Accounts, Position/Deckkraft/Größe im Dashboard (Galerie-Seite), Schalter je Galerie (`galleries.watermarkEnabled`, Migration 0009). `lib/watermark.ts` stempelt lazy und cacht die Kopie im Storage (Schlüssel enthält Settings-Signatur); `/api/g/[slug]/img/[mediaId]?w=` (302 auf signierte URL) bedient Raster/Lightbox/Cover, Web-Download und Web-ZIP nutzen die gestempelte Kopie, Originale nie. Tests: Unit gegen Postgres (Pixelprüfung, Cache, Downloads, ZIP). Offen: alte Stempelkopien bleiben bei Einstellungswechsel im Storage (nicht gebucht, kein Cleanup); kein Plan-Gate (D-109: Bud+); Free-Plan ungeprüft
 - [ ] Favoriten mit mehreren Listen ohne Konto, Magic Link für Kunden (F-INT-01), Export an den Creator
 - [ ] Teilen per Link und Instagram-Story-Bild (F-INT-02)
 - [ ] Fertig-Kriterium M8: Passwort, ZIP-Download, Wasserzeichen, Favoritenlisten
@@ -79,6 +79,9 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-10-28 – M8 Wasserzeichen
+- F-SEC-03 fertig (D-124). Cloud: Postgres/Redis neu starten, Rolle/DBs anlegen. Nächster Schritt: Favoriten (mehrere Listen ohne Konto, Magic Link, Export), dann Teilen/Instagram-Story.
 
 ### 2026-10-28 – M8 ZIP-Download
 - ZIP per Mail fertig (D-123). Cloud: Postgres/Redis neu starten, Rolle `roses` + DBs anlegen. Nächster Schritt: Wasserzeichen auf Web-Größen (F-SEC-03), dann Favoriten.
