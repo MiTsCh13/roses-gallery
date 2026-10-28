@@ -63,7 +63,11 @@ test("create a gallery, edit it and add photo and video sets", async ({
   ]);
 
   // Reorder: move "Film" above "Trauung"; the order survives a reload.
+  const saved = page.waitForResponse(
+    (r) => r.request().method() === "POST" && r.url().includes("/galleries/"),
+  );
   await page.getByRole("button", { name: "Nach oben: Film" }).click();
+  await saved;
   await expect(page.getByTestId("set-list").locator("li")).toHaveText([
     /Film/,
     /Trauung/,
