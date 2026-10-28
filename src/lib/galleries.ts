@@ -133,8 +133,11 @@ export async function createGallery(deps: Deps, input: unknown) {
 export async function updateGallery(deps: Deps, input: unknown) {
   const { galleryId, ...data } = updateGallerySchema.parse(input);
   const t = tenantDb(deps.db, deps.accountId);
-  if (!(await t.galleries.get(galleryId)))
-    throw new GalleryError("not_found", "Gallery not found.");
+  const current = await t.galleries.get(galleryId);
+  if (!current) throw new GalleryError("not_found", "Gallery not found.");
+  // A moved expiry date needs a fresh reminder.
+  const expiryMoved =
+    current.expiresAt?.getTime() !== data.expiresAt?.getTime();
 
   if (data.coverMediaId) {
     const [cover] = await deps.db
@@ -158,6 +161,7 @@ export async function updateGallery(deps: Deps, input: unknown) {
       ...(data.slug ? { slug: data.slug } : {}),
       eventDate: data.eventDate,
       expiresAt: data.expiresAt,
+      ...(expiryMoved ? { expiryReminderSentAt: null } : {}),
       status: data.status,
       ...(data.coverMediaId !== undefined
         ? { coverMediaId: data.coverMediaId }

@@ -19,6 +19,12 @@ void scheduler.upsertJobScheduler(
   { name: "cleanup-stale-uploads", data: {} },
 );
 
+void scheduler.upsertJobScheduler(
+  "gallery-expiry",
+  { pattern: "0 7 * * *" },
+  { name: "gallery-expiry", data: {} },
+);
+
 worker.on("failed", (job, error) => {
   console.error(
     `[worker] job ${job?.name}#${job?.id} failed: ${error.message}`,

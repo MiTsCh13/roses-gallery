@@ -167,6 +167,9 @@ export const galleries = pgTable(
     coverMediaId: uuid("cover_media_id"),
     passwordHash: text("password_hash"),
     expiresAt: timestamp("expires_at", { withTimezone: true }),
+    expiryReminderSentAt: timestamp("expiry_reminder_sent_at", {
+      withTimezone: true,
+    }),
     premiereAt: timestamp("premiere_at", { withTimezone: true }),
     downloadPolicy: downloadPolicy("download_policy").notNull().default("web"),
     watermarkId: uuid("watermark_id"),

@@ -37,7 +37,7 @@
 - [x] Galerie anlegen/bearbeiten (`lib/galleries.ts`, Server Actions + Zod, Slug eindeutig je Account, Status inkl. neuem Wert `expired`, `assertCanCreateGallery` verdrahtet), Sets anlegen (Foto/Video), Übersicht `/dashboard/galleries` mit Status, Medien, Speicher, Ablauf
 - [ ] Drag-and-Drop-Sortierung von Sets und Medien (`position`), `/api/test/seed-set` durch die echte UI in den E2E-Tests ablösen
 - [ ] Cover wählen; Galerie-Übersicht mit Status, Speicher, Ablauf (F-DASH-01)
-- [ ] Täglicher Job: abgelaufene Galerien → „abgelaufen“, Erinnerung 7 Tage vorher (Postmark-Fake)
+- [x] Täglicher Job `gallery-expiry` (07:00 UTC): abgelaufene Galerien → „abgelaufen“, Erinnerung 7 Tage vorher (D-119), Mailer-Fake in Tests
 - [ ] Miniaturen im Dashboard über signierte Varianten-URLs
 
 ## Entscheidungsbedarf
@@ -53,6 +53,9 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-10-28 – M5 Ablauf-Job
+- Migration 0004 (`expiry_reminder_sent_at`), `lib/gallery-expiry.ts`, Job im Worker-Scheduler, Tests gegen Postgres. Neues Ablaufdatum setzt die Erinnerung zurück. D-119 angenommen.
 
 ### 2026-10-28 – M5 Galerie anlegen
 - Migration 0003 (`gallery_status` + `expired`), `lib/galleries.ts`, Dashboard-Seiten für Übersicht/Anlegen/Bearbeiten/Sets, Unit-Tests gegen Postgres, E2E. Hinweis E2E: mit Cache Components bleiben Vorseiten im DOM → Locators über Rollen statt `getByLabel`. Cloud: DB `roses_gallery` für E2E zusätzlich anlegen. D-117 weiter offen.

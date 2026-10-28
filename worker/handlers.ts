@@ -1,6 +1,8 @@
 import { db } from "@/db";
 import { processPhoto } from "@/lib/photos";
 import { cleanupStaleUploads } from "@/lib/upload-cleanup";
+import { runGalleryExpiry } from "@/lib/gallery-expiry";
+import { getMailer } from "@/lib/mailer";
 import { getStorage } from "@/lib/storage";
 import {
   isJobName,
@@ -19,6 +21,8 @@ export const handlers: Handlers = {
     processPhoto({ db: db(), storage: getStorage() }, payload),
   "cleanup-stale-uploads": async () =>
     cleanupStaleUploads({ db: db(), storage: getStorage() }),
+  "gallery-expiry": async () =>
+    runGalleryExpiry({ db: db(), mailer: getMailer() }),
 };
 
 export async function dispatch(name: string, data: unknown) {
