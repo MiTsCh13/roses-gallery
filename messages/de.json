@@ -145,6 +145,56 @@
     "open": "Öffnen",
     "moveUp": "Nach oben",
     "moveDown": "Nach unten",
-    "drag": "Zum Sortieren ziehen"
+    "drag": "Zum Sortieren ziehen",
+    "design": "Design"
+  },
+  "Design": {
+    "title": "Design",
+    "back": "← Zur Galerie",
+    "save": "Design speichern",
+    "saved": "Design gespeichert.",
+    "theme": "Theme",
+    "font": "Schrift",
+    "fontHeading": "Überschriften",
+    "fontBody": "Fließtext",
+    "fontOption": {
+      "serif": "Serif",
+      "sans": "Sans-Serif",
+      "elegant": "Elegant"
+    },
+    "colors": "Farben",
+    "color": {
+      "background": "Hintergrund",
+      "text": "Text",
+      "accent": "Akzent",
+      "muted": "Gedämpft"
+    },
+    "grid": "Raster",
+    "layout": "Layout",
+    "gap": "Abstand",
+    "layoutOption": {
+      "masonry": "Mauerwerk",
+      "uniform": "Gleichmäßig",
+      "rows": "Reihen"
+    },
+    "gapOption": {
+      "small": "Klein",
+      "medium": "Mittel",
+      "large": "Groß"
+    },
+    "cover": "Cover-Stil",
+    "coverOption": {
+      "full": "Vollbild",
+      "split": "Geteilt",
+      "minimal": "Minimal"
+    },
+    "preview": "Vorschau",
+    "desktop": "Desktop",
+    "mobile": "Mobil",
+    "previewSubtitle": "Vorschau",
+    "error": {
+      "invalid": "Ungültiges Design.",
+      "not_found": "Galerie oder Theme nicht gefunden."
+    }
   }
 }
