@@ -212,6 +212,9 @@
     "position": "{current} von {total}",
     "photoAlt": "Foto {n}",
     "videoTitle": "Film {n}",
-    "play": "{title} abspielen"
+    "play": "{title} abspielen",
+    "quality": "Qualität",
+    "qualityAuto": "Auto",
+    "playerError": "Das Video konnte nicht geladen werden."
   }
 }

@@ -42,6 +42,8 @@ export type PublicVideo = {
   durationS: number | null;
   /** Signed, short-lived embed URL; only loaded once the visitor presses play. */
   playUrl: string;
+  /** Signed HLS playlist for the own player; absent → embed iframe. */
+  hlsUrl?: string;
 };
 export type PublicSet = {
   id: string;
@@ -162,6 +164,9 @@ export async function loadPublicGallery(
           v.bunnyVideoId!,
           VIDEO_URL_TTL_SECONDS,
         ),
+        hlsUrl:
+          deps.video!.signHlsUrl(v.bunnyVideoId!, VIDEO_URL_TTL_SECONDS) ??
+          undefined,
       },
     ]);
   }

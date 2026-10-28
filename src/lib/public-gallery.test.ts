@@ -197,6 +197,7 @@ describe("loadPublicGallery", () => {
     expect(r?.sets[0].videos).toHaveLength(1);
     expect(r?.sets[0].videos[0].durationS).toBe(90);
     expect(r?.sets[0].videos[0].playUrl).toContain("/api/test/player/v-ready?");
+    expect(r?.sets[0].videos[0].hlsUrl).toBeUndefined();
     expect(r?.sets[0].photos).toEqual([]);
     // without a provider no video is exposed
     const none = await loadPublicGallery({ db, storage }, "anna-ben");

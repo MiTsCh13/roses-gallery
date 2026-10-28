@@ -3,10 +3,13 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
+import { HlsPlayer } from "./hls-player";
+
 export type GalleryViewVideo = {
   id: string;
   title: string;
   playUrl?: string;
+  hlsUrl?: string;
   durationS?: number | null;
 };
 
@@ -42,7 +45,14 @@ export function VideoShelf({
         style={{ background: "var(--g-muted)" }}
         data-testid="video-hero"
       >
-        {playing === hero.id && hero.playUrl ? (
+        {playing === hero.id && hero.hlsUrl ? (
+          <HlsPlayer
+            key={hero.id}
+            videoId={hero.id}
+            src={hero.hlsUrl}
+            title={hero.title}
+          />
+        ) : playing === hero.id && hero.playUrl ? (
           <iframe
             key={hero.id}
             src={hero.playUrl}
@@ -55,7 +65,7 @@ export function VideoShelf({
           <button
             type="button"
             onClick={() => setPlaying(hero.id)}
-            disabled={!hero.playUrl}
+            disabled={!hero.playUrl && !hero.hlsUrl}
             className="absolute inset-0 flex flex-col items-center justify-center gap-2 disabled:opacity-40"
             style={{
               background:
@@ -87,7 +97,7 @@ export function VideoShelf({
                   aria-pressed={v.id === hero.id}
                   onClick={() => {
                     setSelected(v.id);
-                    setPlaying(v.playUrl ? v.id : null);
+                    setPlaying(v.playUrl || v.hlsUrl ? v.id : null);
                   }}
                   className="block w-full text-left"
                 >

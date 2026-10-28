@@ -108,6 +108,28 @@ export class BunnyVideoProvider implements VideoProvider {
     return `https://iframe.mediadelivery.net/embed/${this.config.libraryId}/${videoId}?token=${token}&expires=${expires}`;
   }
 
+  /**
+   * Directory-scoped CDN token so the playlist and all segments share one token.
+   * Only offered with a dedicated pull-zone key (D-117); without it the embed is used.
+   */
+  signHlsUrl(videoId: string, ttlSeconds: number) {
+    const host = this.config.cdnHostname;
+    if (!host || !this.config.cdnTokenKey) return null;
+    const expires = Math.floor(Date.now() / 1000) + ttlSeconds;
+    const tokenPath = `/${videoId}/`;
+    const token = createHash("sha256")
+      .update(
+        `${this.config.cdnTokenKey}${tokenPath}${expires}token_path=${tokenPath}`,
+      )
+      .digest("base64url");
+    const query = new URLSearchParams({
+      token,
+      expires: String(expires),
+      token_path: tokenPath,
+    });
+    return `https://${host}${tokenPath}playlist.m3u8?${query}`;
+  }
+
   signOriginalUrl(videoId: string, ttlSeconds: number) {
     const host = this.config.cdnHostname;
     if (!host) throw new Error("BUNNY_STREAM_CDN_HOSTNAME is required.");

@@ -65,3 +65,36 @@ describe("VideoShelf", () => {
     );
   });
 });
+
+describe("video shelf with HLS", () => {
+  afterEach(cleanup);
+
+  it("uses the own player instead of the embed iframe when an HLS URL exists", () => {
+    render(
+      <NextIntlClientProvider locale="de" messages={messages}>
+        <GalleryView
+          config={SYSTEM_THEMES[0].config}
+          title="T"
+          sets={[
+            {
+              id: "s1",
+              title: "Highlight",
+              tiles: [],
+              videos: [
+                {
+                  id: "a",
+                  title: "Film 1",
+                  playUrl: "https://v.test/a",
+                  hlsUrl: "https://cdn.test/a/playlist.m3u8",
+                },
+              ],
+            },
+          ]}
+        />
+      </NextIntlClientProvider>,
+    );
+    fireEvent.click(screen.getByText("Film 1 abspielen"));
+    expect(screen.getByTestId("hls-video")).toBeTruthy();
+    expect(document.querySelector("iframe")).toBeNull();
+  });
+});
