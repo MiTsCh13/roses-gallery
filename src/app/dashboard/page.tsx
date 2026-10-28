@@ -25,6 +25,9 @@ async function DashboardContent() {
       <p data-testid="signed-in-as">
         {t("signedInAs", { email: session.user.email ?? "" })}
       </p>
+      <Link href="/dashboard/galleries" className="underline">
+        {t("galleries")}
+      </Link>
       <Link href="/dashboard/billing" className="underline">
         {t("billing")}
       </Link>
