@@ -8,7 +8,7 @@
 
 | ID | Frage | Vorläufige Annahme | Benötigt bis |
 | --- | --- | --- | --- |
-| – | Keine offenen Fragen | – | – |
+| D-117 | Original-Download liefert live 403 (auch signierte `playlist.m3u8`). Vermutung: Der Pull-Zone-Token-Key der Library (Bunny → Library → Delivery/Security → Pull-Zone *Token Authentication Key*) ist ein anderer als der Embed-Key `BUNNY_STREAM_TOKEN_KEY`. Bitte als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (ohne ihn wird der Embed-Key genutzt) | Code liest den Key bereits; Original-Download bleibt bis dahin ungeprüft | M4-Abnahme |
 
 Schlüssel bitte als Secrets in der Cloud-Umgebung (bzw. GitHub Actions Secrets) hinterlegen, nie ins Repo. Anleitung und Variablenliste: `docs/ZUGAENGE.md`.
 
@@ -39,4 +39,5 @@ Schlüssel bitte als Secrets in der Cloud-Umgebung (bzw. GitHub Actions Secrets)
 | D-113 | R2-Lifecycle-Regel für unvollständige Multipart-Uploads von Mitsch auf 3 Tage gesetzt; der Cleanup-Job (`cleanup-stale-uploads`) entfernt die zugehörigen DB-Zeilen nach 24 h | Vorgabe Mitsch | 2026-10-28 |
 | D-114 | Bunny-Webhook ist unsigniert → Body dient nur zur Identifikation, der Status wird per authentifizierter API abgefragt. Wiedergabe über Bunny-Embed mit Token (`sha256(tokenKey+videoId+expires)`); HLS-Eigenplayer folgt in M7. Gebucht wird die beim Start angekündigte Größe (tus erzwingt sie) | Sicherheit ohne Webhook-Signatur | 2026-10-28 |
 | D-116 | Bunny-Smoke-Test 2026-10-28 gegen echtes Bunny: Video anlegen → tus-Upload (Signatur korrekt) → Transkodierung bis `ready` mit Dauer/Auflösung → Status-Mapping stimmt. Embed-Token-URL ungeprüft (Host gesperrt) | – | 2026-10-28 |
+| D-118 | 4K-Test 2026-10-28 gegen echtes Bunny: 3840×2160-H.264 (13 MB) → tus → `ready` in unter 30 s mit korrekten Maßen; Embed-Token 200; Smoke-Video gelöscht | – | 2026-10-28 |
 | D-115 | Bunny: Keep Original Files aktiv, `BUNNY_STREAM_CDN_HOSTNAME` und `iframe.mediadelivery.net` ergänzt, Smoke-Video gelöscht. Embed-Token live geprüft (200). Original-URL-Signatur nach Bunny-Doku, live erst mit Hostname im nächsten Lauf prüfbar | Von Mitsch umgesetzt | 2026-10-28 |

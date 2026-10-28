@@ -12,7 +12,7 @@ Zugänge werden nur für die Abnahme gegen echte Dienste gebraucht.
 | Google OAuth | M1 | `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` | optional |
 | Stripe (Testmodus) | M2 | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | optional |
 | Cloudflare R2 | M3 | `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET` | optional |
-| Bunny Stream | M4 | `BUNNY_STREAM_LIBRARY_ID`, `BUNNY_STREAM_API_KEY`, `BUNNY_STREAM_TOKEN_KEY` | optional |
+| Bunny Stream | M4 | `BUNNY_STREAM_LIBRARY_ID`, `BUNNY_STREAM_API_KEY`, `BUNNY_STREAM_TOKEN_KEY`, `BUNNY_STREAM_CDN_HOSTNAME`, `BUNNY_STREAM_CDN_TOKEN_KEY` | optional |
 | Sentry (EU) | M10 | `SENTRY_DSN` | optional |
 
 Schalter: `MAIL_TRANSPORT`, `BILLING_TRANSPORT`, `STORAGE_TRANSPORT` (`fake` oder

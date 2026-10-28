@@ -32,6 +32,7 @@ export function getVideoProvider(): VideoProvider {
       apiKey: env.BUNNY_STREAM_API_KEY,
       tokenKey: env.BUNNY_STREAM_TOKEN_KEY,
       cdnHostname: env.BUNNY_STREAM_CDN_HOSTNAME,
+      cdnTokenKey: env.BUNNY_STREAM_CDN_TOKEN_KEY,
     });
   }
   return globalForVideo.video;
