@@ -2,6 +2,7 @@ import type { TusUpload, VideoInfo, VideoProvider } from "./types";
 
 /** Test double: videos live in memory; tests drive their status with `set`. */
 export class FakeVideoProvider implements VideoProvider {
+  readonly isFake = true;
   readonly videos = new Map<string, VideoInfo>();
   private counter = 0;
 
