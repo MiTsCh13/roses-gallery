@@ -1,3 +1,4 @@
+import { downloadPolicySchema } from "@/lib/download-policy";
 import { and, count, eq, max, sql } from "drizzle-orm";
 import { z } from "zod";
 
@@ -59,6 +60,7 @@ export const updateGallerySchema = z.object({
   ...fields,
   status: z.enum(["draft", "published", "expired", "archived"]),
   coverMediaId: z.uuid().nullable().optional(),
+  downloadPolicy: downloadPolicySchema.optional(),
 });
 
 export const createSetSchema = z.object({
@@ -160,6 +162,7 @@ export async function updateGallery(deps: Deps, input: unknown) {
       expiresAt: data.expiresAt,
       ...(expiryMoved ? { expiryReminderSentAt: null } : {}),
       status: data.status,
+      ...(data.downloadPolicy ? { downloadPolicy: data.downloadPolicy } : {}),
       ...(data.coverMediaId !== undefined
         ? { coverMediaId: data.coverMediaId }
         : {}),

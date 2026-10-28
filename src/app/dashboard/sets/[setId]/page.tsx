@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import {
   reorderMediaAction,
   setCoverAction,
+  setSetDownloadPolicyAction,
 } from "@/app/dashboard/galleries/actions";
 import { VideoPreview } from "@/components/video-preview";
 import { VideoUploader } from "@/components/video-uploader";
@@ -19,6 +20,7 @@ import { db } from "@/db";
 import { media } from "@/db/schema";
 import { tenantDb } from "@/db/tenant";
 import { formatBytes } from "@/lib/format";
+import { DOWNLOAD_POLICIES } from "@/lib/download-policy";
 import { requireAccount } from "@/lib/session";
 import { getVideoProvider } from "@/lib/video";
 import { syncVideo } from "@/lib/videos";
@@ -30,6 +32,7 @@ async function SetContent({ params }: { params: Promise<{ setId: string }> }) {
     requireAccount(),
     getTranslations("Upload"),
   ]);
+  const tg = await getTranslations("Galleries");
   if (!z.uuid().safeParse(setId).success) notFound();
 
   const tenant = tenantDb(db(), account.id);
@@ -51,6 +54,30 @@ async function SetContent({ params }: { params: Promise<{ setId: string }> }) {
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-6 py-16">
       <h1 className="text-2xl font-semibold tracking-tight">{set.title}</h1>
       <PhotoUploader setId={set.id} />
+      <form
+        action={setSetDownloadPolicyAction}
+        className="flex flex-wrap items-end gap-2"
+      >
+        <input type="hidden" name="setId" value={set.id} />
+        <label className="space-y-1 text-sm">
+          <span>{tg("downloadSet")}</span>
+          <select
+            name="downloadPolicy"
+            defaultValue={set.downloadPolicy ?? "inherit"}
+            className="block h-9 rounded-md border bg-transparent px-3"
+          >
+            <option value="inherit">{tg("downloadInherit")}</option>
+            {DOWNLOAD_POLICIES.map((p) => (
+              <option key={p} value={p}>
+                {tg(`download.${p}`)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <Button type="submit" variant="outline">
+          {tg("save")}
+        </Button>
+      </form>
       <section aria-labelledby="photos-title" className="space-y-3">
         <h2 id="photos-title" className="text-lg font-medium">
           {t("photos", { count: photos.length })}

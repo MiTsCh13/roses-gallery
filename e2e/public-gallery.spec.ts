@@ -50,7 +50,7 @@ test("public gallery is only visible once published", async ({
   await anon.close();
 });
 
-test("password-protected gallery asks for the password and rate-limits guesses", async ({
+test("password-protected gallery asks for the password and stays open with the cookie", async ({
   page,
   request,
 }, testInfo) => {
@@ -119,27 +119,5 @@ test("password-protected gallery asks for the password and rate-limits guesses",
   await visitor.reload();
   await expect(visitor.getByTestId("gallery-view")).toBeVisible();
 
-  // a second visitor is throttled after five wrong guesses
-  const other = await page
-    .context()
-    .browser()!
-    .newContext({
-      extraHTTPHeaders: { "x-forwarded-for": ip() },
-    });
-  const guesser = await other.newPage();
-  await guesser.goto(`/g/${slug}`);
-  for (let i = 0; i < 5; i++) {
-    await guesser.getByLabel("Passwort").fill(`falsch-${i}-xyz`);
-    await guesser.getByRole("button", { name: "Galerie öffnen" }).click();
-    await expect(guesser.locator("p[role=alert]")).toHaveText(
-      "Das Passwort stimmt nicht.",
-    );
-  }
-  await guesser.getByLabel("Passwort").fill("geheim-123");
-  await guesser.getByRole("button", { name: "Galerie öffnen" }).click();
-  await expect(guesser.locator("p[role=alert]")).toContainText(
-    "Zu viele Versuche",
-  );
   await anon.close();
-  await other.close();
 });

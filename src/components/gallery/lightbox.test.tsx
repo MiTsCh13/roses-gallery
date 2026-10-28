@@ -14,10 +14,10 @@ const tiles = [
   { id: "c", src: "https://x.test/c.webp", alt: "Foto 3" },
 ];
 
-function renderGrid() {
+function renderGrid(list: typeof tiles = tiles) {
   return render(
     <NextIntlClientProvider locale="de" messages={messages}>
-      <GalleryGrid layout={SYSTEM_THEMES[0].config.grid.layout} tiles={tiles} />
+      <GalleryGrid layout={SYSTEM_THEMES[0].config.grid.layout} tiles={list} />
     </NextIntlClientProvider>,
   );
 }
@@ -65,5 +65,28 @@ describe("Lightbox", () => {
     fireEvent.keyDown(window, { key: "Escape" });
     expect(screen.queryByTestId("lightbox")).toBeNull();
     expect(document.body.style.overflow).toBe("");
+  });
+
+  it("offers only the downloads the photo permits", () => {
+    renderGrid([
+      {
+        id: "a",
+        src: "https://x.test/a.webp",
+        alt: "Foto 1",
+        downloads: { web: "/dl/a?size=web", original: "/dl/a?size=original" },
+      },
+      { id: "b", src: "https://x.test/b.webp", alt: "Foto 2" },
+    ] as typeof tiles);
+    fireEvent.click(screen.getByRole("button", { name: "Foto 1" }));
+    expect(
+      screen.getByRole("link", { name: "Herunterladen" }).getAttribute("href"),
+    ).toBe("/dl/a?size=web");
+    expect(
+      screen
+        .getByRole("link", { name: "Original herunterladen" })
+        .getAttribute("href"),
+    ).toBe("/dl/a?size=original");
+    fireEvent.keyDown(window, { key: "ArrowRight" });
+    expect(screen.queryByRole("link")).toBeNull();
   });
 });

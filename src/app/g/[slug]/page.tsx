@@ -101,6 +101,7 @@ async function GalleryContent({
             src: p.src,
             srcSet: p.srcSet,
             alt: t("photoAlt", { n: n + 1 }),
+            downloads: p.downloads,
           })),
         }))}
       />
