@@ -8,8 +8,7 @@
 
 | ID | Frage | Vorläufige Annahme | Benötigt bis |
 | --- | --- | --- | --- |
-| D-111 | `BUNNY_STREAM_LIBRARY_ID` enthält den Platzhaltertext `BUNNY_STREAM_LIBRARY_ID` statt der numerischen Library-ID (Bunny: Stream → Library → API) | Bunny-Abnahme wartet; Video-Code (M4) gegen Fake | M4-Abnahme |
-| D-113 | R2-Bucket: Lifecycle-Regel „Unvollständige Multipart-Uploads nach 1 Tag abbrechen“ aktivieren (Cloudflare → R2 → Bucket → Einstellungen); der Cleanup-Job kennt die `uploadId` nicht und kann sie nicht abbrechen | Verwaiste Teile bleiben bis dahin kostenpflichtig im Bucket | vor Launch |
+| – | Keine offenen Fragen | – | – |
 
 Schlüssel bitte als Secrets in der Cloud-Umgebung (bzw. GitHub Actions Secrets) hinterlegen, nie ins Repo. Anleitung und Variablenliste: `docs/ZUGAENGE.md`.
 
@@ -35,3 +34,5 @@ Schlüssel bitte als Secrets in der Cloud-Umgebung (bzw. GitHub Actions Secrets)
 | D-005–D-007 | Zugänge (Postmark, Google-OAuth, Stripe-Testschlüssel, R2, Bunny Stream) liegen in den Umgebungsvariablen. Offen: `STRIPE_WEBHOOK_SECRET` (kommt erst mit öffentlicher Webhook-URL). **Smoke-Test 2026-10-27:** R2 vollständig grün (put/get, Multipart mit signierter Part-URL inkl. ETag, signGet, head, delete). Stripe, Postmark und Bunny nicht erreichbar: Proxy der Cloud-Umgebung blockt `api.stripe.com`, `api.postmarkapp.com`, `video.bunnycdn.com` (CONNECT 403) → siehe D-110. Google-Login nicht automatisierbar | Bestätigt von Mitsch | 2026-10-27 |
 | D-112 | Upload-UI mit eigenem, kleinem Uploader statt Uppy | Uppy 6 `aws-s3` nutzt s3mini/`signRequest` statt klassischer Multipart-Callbacks und passt nicht zur bestehenden API (`start/sign/complete/abort`); eigener Code ist kleiner und voll getestet | 2026-10-27 |
 | D-110 | Netzwerk-Allowlist um Stripe, Postmark, Bunny erweitert. Smoke-Test 2026-10-27: Stripe (Testmodus, Checkout-Session) und Postmark (Server-Abfrage, keine Mail gesendet) grün; Bunny scheitert an D-111. Webhook-Secret und Google-Login weiter ungetestet. R2-Bucket braucht CORS mit `ExposeHeaders: ETag` (aus der Cloud nicht prüfbar) | Von Mitsch umgesetzt | 2026-10-27 |
+| D-111 | Bunny-Library-ID von Mitsch in der Umgebung ergänzt (gilt ab dem nächsten Lauf); Bunny-Smoke-Test folgt zum Start von M4 | Vorgabe Mitsch | 2026-10-28 |
+| D-113 | R2-Lifecycle-Regel für unvollständige Multipart-Uploads von Mitsch auf 3 Tage gesetzt; der Cleanup-Job (`cleanup-stale-uploads`) entfernt die zugehörigen DB-Zeilen nach 24 h | Vorgabe Mitsch | 2026-10-28 |
