@@ -8,7 +8,7 @@
 
 | ID | Frage | Vorläufige Annahme | Benötigt bis |
 | --- | --- | --- | --- |
-| – | Keine offenen Fragen | – | – |
+| D-115 | (1) Bunny-Library: „Keep Original Files“ aktivieren und `BUNNY_STREAM_CDN_HOSTNAME` (Pull-Zone-Hostname der Library) ergänzen – nötig für den Original-Download (F-UP-04). (2) Netzwerk-Allowlist: `iframe.mediadelivery.net` (Embed-Token-Test) und das Pull-Zone-Hostname. (3) Test-Video „smoke-e2e“ (3 s) liegt noch in der Bunny-Library, der Cloud-Lauf durfte es nicht löschen – bitte manuell entfernen | Original-Download und Token-Wiedergabe bleiben bis dahin ungeprüft | bei Abschluss M4 |
 
 Schlüssel bitte als Secrets in der Cloud-Umgebung (bzw. GitHub Actions Secrets) hinterlegen, nie ins Repo. Anleitung und Variablenliste: `docs/ZUGAENGE.md`.
 
@@ -37,3 +37,4 @@ Schlüssel bitte als Secrets in der Cloud-Umgebung (bzw. GitHub Actions Secrets)
 | D-111 | Bunny-Library-ID von Mitsch in der Umgebung ergänzt (gilt ab dem nächsten Lauf); Bunny-Smoke-Test folgt zum Start von M4 | Vorgabe Mitsch | 2026-10-28 |
 | D-113 | R2-Lifecycle-Regel für unvollständige Multipart-Uploads von Mitsch auf 3 Tage gesetzt; der Cleanup-Job (`cleanup-stale-uploads`) entfernt die zugehörigen DB-Zeilen nach 24 h | Vorgabe Mitsch | 2026-10-28 |
 | D-114 | Bunny-Webhook ist unsigniert → Body dient nur zur Identifikation, der Status wird per authentifizierter API abgefragt. Wiedergabe über Bunny-Embed mit Token (`sha256(tokenKey+videoId+expires)`); HLS-Eigenplayer folgt in M7. Gebucht wird die beim Start angekündigte Größe (tus erzwingt sie) | Sicherheit ohne Webhook-Signatur | 2026-10-28 |
+| D-116 | Bunny-Smoke-Test 2026-10-28 gegen echtes Bunny: Video anlegen → tus-Upload (Signatur korrekt) → Transkodierung bis `ready` mit Dauer/Auflösung → Status-Mapping stimmt. Embed-Token-URL ungeprüft (Host gesperrt) | – | 2026-10-28 |

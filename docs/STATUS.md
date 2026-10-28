@@ -28,13 +28,13 @@
 - [x] Bunny-Smoke-Test (2026-10-28): Library erreichbar, API-Key gültig
 - [x] `VideoProvider` (Bunny + Fake, `VIDEO_TRANSPORT`), `lib/videos.ts` (start → tus-Parameter, Sync, Buchung genau einmal bei `ready`, signierte Embed-URL, Löschen), API `/api/videos/{start,refresh,playback,remove}`, Webhook `/api/bunny/webhook` (Body nicht vertraut, Status wird per API geholt). Gegen echtes Bunny nur Smoke-Test, kein Upload
 - [x] Upload-UI für Video-Sets (`VideoUploader`, tus-js-client, Fortschritt, Abbrechen) + Player-Vorschau (signierte Embed-URL erst per Klick) auf `/dashboard/sets/[setId]`; Seite zieht den Status offener Videos selbst nach (webhook-unabhängig). E2E gegen Fake-tus (`/api/test/tus`). Offen: Fortsetzen nach Reload
-- [ ] Original-Download (F-UP-04 „Original abrufbar“): Bunny-Original-Speicherung/URL klären
-- [ ] Fertig-Kriterium M4: 4K-Video hochgeladen und im Dashboard abspielbar (manuell gegen echtes Bunny)
+- [ ] Original-Download (F-UP-04 „Original abrufbar“): blockiert durch D-115 (Library-Einstellung + CDN-Hostname); danach signierte Original-URL bauen
+- [ ] Fertig-Kriterium M4: Upload→Encoding gegen echtes Bunny verifiziert (D-116, 720p-Testvideo); Abspielen im Dashboard braucht D-115 (Embed-Host), 4K-Test steht aus
 - [ ] Limit „Galerie anlegen“ (`assertCanCreateGallery`) mit M5
 
 ## Entscheidungsbedarf
 
-Keine offenen Fragen. Bunny-Library-ID ist ergänzt (D-111) → Bunny-Smoke-Test zu Beginn von M4. R2-Lifecycle steht (D-113).
+D-115 (Bunny: Original behalten, CDN-Hostname, Allowlist, Test-Video löschen). Bunny-Library-ID ist ergänzt (D-111) → Bunny-Smoke-Test zu Beginn von M4. R2-Lifecycle steht (D-113).
 
 ## Umgebung (Cloud-Sessions)
 
