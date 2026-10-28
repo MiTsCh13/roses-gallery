@@ -6,7 +6,12 @@ import {
   type GRID_LAYOUTS,
 } from "@/lib/themes";
 
-export type GalleryViewTile = { id: string; src?: string; alt?: string };
+export type GalleryViewTile = {
+  id: string;
+  src?: string;
+  srcSet?: string;
+  alt?: string;
+};
 export type GalleryViewSet = {
   id: string;
   title: string;
@@ -177,6 +182,10 @@ export function GalleryGrid({
         // eslint-disable-next-line @next/next/no-img-element -- signed, short-lived URLs bypass next/image
         <img
           src={t.src}
+          srcSet={t.srcSet}
+          sizes="(min-width: 42rem) 25vw, 50vw"
+          loading="lazy"
+          decoding="async"
           alt={t.alt ?? ""}
           className="h-full w-full object-cover"
         />
