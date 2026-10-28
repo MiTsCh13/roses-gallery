@@ -4,8 +4,8 @@
 > und `docs/DECISIONS.md`. Log kurz halten (max. 10 Einträge, ältere löschen –
 > die Git-Historie bleibt).
 
-**Aktueller Meilenstein:** M6 – Design-Editor (M4-Rest: nur Live-Abnahme Original-URL, D-117)
-**Stand main:** M0–M3 und M5 abgeschlossen (M2: Abnahme gegen echtes Stripe offen, D-006; M4: Original-URL live offen, D-117)
+**Aktueller Meilenstein:** M7 – Galerie-Ansicht & Player (M4-Rest: nur Live-Abnahme Original-URL, D-117)
+**Stand main:** M0–M3, M5 und M6 abgeschlossen (M2: Abnahme gegen echtes Stripe offen, D-006; M4: Original-URL live offen, D-117)
 
 ## Meilensteine
 
@@ -17,8 +17,8 @@
 | M3 | Foto-Upload & Verarbeitung | ✅ fertig (Limit „Galerie anlegen“ folgt mit M5) |
 | M4 | Video über Bunny Stream | ✅ fertig bis auf Live-Abnahme Original-URL (D-117) |
 | M5 | Galerie-Verwaltung | ✅ fertig (Reste unten) |
-| M6 | Design-Editor | 🚧 offen, aufgeschlüsselt |
-| M7 | Galerie-Ansicht & Player | offen |
+| M6 | Design-Editor | ✅ fertig |
+| M7 | Galerie-Ansicht & Player | 🚧 offen, aufgeschlüsselt |
 | M8 | Zugriff, Downloads, Favoriten | offen |
 | M9 | Auslieferung & Statistik | offen |
 | M10 | Härtung & Launch | offen |
@@ -32,13 +32,23 @@
 - [ ] Fertig-Kriterium M4: Upload→Encoding, 4K (D-118) und Embed-Token live verifiziert. **Offen nur Original-URL live:** 403 mit dem Embed-Key, vermutlich eigener Pull-Zone-Key → D-117 (Mitsch)
 - [x] Limit „Galerie anlegen“ (`assertCanCreateGallery`) mit M5
 
-## Nächste Schritte (M6, in dieser Reihenfolge)
+## Nächste Schritte (M7, in dieser Reihenfolge)
+
+- [ ] Öffentliche Route `/g/[slug]` (server-gerendert, mobile-first): Galerie nur bei Status `published` und nicht abgelaufen, sonst 404; Theme/Overrides + Logo (signierte URL) über `GalleryView`; slug ist pro Account eindeutig → Auflösung der Account-Zuordnung klären (Annahme in DECISIONS.md eintragen, z. B. globaler Slug oder `/g/[account]/[slug]`)
+- [ ] Foto-Sets: Raster mit echten Fotos (signierte Variantenlinks, `srcset`, lazy loading), Cover aus `coverMediaId`
+- [ ] Lightbox (Tastatur, Wischen, Vor/Zurück), E2E
+- [ ] Video-Reihen im Netflix-Stil (Hero-Video + Reihen je Video-Set), Hybrid-Galerie (F-GAL-03)
+- [ ] HLS-Player (hls.js): Qualitätswahl, Vollbild, Fortsetzen an letzter Position (localStorage)
+- [ ] AirPlay (Safari) und Chromecast (Cast SDK) – Fake/Feature-Detection für Tests
+- [ ] Performance: LCP < 2,5 s auf 4G prüfen (Lighthouse), Fertig-Kriterium M7
+
+## Nächste Schritte (M6, erledigt)
 
 - [x] Theme-Konfiguration als Zod-Schema (`lib/themes.ts`: Schrift, Farben, Raster-Layout, Cover-Stil, `themeCssVars`); 4 System-Themes (Klassisch, Modern, Romantisch, Dunkel) per Migration 0005 mit festen IDs, Test prüft Code ↔ Migration. `resetDb` legt die System-Themes nach dem Truncate neu an. Schriften vorerst System-Stacks (keine Webfonts)
 - [x] Galerie-Ansicht-Komponenten (`src/components/gallery/gallery-view.tsx`: `GalleryView`, `GalleryCover`, `GalleryGrid`), Theme per CSS-Variablen, responsiv per Container-Queries (Vorschau = schmaler Container, kein iframe nötig); Logo-Slot vorhanden
 - [ ] Editor `/dashboard/galleries/[id]/design`: Themewahl + Anpassung (Schrift, Farben, Raster, Cover-Stil), Speichern in `galleries.themeId`/Overrides; Live-Vorschau mit Umschalter Desktop/Mobil (iframe oder Container-Breite)
 - [x] Logo-Upload pro Account (`lib/branding.ts`, `POST /api/branding/logo`, Speicherung in `accounts.branding.logoKey`, PNG/JPEG/WebP per Magic Bytes, ≤1,5 MB, signierte URL); Anzeige in der Vorschau; E2E erweitert. Hinweis: kein Server-Action-Upload, weil `bodySizeLimit` global wirkt
-- [ ] Fertig-Kriterium M6 prüfen (UMSETZUNGSPLAN)
+- [x] Fertig-Kriterium M6 („4 Themes mit Live-Vorschau Desktop und Mobil“) per E2E erfüllt; Logo „in jeder Galerie“ folgt mit der öffentlichen Ansicht (M7)
 
 ## Reste aus M5 (niedrige Priorität)
 
@@ -58,6 +68,9 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-10-28 – M6 abgeschlossen
+- Fertig-Kriterium erfüllt, M7 aufgeschlüsselt.
 
 ### 2026-10-28 – M6 Logo
 - Logo-Upload, Test-Route `/api/test/storage` erkennt Fake-Storage per Duck-Typing (Bundles mit eigenen Klassenkopien). Hinweis E2E lokal: alte `next start`-Prozesse auf Port 3100 beenden, sonst wird ein veralteter Build wiederverwendet. Nächster Schritt: Fertig-Kriterium M6 prüfen, M7 aufschlüsseln.
