@@ -35,6 +35,7 @@ export type LockedGallery = {
 export type PublicGallery = {
   locked: false;
   id: string;
+  slug: string;
   accountId: string;
   title: string;
   eventDate: Date | null;
@@ -255,6 +256,7 @@ export async function loadPublicGallery(
   return {
     locked: false,
     id: gallery.id,
+    slug: gallery.slug,
     accountId,
     title: gallery.title,
     eventDate: gallery.eventDate,

@@ -9,6 +9,8 @@ const serverEnvSchema = z.object({
   DATABASE_URL: z.url(),
   REDIS_URL: z.url(),
   AUTH_SECRET: z.string().min(16).optional(),
+  // Public base URL of the app; used for links in mails sent by the worker.
+  AUTH_URL: z.url().optional(),
   AUTH_GOOGLE_ID: z.string().min(1).optional(),
   AUTH_GOOGLE_SECRET: z.string().min(1).optional(),
   MAIL_TRANSPORT: z.enum(["postmark", "fake"]).optional(),

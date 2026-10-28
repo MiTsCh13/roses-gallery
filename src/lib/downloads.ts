@@ -45,29 +45,21 @@ type Deps = {
 };
 
 /**
- * Signed download URL for one photo of a public gallery. Applies the same
- * visibility rules as the gallery itself (published, not expired, password)
- * plus the effective download policy; the URL lives for one minute.
+ * The gallery behind a public slug, if the visitor may see it: published, not
+ * expired and (when password protected) unlocked.
  */
-export async function resolvePhotoDownload(
-  deps: Deps,
-  input: { slug: string; mediaId: string; size: "web" | "original" },
-): Promise<DownloadResult> {
-  if (!z.uuid().safeParse(input.mediaId).success) {
-    return { ok: false, reason: "not_found" };
-  }
-  const now = deps.now ?? new Date();
+export async function findVisibleGallery(
+  deps: Pick<Deps, "db" | "accessSecret" | "accessToken">,
+  slug: string,
+  now: Date,
+) {
   const [gallery] = await deps.db
     .select()
     .from(galleries)
-    .where(eq(galleries.slug, input.slug))
+    .where(eq(galleries.slug, slug))
     .limit(1);
-  if (!gallery || gallery.status !== "published") {
-    return { ok: false, reason: "not_found" };
-  }
-  if (gallery.expiresAt && gallery.expiresAt <= now) {
-    return { ok: false, reason: "not_found" };
-  }
+  if (!gallery || gallery.status !== "published") return null;
+  if (gallery.expiresAt && gallery.expiresAt <= now) return null;
   if (
     gallery.passwordHash &&
     !(
@@ -80,8 +72,26 @@ export async function resolvePhotoDownload(
       )
     )
   ) {
+    return null;
+  }
+  return gallery;
+}
+
+/**
+ * Signed download URL for one photo of a public gallery. Applies the same
+ * visibility rules as the gallery itself (published, not expired, password)
+ * plus the effective download policy; the URL lives for one minute.
+ */
+export async function resolvePhotoDownload(
+  deps: Deps,
+  input: { slug: string; mediaId: string; size: "web" | "original" },
+): Promise<DownloadResult> {
+  if (!z.uuid().safeParse(input.mediaId).success) {
     return { ok: false, reason: "not_found" };
   }
+  const now = deps.now ?? new Date();
+  const gallery = await findVisibleGallery(deps, input.slug, now);
+  if (!gallery) return { ok: false, reason: "not_found" };
 
   const [row] = await deps.db
     .select({ media, setPolicy: sets.downloadPolicy })
