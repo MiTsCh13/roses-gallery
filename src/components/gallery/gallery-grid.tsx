@@ -13,6 +13,8 @@ export type GalleryViewTile = {
   alt?: string;
   /** Download links permitted for this photo (F-SEC-02). */
   downloads?: { web?: string; original?: string };
+  /** Story image URL (F-INT-02); only set when web downloads are allowed. */
+  story?: string;
 };
 
 export function GalleryGrid({

@@ -235,6 +235,10 @@
     "logoRemove": "Logo entfernen"
   },
   "PublicGallery": {
+    "shareLink": "Galerie-Link teilen",
+    "shareCopied": "Link kopiert.",
+    "shareStory": "Als Story teilen",
+    "shareStoryFailed": "Das Bild konnte nicht erstellt werden.",
     "favoriteAdd": "Zu Favoriten hinzufügen",
     "favoriteRemove": "Aus Favoriten entfernen",
     "favoritesTitle": "Deine Favoriten",
