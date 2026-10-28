@@ -8,6 +8,7 @@ import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { accounts, galleries, media, sets, themes } from "@/db/schema";
 import { createTestDb, resetDb } from "@/test/db";
 import { FakeStorage } from "@/lib/storage/fake";
+import { FakeVideoProvider } from "@/lib/video/fake";
 import { SYSTEM_THEMES } from "@/lib/themes";
 import { loadPublicGallery } from "./public-gallery";
 
@@ -173,5 +174,32 @@ describe("loadPublicGallery", () => {
     });
     const r = await loadPublicGallery({ db, storage }, "anna-ben");
     expect(r!.sets[0].photos).toEqual([]);
+  });
+
+  it("lists only ready videos of the own account with signed play URLs", async () => {
+    const video = new FakeVideoProvider();
+    const g = await gallery();
+    const [set] = await db
+      .insert(sets)
+      .values({ accountId, galleryId: g.id, title: "Filme", type: "video" })
+      .returning();
+    const base = { accountId, setId: set.id, type: "video" as const };
+    await db.insert(media).values([
+      {
+        ...base,
+        bunnyVideoId: "v-ready",
+        processingStatus: "ready",
+        durationS: 90,
+      },
+      { ...base, bunnyVideoId: "v-pending", processingStatus: "processing" },
+    ]);
+    const r = await loadPublicGallery({ db, storage, video }, "anna-ben");
+    expect(r?.sets[0].videos).toHaveLength(1);
+    expect(r?.sets[0].videos[0].durationS).toBe(90);
+    expect(r?.sets[0].videos[0].playUrl).toContain("/api/test/player/v-ready?");
+    expect(r?.sets[0].photos).toEqual([]);
+    // without a provider no video is exposed
+    const none = await loadPublicGallery({ db, storage }, "anna-ben");
+    expect(none?.sets[0].videos).toEqual([]);
   });
 });
