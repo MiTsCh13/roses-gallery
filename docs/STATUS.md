@@ -37,8 +37,8 @@
 - [x] Öffentliche Route `/g/[slug]` (`lib/public-gallery.ts`, `noindex`): nur `published` und nicht abgelaufen, sonst `notFound`; Theme/Overrides + Logo über `GalleryView`; Slugs global eindeutig (Migration 0007 benennt Dubletten um, `freeSlug` global, Retry bei Race). Hinweis: `notFound` kommt im gestreamten Suspense-Shell, daher HTTP 200 mit Not-Found-Inhalt (E2E prüft Inhalt). Cover/Fotos folgen im nächsten Schritt
 - [x] Foto-Sets: Raster mit echten Fotos (signierte Varianten 1 h, `srcset` 400/1200/2400, lazy loading), Cover aus `coverMediaId` (größte Variante); nur `ready`-Fotos. Kein E2E mit echten Bildern (Worker läuft in E2E nicht) – Unit-Tests gegen Postgres + Komponententest
 - [x] Lightbox (`lightbox.tsx`, `gallery-grid.tsx` jetzt Client-Komponente): Klick öffnet, Pfeiltasten/Buttons/Wischen, Esc, Fokus + Scroll-Sperre; `/g/[slug]` reicht Fotos und Cover jetzt tatsächlich durch (zuvor `tiles: []`). Tests als jsdom-Komponententests; kein E2E mit echten Bildern (Worker läuft in E2E nicht)
-- [ ] Video-Reihen im Netflix-Stil (Hero-Video + Reihen je Video-Set), Hybrid-Galerie (F-GAL-03)
-- [ ] HLS-Player (hls.js): Qualitätswahl, Vollbild, Fortsetzen an letzter Position (localStorage)
+- [x] Video-Reihen im Netflix-Stil (`video-shelf.tsx`: Hero-Player + Reihe je Video-Set, signierte Embed-URL 4 h, iframe erst nach Klick), Hybrid-Galerie (Video- und Foto-Sets gemeinsam). Nur `ready`-Videos; Titel „Film n“ (Medien haben keinen Titel), keine Poster/Thumbnails (Provider liefert noch keine). Kein E2E mit echtem Video-Set (Worker/Bunny-Fake) – Unit- und Komponententests
+- [ ] HLS-Player (hls.js; derzeit Bunny-Embed-iframe): Qualitätswahl, Vollbild, Fortsetzen an letzter Position (localStorage)
 - [ ] AirPlay (Safari) und Chromecast (Cast SDK) – Fake/Feature-Detection für Tests
 - [ ] Performance: LCP < 2,5 s auf 4G prüfen (Lighthouse), Fertig-Kriterium M7
 
@@ -69,6 +69,9 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 
 ## Log
 
+### 2026-10-28 – M7 Video-Reihen
+- `loadPublicGallery` liefert signierte Video-URLs, `VideoShelf` + Hybrid-Ansicht, Tests. Cloud: Rolle `roses` + DBs wieder anlegen (siehe oben). Nächster Schritt: HLS-Player (hls.js) mit Qualitätswahl/Fortsetzen; Thumbnails für Videos klären.
+
 ### 2026-10-28 – M7 Lightbox
 - Lightbox + Fotos/Cover auf `/g/[slug]` verdrahtet. Cloud: Rolle `roses` (superuser) und DBs `roses`, `roses_gallery`, `roses_gallery_test` neu anlegen, falls leer. Nächster Schritt: Video-Reihen (F-VID-01).
 
@@ -96,20 +99,3 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 ### 2026-10-28 – M5 Sortierung & Cover
 - `SortableList` (native DnD + Buttons), Server Actions, Unit-Tests (Reihenfolge, Mandantentrennung, Cover), E2E für Set-Reihenfolge inkl. Reload. Gesamt-E2E lokal 22/22.
 
-### 2026-10-28 – M5 Ablauf-Job
-- Migration 0004 (`expiry_reminder_sent_at`), `lib/gallery-expiry.ts`, Job im Worker-Scheduler, Tests gegen Postgres. Neues Ablaufdatum setzt die Erinnerung zurück. D-119 angenommen.
-
-### 2026-10-28 – M5 Galerie anlegen
-- Migration 0003 (`gallery_status` + `expired`), `lib/galleries.ts`, Dashboard-Seiten für Übersicht/Anlegen/Bearbeiten/Sets, Unit-Tests gegen Postgres, E2E. Hinweis E2E: mit Cache Components bleiben Vorseiten im DOM → Locators über Rollen statt `getByLabel`. Cloud: DB `roses_gallery` für E2E zusätzlich anlegen. D-117 weiter offen.
-
-### 2026-10-28 – M4 Live-Abnahme
-- 4K-Upload live grün; Original-URL 403 → optionaler `BUNNY_STREAM_CDN_TOKEN_KEY` (Fallback Embed-Key), Tests ergänzt. Frage D-117 offen.
-
-### 2026-10-28 – M4 Original-Download
-- D-115 erledigt (Keep Originals, Allowlist, CDN-Hostname). Embed-Token live bestätigt. Original-URL + Download-Button, Tests inkl. E2E.
-
-### 2026-10-28 – M4 Video-UI
-- Video-Sets in der Set-Seite, Fake-tus-Server und Test-Routen (`video-ready`, `player`) nur Nicht-Produktion/E2E; E2E setzt `VIDEO_TRANSPORT=fake`.
-
-### 2026-10-28 – M4 Bunny-Backend
-- Provider-Interface + Fake + Bunny, Video-Upload-API, Webhook, Buchung auf den Speicher beim Übergang zu `ready`. Tests gegen echtes Postgres bzw. gemocktes fetch. M3 abgeschlossen. Hinweis Cloud: Rolle/DB `roses` und `roses_gallery_test` müssen in frischer Umgebung per `su postgres` angelegt werden.

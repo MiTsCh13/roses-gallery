@@ -1,15 +1,17 @@
 import type { CSSProperties } from "react";
 
 import { GalleryGrid } from "./gallery-grid";
+import { VideoShelf, type GalleryViewVideo } from "./video-shelf";
 
 import { themeCssVars, type ThemeConfig } from "@/lib/themes";
 import type { GalleryViewTile } from "./gallery-grid";
 
-export type { GalleryViewTile };
+export type { GalleryViewTile, GalleryViewVideo };
 export type GalleryViewSet = {
   id: string;
   title: string;
   tiles: GalleryViewTile[];
+  videos?: GalleryViewVideo[];
 };
 
 export type GalleryViewProps = {
@@ -36,6 +38,9 @@ export function GalleryView({
   coverUrl,
   sets,
 }: GalleryViewProps) {
+  const videoRows = sets
+    .filter((set) => set.videos?.length)
+    .map((set) => ({ id: set.id, title: set.title, videos: set.videos! }));
   return (
     <div
       data-testid="gallery-view"
@@ -58,17 +63,20 @@ export function GalleryView({
         coverUrl={coverUrl}
       />
       <div className="mx-auto max-w-6xl space-y-10 px-4 py-8 @lg:px-8">
-        {sets.map((set) => (
-          <section key={set.id} aria-label={set.title} className="space-y-3">
-            <h2
-              className="text-xl"
-              style={{ fontFamily: "var(--g-font-heading)" }}
-            >
-              {set.title}
-            </h2>
-            <GalleryGrid layout={config.grid.layout} tiles={set.tiles} />
-          </section>
-        ))}
+        {videoRows.length > 0 && <VideoShelf rows={videoRows} />}
+        {sets
+          .filter((set) => !set.videos?.length)
+          .map((set) => (
+            <section key={set.id} aria-label={set.title} className="space-y-3">
+              <h2
+                className="text-xl"
+                style={{ fontFamily: "var(--g-font-heading)" }}
+              >
+                {set.title}
+              </h2>
+              <GalleryGrid layout={config.grid.layout} tiles={set.tiles} />
+            </section>
+          ))}
       </div>
     </div>
   );

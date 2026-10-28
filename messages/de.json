@@ -210,6 +210,8 @@
     "previous": "Vorheriges Foto",
     "next": "Nächstes Foto",
     "position": "{current} von {total}",
-    "photoAlt": "Foto {n}"
+    "photoAlt": "Foto {n}",
+    "videoTitle": "Film {n}",
+    "play": "{title} abspielen"
   }
 }

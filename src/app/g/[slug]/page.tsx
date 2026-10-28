@@ -8,6 +8,7 @@ import { GalleryView } from "@/components/gallery/gallery-view";
 import { db } from "@/db";
 import { loadPublicGallery } from "@/lib/public-gallery";
 import { getStorage } from "@/lib/storage";
+import { getVideoProvider } from "@/lib/video";
 
 // Never index client galleries.
 export const metadata: Metadata = { robots: { index: false, follow: false } };
@@ -15,7 +16,10 @@ export const metadata: Metadata = { robots: { index: false, follow: false } };
 async function load(params: Promise<{ slug: string }>) {
   await connection();
   const { slug } = await params;
-  return loadPublicGallery({ db: db(), storage: getStorage() }, slug);
+  return loadPublicGallery(
+    { db: db(), storage: getStorage(), video: getVideoProvider() },
+    slug,
+  );
 }
 
 async function GalleryContent({
@@ -36,6 +40,12 @@ async function GalleryContent({
         sets={gallery.sets.map((s) => ({
           id: s.id,
           title: s.title,
+          videos: s.videos.map((v, n) => ({
+            id: v.id,
+            title: t("videoTitle", { n: n + 1 }),
+            playUrl: v.playUrl,
+            durationS: v.durationS,
+          })),
           tiles: s.photos.map((p, n) => ({
             id: p.id,
             src: p.src,

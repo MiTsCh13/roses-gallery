@@ -1,17 +1,23 @@
-import { and, asc, eq, inArray, isNull, or } from "drizzle-orm";
+import { and, asc, eq, inArray, isNotNull, isNull, or } from "drizzle-orm";
 
 import type { Db } from "@/db";
 import { accounts, galleries, media, sets, themes } from "@/db/schema";
 import { LOGO_URL_TTL_SECONDS } from "@/lib/branding";
 import type { PhotoVariants } from "@/lib/photos";
 import type { Storage } from "@/lib/storage/types";
+import type { VideoProvider } from "@/lib/video/types";
 import {
   DEFAULT_THEME,
   themeConfigSchema,
   type ThemeConfig,
 } from "@/lib/themes";
 
-type Deps = { db: Db; storage: Storage; now?: Date };
+type Deps = {
+  db: Db;
+  storage: Storage;
+  video?: VideoProvider;
+  now?: Date;
+};
 
 export type PublicGallery = {
   id: string;
@@ -31,14 +37,22 @@ export type PublicPhoto = {
   width: number;
   height: number;
 };
+export type PublicVideo = {
+  id: string;
+  durationS: number | null;
+  /** Signed, short-lived embed URL; only loaded once the visitor presses play. */
+  playUrl: string;
+};
 export type PublicSet = {
   id: string;
   title: string;
   type: "photo" | "video";
   photos: PublicPhoto[];
+  videos: PublicVideo[];
 };
 
 export const PHOTO_URL_TTL_SECONDS = 60 * 60;
+export const VIDEO_URL_TTL_SECONDS = 4 * 60 * 60;
 
 function parseConfig(raw: unknown): ThemeConfig | null {
   const r = themeConfigSchema.safeParse(raw);
@@ -118,6 +132,39 @@ export async function loadPublicGallery(
         )
         .orderBy(asc(media.position), asc(media.createdAt))
     : [];
+  const readyVideos =
+    rows.length && deps.video
+      ? await deps.db
+          .select()
+          .from(media)
+          .where(
+            and(
+              eq(media.accountId, accountId),
+              inArray(
+                media.setId,
+                rows.map((r) => r.id),
+              ),
+              eq(media.type, "video"),
+              eq(media.processingStatus, "ready"),
+              isNotNull(media.bunnyVideoId),
+            ),
+          )
+          .orderBy(asc(media.position), asc(media.createdAt))
+      : [];
+  const videosBySet = new Map<string, PublicVideo[]>();
+  for (const v of readyVideos) {
+    videosBySet.set(v.setId, [
+      ...(videosBySet.get(v.setId) ?? []),
+      {
+        id: v.id,
+        durationS: v.durationS,
+        playUrl: deps.video!.signPlaybackUrl(
+          v.bunnyVideoId!,
+          VIDEO_URL_TTL_SECONDS,
+        ),
+      },
+    ]);
+  }
   const setIds = new Set(rows.map((r) => r.id));
   const bySet = new Map<string, PublicPhoto[]>();
   let coverUrl: string | null = null;
@@ -154,6 +201,10 @@ export async function loadPublicGallery(
     config,
     logoUrl,
     coverUrl,
-    sets: rows.map((r) => ({ ...r, photos: bySet.get(r.id) ?? [] })),
+    sets: rows.map((r) => ({
+      ...r,
+      photos: bySet.get(r.id) ?? [],
+      videos: videosBySet.get(r.id) ?? [],
+    })),
   };
 }
