@@ -7,7 +7,8 @@ function fake() {
   const env = serverEnv();
   if (env.NODE_ENV === "production" && env.E2E_TEST_MODE !== "1") return null;
   const storage = getStorage();
-  return storage instanceof FakeStorage ? storage : null;
+  // duck-typed: route bundles may hold distinct copies of the FakeStorage class
+  return "verifyUrl" in storage ? (storage as FakeStorage) : null;
 }
 
 export async function PUT(request: Request) {

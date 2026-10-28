@@ -34,6 +34,18 @@ test("switch theme and viewport in the design editor, then persist", async ({
     "mobile",
   );
 
+  const png = Buffer.from(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+    "base64",
+  );
+  await expect(page.getByTestId("gallery-logo")).toHaveCount(0);
+  await page
+    .getByLabel("Logo-Datei")
+    .setInputFiles({ name: "logo.png", mimeType: "image/png", buffer: png });
+  await page.getByRole("button", { name: "Logo hochladen" }).click();
+  await expect(page.getByTestId("gallery-logo")).toBeVisible();
+  await page.getByLabel("Theme").selectOption({ label: "Dunkel" });
+
   await page.getByRole("button", { name: "Design speichern" }).click();
   await expect(page.getByText("Design gespeichert.")).toBeVisible();
   await page.reload();
