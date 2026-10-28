@@ -35,7 +35,7 @@
 ## Nächste Schritte (M6, in dieser Reihenfolge)
 
 - [x] Theme-Konfiguration als Zod-Schema (`lib/themes.ts`: Schrift, Farben, Raster-Layout, Cover-Stil, `themeCssVars`); 4 System-Themes (Klassisch, Modern, Romantisch, Dunkel) per Migration 0005 mit festen IDs, Test prüft Code ↔ Migration. `resetDb` legt die System-Themes nach dem Truncate neu an. Schriften vorerst System-Stacks (keine Webfonts)
-- [ ] Galerie-Ansicht-Komponenten (`GalleryView`, Cover, Raster), die ein Theme per CSS-Variablen anwenden – dieselben Komponenten für Vorschau und echte Ansicht (M7)
+- [x] Galerie-Ansicht-Komponenten (`src/components/gallery/gallery-view.tsx`: `GalleryView`, `GalleryCover`, `GalleryGrid`), Theme per CSS-Variablen, responsiv per Container-Queries (Vorschau = schmaler Container, kein iframe nötig); Logo-Slot vorhanden
 - [ ] Editor `/dashboard/galleries/[id]/design`: Themewahl + Anpassung (Schrift, Farben, Raster, Cover-Stil), Speichern in `galleries.themeId`/Overrides; Live-Vorschau mit Umschalter Desktop/Mobil (iframe oder Container-Breite)
 - [ ] Logo-Upload pro Account (R2, signierte URL), Anzeige in der Vorschau/jeder Galerie; E2E: Theme wechseln → Vorschau ändert sich, Logo sichtbar
 - [ ] Fertig-Kriterium M6 prüfen (UMSETZUNGSPLAN)
@@ -58,6 +58,9 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-10-28 – M6 Ansicht-Komponenten
+- `GalleryView` mit 3 Cover-Stilen und 3 Raster-Layouts, Unit-Tests (SSR-Markup). Nächster Schritt: Editor-Seite `/design`.
 
 ### 2026-10-28 – M6 Themes
 - `lib/themes.ts`, Migration 0005 (System-Themes), Tests. Nächster Schritt: Ansichts-Komponenten.
