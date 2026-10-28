@@ -41,7 +41,7 @@ test("create a gallery, edit it and add photo and video sets", async ({
   ).toBeVisible();
   await expect(
     page.getByRole("textbox", { name: "Adresse (Slug)" }),
-  ).toHaveValue("anna-joerg");
+  ).toHaveValue(/^anna-joerg(-\d+)?$/);
 
   await page
     .getByRole("combobox", { name: "Status" })

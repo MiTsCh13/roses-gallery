@@ -49,14 +49,16 @@ describe("createGallery", () => {
     expect(g2.slug).toBe("anna-ben-2");
   });
 
-  it("allows the same slug in different accounts, not within one", async () => {
+  it("keeps slugs globally unique, also across accounts", async () => {
     await createGallery(a, { title: "X", slug: "hochzeit" });
     await expect(
       createGallery(a, { title: "Y", slug: "hochzeit" }),
     ).rejects.toMatchObject({ code: "slug_taken" });
     await expect(
       createGallery(b, { title: "Y", slug: "hochzeit" }),
-    ).resolves.toBeTruthy();
+    ).rejects.toMatchObject({ code: "slug_taken" });
+    const other = await createGallery(b, { title: "Hochzeit" });
+    expect(other.slug).toBe("hochzeit-2");
   });
 
   it("rejects invalid input", async () => {

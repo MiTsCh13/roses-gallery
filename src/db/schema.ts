@@ -180,7 +180,7 @@ export const galleries = pgTable(
     createdAt: createdAt(),
   },
   (t) => [
-    uniqueIndex("galleries_account_slug_idx").on(t.accountId, t.slug),
+    uniqueIndex("galleries_slug_idx").on(t.slug),
     index("galleries_account_idx").on(t.accountId),
   ],
 );

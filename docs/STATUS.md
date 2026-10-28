@@ -34,7 +34,7 @@
 
 ## Nächste Schritte (M7, in dieser Reihenfolge)
 
-- [ ] Öffentliche Route `/g/[slug]` (server-gerendert, mobile-first): Galerie nur bei Status `published` und nicht abgelaufen, sonst 404; Theme/Overrides + Logo (signierte URL) über `GalleryView`; Slugs werden dafür global eindeutig (Annahme D-120, Migration + `freeSlug` global)
+- [x] Öffentliche Route `/g/[slug]` (`lib/public-gallery.ts`, `noindex`): nur `published` und nicht abgelaufen, sonst `notFound`; Theme/Overrides + Logo über `GalleryView`; Slugs global eindeutig (Migration 0007 benennt Dubletten um, `freeSlug` global, Retry bei Race). Hinweis: `notFound` kommt im gestreamten Suspense-Shell, daher HTTP 200 mit Not-Found-Inhalt (E2E prüft Inhalt). Cover/Fotos folgen im nächsten Schritt
 - [ ] Foto-Sets: Raster mit echten Fotos (signierte Variantenlinks, `srcset`, lazy loading), Cover aus `coverMediaId`
 - [ ] Lightbox (Tastatur, Wischen, Vor/Zurück), E2E
 - [ ] Video-Reihen im Netflix-Stil (Hero-Video + Reihen je Video-Set), Hybrid-Galerie (F-GAL-03)
@@ -68,6 +68,9 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-10-28 – M7 öffentliche Route
+- `/g/[slug]`, globale Slugs (Migration 0007), Tests + E2E. Cloud: Postgres per `pg_ctlcluster 16 main start`, Rolle/DBs `roses`, `roses_gallery(_test)` anlegen, `redis-server --daemonize yes`. Nächster Schritt: Foto-Raster mit signierten Varianten.
 
 ### 2026-10-28 – M6 abgeschlossen
 - Fertig-Kriterium erfüllt, M7 aufgeschlüsselt.
