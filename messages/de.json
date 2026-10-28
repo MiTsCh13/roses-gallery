@@ -235,6 +235,28 @@
     "logoRemove": "Logo entfernen"
   },
   "PublicGallery": {
+    "favoriteAdd": "Zu Favoriten hinzufügen",
+    "favoriteRemove": "Aus Favoriten entfernen",
+    "favoritesTitle": "Deine Favoriten",
+    "favoritesEmpty": "Tippe auf das Herz bei einem Foto, um es zu merken.",
+    "favoritesNewList": "Neue Liste (z. B. Album)",
+    "favoritesCreate": "Liste anlegen",
+    "favoritesDelete": "Löschen",
+    "favoritesSend": "Aktuelle Liste an den Fotografen senden",
+    "favoritesLinkIntro": "Mit deiner E-Mail-Adresse öffnest du die Favoriten auf jedem Gerät. Wir schicken dir einen Link.",
+    "favoritesLinkSent": "Du hast einen Link angefordert. Du kannst ihn jederzeit erneut senden lassen.",
+    "favoritesEmail": "E-Mail-Adresse",
+    "favoritesLinkSubmit": "Link senden",
+    "favoritesMessage": {
+      "sent": "Die Liste wurde an den Fotografen gesendet.",
+      "link_sent": "Wir haben dir den Link per E-Mail geschickt.",
+      "invalid": "Das hat nicht geklappt. Bitte prüfe deine Eingabe.",
+      "limit": "Das Limit ist erreicht.",
+      "empty": "Die Liste ist leer.",
+      "not_found": "Das wurde nicht gefunden.",
+      "rate_limited": "Zu viele Versuche. Bitte warte etwas.",
+      "no_recipient": "Der Fotograf ist gerade nicht erreichbar."
+    },
     "download": "Herunterladen",
     "downloadOriginal": "Original herunterladen",
     "zipTitle": "Alles als ZIP herunterladen",

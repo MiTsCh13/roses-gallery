@@ -5,6 +5,16 @@ import { connection } from "next/server";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
+import {
+  FavoritesPanel,
+  FavoritesProvider,
+} from "@/components/gallery/favorites";
+import {
+  EMPTY_STATE,
+  loadFavoriteState,
+  resolveVisitor,
+  visitorCookieName,
+} from "@/lib/favorites";
 import { GalleryView } from "@/components/gallery/gallery-view";
 import { db } from "@/db";
 import { Button } from "@/components/ui/button";
@@ -18,6 +28,18 @@ import { requestZipAction, unlockGalleryAction } from "./actions";
 
 // Never index client galleries.
 export const metadata: Metadata = { robots: { index: false, follow: false } };
+
+async function loadFavorites(gallery: { id: string; accountId: string }) {
+  const secret = serverEnv().AUTH_SECRET;
+  if (!secret) return EMPTY_STATE;
+  const jar = await cookies();
+  const visitor = await resolveVisitor(
+    { db: db(), secret },
+    gallery,
+    jar.get(visitorCookieName(gallery.id))?.value,
+  );
+  return loadFavoriteState({ db: db() }, gallery, visitor?.id ?? null);
+}
 
 async function load(params: Promise<{ slug: string }>) {
   await connection();
@@ -79,91 +101,95 @@ async function GalleryContent({
     );
   }
   const { zip } = await searchParams;
+  const favorites = await loadFavorites(gallery);
   const photoSets = gallery.sets.filter((s) => s.photos.length > 0);
   return (
-    <main className="flex-1">
-      <GalleryView
-        config={gallery.config}
-        title={gallery.title}
-        logoUrl={gallery.logoUrl ?? undefined}
-        coverUrl={gallery.coverUrl ?? undefined}
-        coverSrcSet={gallery.coverSrcSet ?? undefined}
-        sets={gallery.sets.map((s) => ({
-          id: s.id,
-          title: s.title,
-          videos: s.videos.map((v, n) => ({
-            id: v.id,
-            title: t("videoTitle", { n: n + 1 }),
-            playUrl: v.playUrl,
-            hlsUrl: v.hlsUrl,
-            durationS: v.durationS,
-          })),
-          tiles: s.photos.map((p, n) => ({
-            id: p.id,
-            src: p.src,
-            srcSet: p.srcSet,
-            alt: t("photoAlt", { n: n + 1 }),
-            downloads: p.downloads,
-          })),
-        }))}
-      />
-      {photoSets.length > 0 && (
-        <section className="mx-auto w-full max-w-xl space-y-3 px-6 py-10">
-          <h2 className="text-lg font-semibold">{t("zipTitle")}</h2>
-          <p className="text-sm text-muted-foreground">{t("zipIntro")}</p>
-          {zip && (
-            <p
-              role={zip === "sent" ? "status" : "alert"}
-              className={
-                zip === "sent" ? "text-sm" : "text-sm text-destructive"
-              }
-            >
-              {t.has(`zipResult.${zip}`)
-                ? t(`zipResult.${zip}`)
-                : t("zipResult.invalid")}
-            </p>
-          )}
-          <form action={requestZipAction} className="space-y-3">
-            <input type="hidden" name="slug" value={gallery.slug} />
-            <label className="block space-y-1 text-sm">
-              <span>{t("zipSet")}</span>
-              <select
-                name="setId"
-                className="h-9 w-full rounded-md border bg-background px-2"
+    <FavoritesProvider slug={gallery.slug} initial={favorites}>
+      <main className="flex-1">
+        <GalleryView
+          config={gallery.config}
+          title={gallery.title}
+          logoUrl={gallery.logoUrl ?? undefined}
+          coverUrl={gallery.coverUrl ?? undefined}
+          coverSrcSet={gallery.coverSrcSet ?? undefined}
+          sets={gallery.sets.map((s) => ({
+            id: s.id,
+            title: s.title,
+            videos: s.videos.map((v, n) => ({
+              id: v.id,
+              title: t("videoTitle", { n: n + 1 }),
+              playUrl: v.playUrl,
+              hlsUrl: v.hlsUrl,
+              durationS: v.durationS,
+            })),
+            tiles: s.photos.map((p, n) => ({
+              id: p.id,
+              src: p.src,
+              srcSet: p.srcSet,
+              alt: t("photoAlt", { n: n + 1 }),
+              downloads: p.downloads,
+            })),
+          }))}
+        />
+        {photoSets.length > 0 && <FavoritesPanel />}
+        {photoSets.length > 0 && (
+          <section className="mx-auto w-full max-w-xl space-y-3 px-6 py-10">
+            <h2 className="text-lg font-semibold">{t("zipTitle")}</h2>
+            <p className="text-sm text-muted-foreground">{t("zipIntro")}</p>
+            {zip && (
+              <p
+                role={zip === "sent" ? "status" : "alert"}
+                className={
+                  zip === "sent" ? "text-sm" : "text-sm text-destructive"
+                }
               >
-                <option value="">{t("zipAllSets")}</option>
-                {photoSets.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.title}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="block space-y-1 text-sm">
-              <span>{t("zipSize")}</span>
-              <select
-                name="size"
-                className="h-9 w-full rounded-md border bg-background px-2"
-              >
-                <option value="web">{t("zipWeb")}</option>
-                <option value="original">{t("zipOriginal")}</option>
-              </select>
-            </label>
-            <label className="block space-y-1 text-sm">
-              <span>{t("zipEmail")}</span>
-              <Input
-                name="email"
-                type="email"
-                required
-                maxLength={254}
-                autoComplete="email"
-              />
-            </label>
-            <Button type="submit">{t("zipSubmit")}</Button>
-          </form>
-        </section>
-      )}
-    </main>
+                {t.has(`zipResult.${zip}`)
+                  ? t(`zipResult.${zip}`)
+                  : t("zipResult.invalid")}
+              </p>
+            )}
+            <form action={requestZipAction} className="space-y-3">
+              <input type="hidden" name="slug" value={gallery.slug} />
+              <label className="block space-y-1 text-sm">
+                <span>{t("zipSet")}</span>
+                <select
+                  name="setId"
+                  className="h-9 w-full rounded-md border bg-background px-2"
+                >
+                  <option value="">{t("zipAllSets")}</option>
+                  {photoSets.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.title}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="block space-y-1 text-sm">
+                <span>{t("zipSize")}</span>
+                <select
+                  name="size"
+                  className="h-9 w-full rounded-md border bg-background px-2"
+                >
+                  <option value="web">{t("zipWeb")}</option>
+                  <option value="original">{t("zipOriginal")}</option>
+                </select>
+              </label>
+              <label className="block space-y-1 text-sm">
+                <span>{t("zipEmail")}</span>
+                <Input
+                  name="email"
+                  type="email"
+                  required
+                  maxLength={254}
+                  autoComplete="email"
+                />
+              </label>
+              <Button type="submit">{t("zipSubmit")}</Button>
+            </form>
+          </section>
+        )}
+      </main>
+    </FavoritesProvider>
   );
 }
 
