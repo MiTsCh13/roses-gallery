@@ -4,8 +4,8 @@
 > und `docs/DECISIONS.md`. Log kurz halten (max. 10 Einträge, ältere löschen –
 > die Git-Historie bleibt).
 
-**Aktueller Meilenstein:** M4 – Video über Bunny Stream
-**Stand main:** M0–M2 abgeschlossen (M2: Abnahme gegen echtes Stripe offen, D-006)
+**Aktueller Meilenstein:** M6 – Design-Editor (M4-Rest: nur Live-Abnahme Original-URL, D-117)
+**Stand main:** M0–M3 und M5 abgeschlossen (M2: Abnahme gegen echtes Stripe offen, D-006; M4: Original-URL live offen, D-117)
 
 ## Meilensteine
 
@@ -15,9 +15,9 @@
 | M1 | Datenmodell & Login | ✅ fertig |
 | M2 | Abo & Planlimits | ✅ fertig (Stripe nur gegen Fake getestet) |
 | M3 | Foto-Upload & Verarbeitung | ✅ fertig (Limit „Galerie anlegen“ folgt mit M5) |
-| M4 | Video über Bunny Stream | 🚧 in Arbeit |
-| M5 | Galerie-Verwaltung | offen |
-| M6 | Design-Editor | offen |
+| M4 | Video über Bunny Stream | ✅ fertig bis auf Live-Abnahme Original-URL (D-117) |
+| M5 | Galerie-Verwaltung | ✅ fertig (Reste unten) |
+| M6 | Design-Editor | 🚧 offen, aufgeschlüsselt |
 | M7 | Galerie-Ansicht & Player | offen |
 | M8 | Zugriff, Downloads, Favoriten | offen |
 | M9 | Auslieferung & Statistik | offen |
@@ -32,14 +32,18 @@
 - [ ] Fertig-Kriterium M4: Upload→Encoding, 4K (D-118) und Embed-Token live verifiziert. **Offen nur Original-URL live:** 403 mit dem Embed-Key, vermutlich eigener Pull-Zone-Key → D-117 (Mitsch)
 - [x] Limit „Galerie anlegen“ (`assertCanCreateGallery`) mit M5
 
-## Vorbereitet: M5 (Galerie-Verwaltung), nächste Schritte nach M4-Rest
+## Nächste Schritte (M6, in dieser Reihenfolge)
 
-- [x] Galerie anlegen/bearbeiten (`lib/galleries.ts`, Server Actions + Zod, Slug eindeutig je Account, Status inkl. neuem Wert `expired`, `assertCanCreateGallery` verdrahtet), Sets anlegen (Foto/Video), Übersicht `/dashboard/galleries` mit Status, Medien, Speicher, Ablauf
-- [x] Sortierung von Sets und Fotos (`SortableList`: Drag-and-Drop + Hoch/Runter-Buttons, `reorderSets/reorderMedia` prüfen die vollständige ID-Liste). Offen: Video-Sortierung in der Video-Set-Seite, `/api/test/seed-set` durch die echte UI in den E2E-Tests ablösen (upload/video-Specs)
-- [x] Cover wählen (Button je fertigem Foto auf der Set-Seite, `setGalleryCover`); Galerie-Übersicht steht
-- [ ] Cover in der Übersicht anzeigen (mit Miniaturen, s. u.)
-- [x] Täglicher Job `gallery-expiry` (07:00 UTC): abgelaufene Galerien → „abgelaufen“, Erinnerung 7 Tage vorher (D-119), Mailer-Fake in Tests
-- [ ] Miniaturen im Dashboard über signierte Varianten-URLs
+- [ ] Theme-Konfiguration als Zod-Schema (`lib/themes.ts`): Schrift, Farben, Raster-Layout, Cover-Stil; 4 System-Themes (accountId null) per Migration/Seed; Test: Schema validiert alle 4
+- [ ] Galerie-Ansicht-Komponenten (`GalleryView`, Cover, Raster), die ein Theme per CSS-Variablen anwenden – dieselben Komponenten für Vorschau und echte Ansicht (M7)
+- [ ] Editor `/dashboard/galleries/[id]/design`: Themewahl + Anpassung (Schrift, Farben, Raster, Cover-Stil), Speichern in `galleries.themeId`/Overrides; Live-Vorschau mit Umschalter Desktop/Mobil (iframe oder Container-Breite)
+- [ ] Logo-Upload pro Account (R2, signierte URL), Anzeige in der Vorschau/jeder Galerie; E2E: Theme wechseln → Vorschau ändert sich, Logo sichtbar
+- [ ] Fertig-Kriterium M6 prüfen (UMSETZUNGSPLAN)
+
+## Reste aus M5 (niedrige Priorität)
+
+- [ ] Sortierung auch für Videos (Video-Set-Seite), Miniaturen/Cover in der Galerie-Übersicht über signierte Varianten-URLs
+- [ ] `/api/test/seed-set` in den Upload-/Video-E2E-Tests durch die echte UI ersetzen und Route entfernen
 
 ## Entscheidungsbedarf
 
@@ -54,6 +58,9 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-10-28 – M5 abgeschlossen
+- Fertig-Kriterium (Galerie mit Sets anlegen, sortieren, veröffentlichen) per E2E erfüllt. M6 aufgeschlüsselt.
 
 ### 2026-10-28 – M5 Sortierung & Cover
 - `SortableList` (native DnD + Buttons), Server Actions, Unit-Tests (Reihenfolge, Mandantentrennung, Cover), E2E für Set-Reihenfolge inkl. Reload. Gesamt-E2E lokal 22/22.
@@ -81,45 +88,3 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 
 ### 2026-10-27 – M3 Upload-UI
 - `lib/upload-client.ts` (Multipart je Teil mit Retry/neuer Signatur, Abbruch → `abort`), `PhotoUploader`, Set-Seite mit Foto-Liste und Auto-Refresh bei `pending`; Test-Route `/api/test/seed-set` bis M5. CI-E2E bekommt Redis (Enqueue in `complete`), E2E nutzt `STORAGE_TRANSPORT=fake`.
-
-### 2026-10-27 – M3 Ersetzen (Revision)
-- Eigener Multipart-Ablauf für Ersetzungen; live bleibt die alte Revision bis der neue Upload komplett ist. Tests gegen echtes Postgres (Revision, Byte-Freigabe, Quota, Mandantentrennung). Alte Revisionen werden nicht archiviert (Annahme; Spec F-UP-05 verlangt nur Erhalt von URL/Favoriten/Reihenfolge).
-
-### 2026-10-27 – M3 process-photo
-- Job `process-photo` (Zod-Payload, idempotent, accountId-gefiltert), Varianten in `media.variants`, `width/height/takenAt`; Fehler → Status `failed` + BullMQ-Retry. HEIC/RAW noch nicht (Upload-API erlaubt nur JPEG/PNG/WebP/TIFF).
-
-### 2026-10-27 – M3 Upload-API
-- `lib/uploads.ts` (Zod, Quota-Check beim Start und mit echter Größe beim Abschluss, accountId-Filter), Route `/api/uploads/[action]`, Fake-Storage-Route `/api/test/storage` (nur Nicht-Produktion/E2E). Tests gegen echtes Postgres.
-
-### 2026-10-27 – M3 Storage
-- `Storage`-Interface + `FakeStorage` (HMAC-signierte URLs) + `R2Storage`; `STORAGE_TRANSPORT`.
-
-### 2026-10-27 – D-001 umgesetzt
-- Pläne: Free / Bud 10 € / Bloom 20 € / Bouquet 50 € / Enterprise (auf Anfrage), `PURCHASABLE_PLAN_IDS` für Checkout; Enterprise-Karte auf der Abo-Seite.
-
-### 2026-10-27 – M2 abgeschlossen
-- Fertig-Kriterium: Testabo-Fluss (Checkout → Webhook → Plan) per E2E gegen Fake, Limits per Unit-Tests. Echte Stripe-Abnahme wartet auf D-006. M3 aufgeschlüsselt.
-
-### 2026-10-27 – M2 Abo-Seite
-- `/dashboard/billing`: Plan, Status, Trial-Ende, Speicherbalken, Plan-Wahl (monatlich/jährlich) → Checkout, „Abo verwalten“ → Portal. E2E mit Fake-Billing inkl. simuliertem Webhook.
-
-### 2026-10-27 – M2 Billing-Backend
-- `lib/billing`: `BillingProvider` (Stripe + Fake, `BILLING_TRANSPORT`), Checkout mit `price_data` in EUR + 14 Tage Trial, Portal-Session, Webhook `/api/stripe/webhook` (Signaturprüfung, veraltete Events werden ignoriert via `billing_event_at`). Gegen echtes Stripe ungetestet (D-006).
-
-### 2026-10-27 – M2 Planlimits
-- `lib/plans.ts` mit Platzhalterplänen (D-001), Abo-Spalten am Account, Tests der Limit-/Feature-Prüfung. M1-Fertig-Kriterium (Registrieren + Einloggen) per E2E erfüllt.
-
-### 2026-10-27 – M1 Datenmodell (Teil 1)
-- Drizzle-Schema + Migration (inkl. Auth.js-Tabellen `auth_*`), DB-Integrationstests gegen echtes Postgres (CI-Service-Container; lokal: `service postgresql start`, Rolle/DB `roses`).
-- `src/db/tenant.ts`: `tenantDb(db, accountId)` erzwingt accountId bei list/get/create/update/remove; Test „Creator liest keine fremde Galerie“.
-
-### 2026-10-27 – M1 Auth
-- Auth.js v5: Magic Link (Postmark-Mailer + Fake-Mailer, `MAIL_TRANSPORT`), optional Google; Adapter legt bei Registrierung Account + Owner-User an. `/login`, `/login/check-email`, `/dashboard` (Platzhalter), E2E des Magic-Link-Flows (CI-E2E mit Postgres).
-- `.env.local` für Dev: `AUTH_SECRET` (≥16 Zeichen), `AUTH_URL`; ohne Postmark-Token wird automatisch der Fake-Mailer genutzt (nur Nicht-Produktion).
-
-### 2026-10-27 – M0 Projekt-Setup
-- Spec, Umsetzungsplan, CLAUDE.md nach `main`.
-- Next.js 16.4 (App Router, Cache Components), TypeScript strict, Tailwind 4, shadcn/ui-Basis (Button), ESLint + Prettier.
-- next-intl (nur Deutsch, `messages/de.json`), Drizzle + postgres.js, docker-compose (Postgres 16, Redis 7), BullMQ-Queue-Registry mit Zod-Validierung + Worker (`pnpm worker`, lokal gegen Redis verifiziert).
-- Vitest (12 Unit-Tests), Playwright (Desktop + Mobil, 6 Tests), Security-Header, `/api/health`.
-- GitHub Actions: lint/format/typecheck/unit, E2E, `pnpm audit` + gitleaks; Dependabot.
