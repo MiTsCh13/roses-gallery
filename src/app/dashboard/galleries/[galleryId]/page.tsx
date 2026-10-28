@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { db } from "@/db";
 import { sets } from "@/db/schema";
 import { tenantDb } from "@/db/tenant";
+import { DOWNLOAD_POLICIES } from "@/lib/download-policy";
 import { requireAccount } from "@/lib/session";
 import { SortableList } from "@/components/sortable-list";
 import {
@@ -103,6 +104,20 @@ async function GalleryContent({
             {STATUSES.map((s) => (
               <option key={s} value={s}>
                 {t(`status.${s}`)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="block space-y-1 text-sm">
+          <span>{t("downloadGallery")}</span>
+          <select
+            name="downloadPolicy"
+            defaultValue={gallery.downloadPolicy}
+            className="h-9 w-full rounded-md border bg-transparent px-3"
+          >
+            {DOWNLOAD_POLICIES.map((p) => (
+              <option key={p} value={p}>
+                {t(`download.${p}`)}
               </option>
             ))}
           </select>

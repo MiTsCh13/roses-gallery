@@ -114,6 +114,15 @@
     "back": "← Alle Galerien",
     "save": "Speichern",
     "saved": "Gespeichert.",
+    "downloadTitle": "Downloads",
+    "downloadGallery": "Downloads für diese Galerie",
+    "downloadSet": "Downloads für dieses Set",
+    "downloadInherit": "Wie Galerie",
+    "download": {
+      "none": "Aus",
+      "web": "Web-Größe",
+      "original": "Original"
+    },
     "passwordTitle": "Passwortschutz",
     "passwordOn": "Die Galerie ist durch ein Passwort geschützt.",
     "passwordOff": "Die Galerie ist ohne Passwort über den Link erreichbar.",
@@ -211,6 +220,8 @@
     "logoRemove": "Logo entfernen"
   },
   "PublicGallery": {
+    "download": "Herunterladen",
+    "downloadOriginal": "Original herunterladen",
     "passwordIntro": "Diese Galerie ist passwortgeschützt. Bitte gib das Passwort ein, das du vom Fotografen erhalten hast.",
     "passwordLabel": "Passwort",
     "passwordSubmit": "Galerie öffnen",

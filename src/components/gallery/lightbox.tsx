@@ -111,6 +111,20 @@ export function Lightbox({
           </button>
         </>
       )}
+      {(photo.downloads?.web || photo.downloads?.original) && (
+        <div className="absolute bottom-4 left-4 flex gap-3 text-sm text-white">
+          {photo.downloads.web && (
+            <a href={photo.downloads.web} className="underline">
+              {t("download")}
+            </a>
+          )}
+          {photo.downloads.original && (
+            <a href={photo.downloads.original} className="underline">
+              {t("downloadOriginal")}
+            </a>
+          )}
+        </div>
+      )}
       <p
         aria-live="polite"
         className="absolute bottom-4 left-1/2 -translate-x-1/2 text-sm text-white"

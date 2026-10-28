@@ -35,7 +35,7 @@
 ## Nächste Schritte (M8, in dieser Reihenfolge)
 
 - [x] Passwortschutz pro Galerie (F-SEC-01, D-122): `lib/gallery-access.ts` (scrypt-Hash, signiertes Zugangs-Cookie je Galerie, 7 Tage, ungültig nach Passwortwechsel), Redis-Rate-Limit (`lib/rate-limit.ts`, 5 Versuche/10 min je Besucher, 60/h je Galerie), Passwort-Formular auf `/g/[slug]` (gesperrte Galerie liefert nur Titel), Passwort setzen/entfernen im Dashboard. Tests: Unit (Postgres, Redis) + E2E
-- [ ] Download-Rechte je Galerie und Set (F-SEC-02): aus / Web-Größe / Original, Einstellung im Dashboard, Einzel-Download über signierte URL mit `Content-Disposition`
+- [x] Download-Rechte je Galerie und Set (F-SEC-02): `lib/download-policy.ts` (none/web/original, Set überschreibt Galerie), Auswahl im Dashboard (Galerie-Formular, Set-Seite), `GET /api/g/[slug]/download/[mediaId]?size=` → 302 auf signierte URL (60 s, `Content-Disposition`), gleiche Sichtbarkeitsregeln wie die Galerie (Passwort, Ablauf), Download-Links in der Lightbox. Offen/klein: Original-Download hat keine Dateiendung (Medien speichern keinen Dateinamen/Content-Type) – bei Bedarf Spalte ergänzen
 - [ ] ZIP-Download als Worker-Job (F-SEC-02) mit Mail-Link, Ablauf des Links
 - [ ] Wasserzeichen auf Web-Größen (F-SEC-03): Logo, Position, Deckkraft; Original unberührt
 - [ ] Favoriten mit mehreren Listen ohne Konto, Magic Link für Kunden (F-INT-01), Export an den Creator
@@ -79,6 +79,9 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-10-28 – M8 Download-Rechte
+- Einzel-Download + Rechte fertig. Cloud: nach Resume Postgres/Redis neu starten (`pg_ctlcluster 16 main start`, `redis-server --daemonize yes`). Nächster Schritt: ZIP-Download als Worker-Job mit Mail-Link.
 
 ### 2026-10-28 – M8 Passwortschutz
 - F-SEC-01 fertig (siehe M8-Liste, D-122). Cloud: Postgres/Redis neu starten und Rolle/DBs anlegen wie unten. Nächster Schritt: Download-Rechte je Galerie/Set (F-SEC-02).

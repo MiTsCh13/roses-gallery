@@ -3,6 +3,7 @@ import { and, asc, eq, inArray, isNotNull, isNull, or } from "drizzle-orm";
 import type { Db } from "@/db";
 import { accounts, galleries, media, sets, themes } from "@/db/schema";
 import { LOGO_URL_TTL_SECONDS } from "@/lib/branding";
+import { allows, effectivePolicy } from "@/lib/download-policy";
 import { verifyAccessToken } from "@/lib/gallery-access";
 import type { PhotoVariants } from "@/lib/photos";
 import type { Storage } from "@/lib/storage/types";
@@ -51,6 +52,8 @@ export type PublicPhoto = {
   srcSet: string;
   width: number;
   height: number;
+  /** Download links the effective policy permits; absent = not allowed. */
+  downloads: { web?: string; original?: string };
 };
 export type PublicVideo = {
   id: string;
@@ -141,7 +144,12 @@ export async function loadPublicGallery(
       : null;
 
   const rows = await deps.db
-    .select({ id: sets.id, title: sets.title, type: sets.type })
+    .select({
+      id: sets.id,
+      title: sets.title,
+      type: sets.type,
+      downloadPolicy: sets.downloadPolicy,
+    })
     .from(sets)
     .where(and(eq(sets.accountId, accountId), eq(sets.galleryId, gallery.id)))
     .orderBy(asc(sets.position));
@@ -200,6 +208,12 @@ export async function loadPublicGallery(
     ]);
   }
   const setIds = new Set(rows.map((r) => r.id));
+  const policyBySet = new Map(
+    rows.map((r) => [
+      r.id,
+      effectivePolicy(gallery.downloadPolicy, r.downloadPolicy),
+    ]),
+  );
   const bySet = new Map<string, PublicPhoto[]>();
   let coverUrl: string | null = null;
   let coverSrcSet: string | null = null;
@@ -223,7 +237,14 @@ export async function loadPublicGallery(
       srcSet: signed.map((v) => `${v.url} ${v.width}w`).join(", "),
       width: m.width ?? mid.width,
       height: m.height ?? mid.height,
+      downloads: {},
     };
+    const policy = policyBySet.get(m.setId)!;
+    const base = `/api/g/${encodeURIComponent(gallery.slug)}/download/${m.id}`;
+    if (allows(policy, "web")) photo.downloads.web = `${base}?size=web`;
+    if (allows(policy, "original") && m.originalKey) {
+      photo.downloads.original = `${base}?size=original`;
+    }
     if (m.id === gallery.coverMediaId) {
       coverUrl = signed.at(-1)!.url;
       coverSrcSet = photo.srcSet;
@@ -242,7 +263,9 @@ export async function loadPublicGallery(
     coverUrl,
     coverSrcSet,
     sets: rows.map((r) => ({
-      ...r,
+      id: r.id,
+      title: r.title,
+      type: r.type,
       photos: bySet.get(r.id) ?? [],
       videos: videosBySet.get(r.id) ?? [],
     })),

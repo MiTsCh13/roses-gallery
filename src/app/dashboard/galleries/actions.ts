@@ -14,6 +14,7 @@ import {
   updateGallery,
 } from "@/lib/galleries";
 import { BrandingError, removeLogo } from "@/lib/branding";
+import { setSetDownloadPolicy } from "@/lib/downloads";
 import { setGalleryPassword } from "@/lib/gallery-access";
 import { getStorage } from "@/lib/storage";
 import { saveGalleryDesign } from "@/lib/gallery-design";
@@ -66,6 +67,7 @@ export async function updateGalleryAction(formData: FormData) {
         eventDate: field(formData, "eventDate"),
         expiresAt: field(formData, "expiresAt"),
         status: field(formData, "status"),
+        downloadPolicy: field(formData, "downloadPolicy"),
       },
     );
   } catch (e) {
@@ -90,6 +92,21 @@ export async function setGalleryPasswordAction(formData: FormData) {
   }
   revalidatePath(`/dashboard/galleries/${galleryId}`);
   redirect(`/dashboard/galleries/${galleryId}?saved=1`);
+}
+
+export async function setSetDownloadPolicyAction(formData: FormData) {
+  const { account } = await requireAccount();
+  const setId = field(formData, "setId") ?? "";
+  try {
+    await setSetDownloadPolicy(
+      { db: db(), accountId: account.id },
+      setId,
+      field(formData, "downloadPolicy"),
+    );
+  } catch (e) {
+    redirect(`/dashboard/sets/${setId}?error=${errorCode(e)}`);
+  }
+  revalidatePath(`/dashboard/sets/${setId}`);
 }
 
 export async function createSetAction(formData: FormData) {

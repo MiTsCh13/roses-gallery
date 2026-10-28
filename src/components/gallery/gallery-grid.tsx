@@ -10,6 +10,8 @@ export type GalleryViewTile = {
   src?: string;
   srcSet?: string;
   alt?: string;
+  /** Download links permitted for this photo (F-SEC-02). */
+  downloads?: { web?: string; original?: string };
 };
 
 export function GalleryGrid({
