@@ -9,6 +9,10 @@ describe("job registry", () => {
     expect(isJobName("unknown")).toBe(false);
   });
 
+  it("registers gallery-expiry", () => {
+    expect(parseJobPayload("gallery-expiry", {})).toEqual({});
+  });
+
   it("registers cleanup-stale-uploads", () => {
     expect(parseJobPayload("cleanup-stale-uploads", {})).toEqual({});
   });

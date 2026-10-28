@@ -9,6 +9,7 @@ export const jobSchemas = {
   ping: z.object({ requestedAt: z.iso.datetime() }),
   "process-photo": z.object({ accountId: z.uuid(), mediaId: z.uuid() }),
   "cleanup-stale-uploads": z.object({}),
+  "gallery-expiry": z.object({}),
 } as const;
 
 export type JobName = keyof typeof jobSchemas;
