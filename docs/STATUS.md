@@ -37,7 +37,7 @@
 - [x] Theme-Konfiguration als Zod-Schema (`lib/themes.ts`: Schrift, Farben, Raster-Layout, Cover-Stil, `themeCssVars`); 4 System-Themes (Klassisch, Modern, Romantisch, Dunkel) per Migration 0005 mit festen IDs, Test prüft Code ↔ Migration. `resetDb` legt die System-Themes nach dem Truncate neu an. Schriften vorerst System-Stacks (keine Webfonts)
 - [x] Galerie-Ansicht-Komponenten (`src/components/gallery/gallery-view.tsx`: `GalleryView`, `GalleryCover`, `GalleryGrid`), Theme per CSS-Variablen, responsiv per Container-Queries (Vorschau = schmaler Container, kein iframe nötig); Logo-Slot vorhanden
 - [ ] Editor `/dashboard/galleries/[id]/design`: Themewahl + Anpassung (Schrift, Farben, Raster, Cover-Stil), Speichern in `galleries.themeId`/Overrides; Live-Vorschau mit Umschalter Desktop/Mobil (iframe oder Container-Breite)
-- [ ] Logo-Upload pro Account (R2, signierte URL), Anzeige in der Vorschau/jeder Galerie; E2E: Theme wechseln → Vorschau ändert sich, Logo sichtbar
+- [x] Logo-Upload pro Account (`lib/branding.ts`, `POST /api/branding/logo`, Speicherung in `accounts.branding.logoKey`, PNG/JPEG/WebP per Magic Bytes, ≤1,5 MB, signierte URL); Anzeige in der Vorschau; E2E erweitert. Hinweis: kein Server-Action-Upload, weil `bodySizeLimit` global wirkt
 - [ ] Fertig-Kriterium M6 prüfen (UMSETZUNGSPLAN)
 
 ## Reste aus M5 (niedrige Priorität)
@@ -58,6 +58,9 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-10-28 – M6 Logo
+- Logo-Upload, Test-Route `/api/test/storage` erkennt Fake-Storage per Duck-Typing (Bundles mit eigenen Klassenkopien). Hinweis E2E lokal: alte `next start`-Prozesse auf Port 3100 beenden, sonst wird ein veralteter Build wiederverwendet. Nächster Schritt: Fertig-Kriterium M6 prüfen, M7 aufschlüsseln.
 
 ### 2026-10-28 – M6 Ansicht-Komponenten
 - `GalleryView` mit 3 Cover-Stilen und 3 Raster-Layouts, Unit-Tests (SSR-Markup). Nächster Schritt: Editor-Seite `/design`.

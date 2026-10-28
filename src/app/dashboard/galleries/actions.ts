@@ -13,6 +13,8 @@ import {
   setGalleryCover,
   updateGallery,
 } from "@/lib/galleries";
+import { BrandingError, removeLogo } from "@/lib/branding";
+import { getStorage } from "@/lib/storage";
 import { saveGalleryDesign } from "@/lib/gallery-design";
 import { PlanLimitError } from "@/lib/plans";
 import { requireAccount } from "@/lib/session";
@@ -21,6 +23,7 @@ import { ZodError } from "zod";
 function errorCode(e: unknown): string {
   if (e instanceof PlanLimitError) return e.code;
   if (e instanceof GalleryError) return e.code;
+  if (e instanceof BrandingError) return e.code;
   if (e instanceof ZodError) return "invalid";
   throw e;
 }
@@ -140,5 +143,12 @@ export async function saveDesignAction(formData: FormData) {
     redirect(`/dashboard/galleries/${galleryId}/design?error=${errorCode(e)}`);
   }
   revalidatePath(`/dashboard/galleries/${galleryId}`);
+  redirect(`/dashboard/galleries/${galleryId}/design?saved=1`);
+}
+
+export async function removeLogoAction(formData: FormData) {
+  const { account } = await requireAccount();
+  const galleryId = field(formData, "galleryId") ?? "";
+  await removeLogo({ db: db(), storage: getStorage(), accountId: account.id });
   redirect(`/dashboard/galleries/${galleryId}/design?saved=1`);
 }

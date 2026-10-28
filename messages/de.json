@@ -194,7 +194,14 @@
     "previewSubtitle": "Vorschau",
     "error": {
       "invalid": "Ungültiges Design.",
-      "not_found": "Galerie oder Theme nicht gefunden."
-    }
+      "not_found": "Galerie oder Theme nicht gefunden.",
+      "logo_invalid": "Das Logo muss ein PNG, JPEG oder WebP sein.",
+      "logo_too_large": "Das Logo ist zu groß (maximal 1,5 MB)."
+    },
+    "logo": "Logo",
+    "logoFile": "Logo-Datei",
+    "logoHint": "PNG, JPEG oder WebP, bis 1,5 MB. Erscheint in jeder Galerie.",
+    "logoUpload": "Logo hochladen",
+    "logoRemove": "Logo entfernen"
   }
 }

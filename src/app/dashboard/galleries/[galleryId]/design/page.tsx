@@ -11,9 +11,11 @@ import { db } from "@/db";
 import { sets } from "@/db/schema";
 import { tenantDb } from "@/db/tenant";
 import { GalleryError } from "@/lib/galleries";
+import { logoUrl } from "@/lib/branding";
+import { getStorage } from "@/lib/storage";
 import { galleryDesign } from "@/lib/gallery-design";
 import { requireAccount } from "@/lib/session";
-import { saveDesignAction } from "../../actions";
+import { removeLogoAction, saveDesignAction } from "../../actions";
 
 const PLACEHOLDER_TILES = 8;
 
@@ -40,6 +42,7 @@ async function DesignContent({
     if (e instanceof GalleryError) notFound();
     throw e;
   });
+  const logo = await logoUrl({ ...deps, storage: getStorage() });
   const gallerySets = await tenant.sets.list(eq(sets.galleryId, gallery.id));
   gallerySets.sort((a, b) => a.position - b.position);
   const previewSets = (gallerySets.length ? gallerySets : [null]).map(
@@ -79,8 +82,10 @@ async function DesignContent({
         themes={design.themes}
         initialThemeId={design.themeId}
         initialConfig={design.config}
+        logoUrl={logo ?? undefined}
         sets={previewSets}
         action={saveDesignAction}
+        removeLogoAction={removeLogoAction}
       />
     </main>
   );
