@@ -3,6 +3,7 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 
 import * as schema from "@/db/schema";
+import { SYSTEM_THEMES } from "@/lib/themes";
 import { testDatabaseUrl } from "./db-url";
 
 export function createTestDb() {
@@ -18,4 +19,10 @@ export async function resetDb(db: TestDb) {
   await db.execute(
     sql`truncate table accounts, themes, auth_verification_tokens restart identity cascade`,
   );
+  // The truncate cascade also removes the system themes shipped by migration.
+  await db
+    .insert(schema.themes)
+    .values(
+      SYSTEM_THEMES.map((t) => ({ id: t.id, name: t.name, config: t.config })),
+    );
 }

@@ -34,7 +34,7 @@
 
 ## Nächste Schritte (M6, in dieser Reihenfolge)
 
-- [ ] Theme-Konfiguration als Zod-Schema (`lib/themes.ts`): Schrift, Farben, Raster-Layout, Cover-Stil; 4 System-Themes (accountId null) per Migration/Seed; Test: Schema validiert alle 4
+- [x] Theme-Konfiguration als Zod-Schema (`lib/themes.ts`: Schrift, Farben, Raster-Layout, Cover-Stil, `themeCssVars`); 4 System-Themes (Klassisch, Modern, Romantisch, Dunkel) per Migration 0005 mit festen IDs, Test prüft Code ↔ Migration. `resetDb` legt die System-Themes nach dem Truncate neu an. Schriften vorerst System-Stacks (keine Webfonts)
 - [ ] Galerie-Ansicht-Komponenten (`GalleryView`, Cover, Raster), die ein Theme per CSS-Variablen anwenden – dieselben Komponenten für Vorschau und echte Ansicht (M7)
 - [ ] Editor `/dashboard/galleries/[id]/design`: Themewahl + Anpassung (Schrift, Farben, Raster, Cover-Stil), Speichern in `galleries.themeId`/Overrides; Live-Vorschau mit Umschalter Desktop/Mobil (iframe oder Container-Breite)
 - [ ] Logo-Upload pro Account (R2, signierte URL), Anzeige in der Vorschau/jeder Galerie; E2E: Theme wechseln → Vorschau ändert sich, Logo sichtbar
@@ -59,6 +59,9 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 
 ## Log
 
+### 2026-10-28 – M6 Themes
+- `lib/themes.ts`, Migration 0005 (System-Themes), Tests. Nächster Schritt: Ansichts-Komponenten.
+
 ### 2026-10-28 – M5 abgeschlossen
 - Fertig-Kriterium (Galerie mit Sets anlegen, sortieren, veröffentlichen) per E2E erfüllt. M6 aufgeschlüsselt.
 
@@ -82,9 +85,3 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 
 ### 2026-10-28 – M4 Bunny-Backend
 - Provider-Interface + Fake + Bunny, Video-Upload-API, Webhook, Buchung auf den Speicher beim Übergang zu `ready`. Tests gegen echtes Postgres bzw. gemocktes fetch. M3 abgeschlossen. Hinweis Cloud: Rolle/DB `roses` und `roses_gallery_test` müssen in frischer Umgebung per `su postgres` angelegt werden.
-
-### 2026-10-28 – M3 Aufräumen
-- Wartungsjob für verwaiste/steckengebliebene `pending`-Uploads, im Worker als Job-Scheduler (stündlich). Tests gegen echtes Postgres.
-
-### 2026-10-27 – M3 Upload-UI
-- `lib/upload-client.ts` (Multipart je Teil mit Retry/neuer Signatur, Abbruch → `abort`), `PhotoUploader`, Set-Seite mit Foto-Liste und Auto-Refresh bei `pending`; Test-Route `/api/test/seed-set` bis M5. CI-E2E bekommt Redis (Enqueue in `complete`), E2E nutzt `STORAGE_TRANSPORT=fake`.
