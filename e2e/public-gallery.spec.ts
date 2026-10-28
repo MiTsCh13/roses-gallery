@@ -49,3 +49,97 @@ test("public gallery is only visible once published", async ({
   await expect(visitor.getByRole("heading", { name: "Trauung" })).toBeVisible();
   await anon.close();
 });
+
+test("password-protected gallery asks for the password and rate-limits guesses", async ({
+  page,
+  request,
+}, testInfo) => {
+  const email = `pw+${testInfo.project.name}-${Date.now()}@foto-rose.de`;
+  await page.goto("/login");
+  await page.getByLabel("E-Mail-Adresse").fill(email);
+  await page.getByRole("button", { name: "Anmeldelink senden" }).click();
+  await expect(page).toHaveURL(/\/login\/check-email/);
+  const { text } = await (
+    await request.get(`/api/test/mailbox?to=${encodeURIComponent(email)}`)
+  ).json();
+  await page.goto(text.match(/https?:\/\/\S+/)![0]);
+  await expect(page).toHaveURL(/\/dashboard/);
+
+  await page.goto("/dashboard/galleries/new");
+  await page
+    .getByLabel("Titel")
+    .fill(`Geschützt ${testInfo.project.name} ${Date.now()}`);
+  await page.getByRole("button", { name: "Galerie anlegen" }).click();
+  await expect(page).toHaveURL(/\/dashboard\/galleries\/[0-9a-f-]{36}$/);
+  const slug = await page
+    .getByRole("textbox", { name: "Adresse (Slug)" })
+    .inputValue();
+  await page.getByRole("textbox", { name: "Titel des Sets" }).fill("Feier");
+  await page.getByRole("button", { name: "Set hinzufügen" }).click();
+  await expect(page.getByTestId("set-list").locator("li")).toHaveCount(1);
+  await page
+    .getByRole("combobox", { name: "Status" })
+    .selectOption("published");
+  await page.getByRole("button", { name: "Speichern" }).click();
+  await expect(page.getByRole("status")).toHaveText("Gespeichert.");
+
+  await page
+    .getByRole("textbox", { name: "Neues Passwort (mind. 6 Zeichen)" })
+    .fill("geheim-123");
+  await page.getByRole("button", { name: "Passwort setzen" }).click();
+  await expect(page.getByRole("status")).toHaveText("Gespeichert.");
+  await expect(
+    page.getByText("Die Galerie ist durch ein Passwort geschützt."),
+  ).toBeVisible();
+
+  const ip = () =>
+    `10.${Math.floor(Math.random() * 250)}.${Date.now() % 250}.${Math.floor(Math.random() * 250)}`;
+  const anon = await page
+    .context()
+    .browser()!
+    .newContext({
+      extraHTTPHeaders: { "x-forwarded-for": ip() },
+    });
+  const visitor = await anon.newPage();
+  await visitor.goto(`/g/${slug}`);
+  await expect(visitor.getByTestId("gallery-view")).toHaveCount(0);
+  await expect(visitor.getByText("Feier")).toHaveCount(0);
+
+  await visitor.getByLabel("Passwort").fill("falsch-123");
+  await visitor.getByRole("button", { name: "Galerie öffnen" }).click();
+  await expect(visitor.locator("p[role=alert]")).toHaveText(
+    "Das Passwort stimmt nicht.",
+  );
+
+  await visitor.getByLabel("Passwort").fill("geheim-123");
+  await visitor.getByRole("button", { name: "Galerie öffnen" }).click();
+  await expect(visitor.getByTestId("gallery-view")).toBeVisible();
+  await expect(visitor.getByRole("heading", { name: "Feier" })).toBeVisible();
+  // the cookie keeps the gallery open on reload
+  await visitor.reload();
+  await expect(visitor.getByTestId("gallery-view")).toBeVisible();
+
+  // a second visitor is throttled after five wrong guesses
+  const other = await page
+    .context()
+    .browser()!
+    .newContext({
+      extraHTTPHeaders: { "x-forwarded-for": ip() },
+    });
+  const guesser = await other.newPage();
+  await guesser.goto(`/g/${slug}`);
+  for (let i = 0; i < 5; i++) {
+    await guesser.getByLabel("Passwort").fill(`falsch-${i}-xyz`);
+    await guesser.getByRole("button", { name: "Galerie öffnen" }).click();
+    await expect(guesser.locator("p[role=alert]")).toHaveText(
+      "Das Passwort stimmt nicht.",
+    );
+  }
+  await guesser.getByLabel("Passwort").fill("geheim-123");
+  await guesser.getByRole("button", { name: "Galerie öffnen" }).click();
+  await expect(guesser.locator("p[role=alert]")).toContainText(
+    "Zu viele Versuche",
+  );
+  await anon.close();
+  await other.close();
+});

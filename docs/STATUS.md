@@ -34,7 +34,7 @@
 
 ## Nächste Schritte (M8, in dieser Reihenfolge)
 
-- [ ] Passwortschutz pro Galerie (F-SEC-01): Passwort setzen im Dashboard (Argon2/scrypt-Hash in `galleries.passwordHash`), Passwort-Formular vor `/g/[slug]`, signiertes Zugangs-Cookie, Rate-Limit (Redis) gegen Raten
+- [x] Passwortschutz pro Galerie (F-SEC-01, D-122): `lib/gallery-access.ts` (scrypt-Hash, signiertes Zugangs-Cookie je Galerie, 7 Tage, ungültig nach Passwortwechsel), Redis-Rate-Limit (`lib/rate-limit.ts`, 5 Versuche/10 min je Besucher, 60/h je Galerie), Passwort-Formular auf `/g/[slug]` (gesperrte Galerie liefert nur Titel), Passwort setzen/entfernen im Dashboard. Tests: Unit (Postgres, Redis) + E2E
 - [ ] Download-Rechte je Galerie und Set (F-SEC-02): aus / Web-Größe / Original, Einstellung im Dashboard, Einzel-Download über signierte URL mit `Content-Disposition`
 - [ ] ZIP-Download als Worker-Job (F-SEC-02) mit Mail-Link, Ablauf des Links
 - [ ] Wasserzeichen auf Web-Größen (F-SEC-03): Logo, Position, Deckkraft; Original unberührt
@@ -79,6 +79,9 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-10-28 – M8 Passwortschutz
+- F-SEC-01 fertig (siehe M8-Liste, D-122). Cloud: Postgres/Redis neu starten und Rolle/DBs anlegen wie unten. Nächster Schritt: Download-Rechte je Galerie/Set (F-SEC-02).
 
 ### 2026-10-28 – M7 LCP
 - Lighthouse-Skript + Cover-`srcset`, LCP 3,1 s → 0,9 s. M7 damit funktional fertig. Nächster Schritt: M8 in `UMSETZUNGSPLAN.md` aufschlüsseln. Cloud: Postgres `pg_ctlcluster 16 main start`, Rolle/DBs neu anlegen, `redis-server --daemonize yes`; Lighthouse per `npm i lighthouse` außerhalb des Repos.

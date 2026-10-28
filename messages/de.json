@@ -114,6 +114,12 @@
     "back": "← Alle Galerien",
     "save": "Speichern",
     "saved": "Gespeichert.",
+    "passwordTitle": "Passwortschutz",
+    "passwordOn": "Die Galerie ist durch ein Passwort geschützt.",
+    "passwordOff": "Die Galerie ist ohne Passwort über den Link erreichbar.",
+    "passwordNew": "Neues Passwort (mind. 6 Zeichen)",
+    "passwordSet": "Passwort setzen",
+    "passwordRemove": "Passwort entfernen",
     "fieldTitle": "Titel",
     "fieldSlug": "Adresse (Slug)",
     "slugHint": "automatisch aus dem Titel",
@@ -205,6 +211,14 @@
     "logoRemove": "Logo entfernen"
   },
   "PublicGallery": {
+    "passwordIntro": "Diese Galerie ist passwortgeschützt. Bitte gib das Passwort ein, das du vom Fotografen erhalten hast.",
+    "passwordLabel": "Passwort",
+    "passwordSubmit": "Galerie öffnen",
+    "passwordError": {
+      "invalid": "Das Passwort stimmt nicht.",
+      "not_found": "Diese Galerie ist nicht verfügbar.",
+      "rate_limited": "Zu viele Versuche. Bitte warte einige Minuten und versuche es dann erneut."
+    },
     "lightbox": "Fotoansicht",
     "close": "Schließen",
     "previous": "Vorheriges Foto",

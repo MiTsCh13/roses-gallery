@@ -10,6 +10,7 @@ import { createTestDb, resetDb } from "@/test/db";
 import { FakeStorage } from "@/lib/storage/fake";
 import { FakeVideoProvider } from "@/lib/video/fake";
 import { SYSTEM_THEMES } from "@/lib/themes";
+import { createAccessToken, hashPassword } from "./gallery-access";
 import { loadPublicGallery } from "./public-gallery";
 
 const { db, close } = createTestDb();
@@ -45,6 +46,16 @@ beforeEach(async () => {
 });
 afterAll(close);
 
+// unprotected galleries: narrows away the password gate
+async function loadOpen(
+  deps: Parameters<typeof loadPublicGallery>[0],
+  slug: string,
+) {
+  const r = await loadPublicGallery(deps, slug);
+  if (r?.locked) throw new Error("gallery unexpectedly locked");
+  return r;
+}
+
 describe("loadPublicGallery", () => {
   it("returns a published gallery with ordered sets and default theme", async () => {
     const g = await gallery();
@@ -52,7 +63,7 @@ describe("loadPublicGallery", () => {
       { accountId, galleryId: g.id, title: "Zweites", position: 1 },
       { accountId, galleryId: g.id, title: "Erstes", position: 0 },
     ]);
-    const r = await loadPublicGallery({ db, storage }, "anna-ben");
+    const r = await loadOpen({ db, storage }, "anna-ben");
     expect(r?.title).toBe("Anna & Ben");
     expect(r?.sets.map((s) => s.title)).toEqual(["Erstes", "Zweites"]);
     expect(r?.config).toEqual(SYSTEM_THEMES[0].config);
@@ -82,12 +93,12 @@ describe("loadPublicGallery", () => {
       })
       .returning();
     await gallery({ slug: "foreign", themeId: foreign.id });
-    expect((await loadPublicGallery({ db, storage }, "dark"))?.config).toEqual(
+    expect((await loadOpen({ db, storage }, "dark"))?.config).toEqual(
       dark.config,
     );
-    expect(
-      (await loadPublicGallery({ db, storage }, "foreign"))?.config,
-    ).toEqual(SYSTEM_THEMES[0].config);
+    expect((await loadOpen({ db, storage }, "foreign"))?.config).toEqual(
+      SYSTEM_THEMES[0].config,
+    );
   });
 
   it("signs the account logo", async () => {
@@ -97,7 +108,7 @@ describe("loadPublicGallery", () => {
       .set({ branding: { logoKey: `${accountId}/branding/logo.png` } })
       .where(eq(accounts.id, accountId));
     await gallery();
-    const r = await loadPublicGallery({ db, storage }, "anna-ben");
+    const r = await loadOpen({ db, storage }, "anna-ben");
     expect(r?.logoUrl).toContain("logo.png");
   });
 
@@ -148,7 +159,7 @@ describe("loadPublicGallery", () => {
       ])
       .returning();
     await db.update(galleries).set({ coverMediaId: second.id });
-    const r = await loadPublicGallery({ db, storage }, "anna-ben");
+    const r = await loadOpen({ db, storage }, "anna-ben");
     const photos = r!.sets[0].photos;
     expect(photos.map((p) => p.id)).toEqual([first.id, second.id]);
     expect(photos[0].srcSet.split(", ")).toHaveLength(3);
@@ -174,7 +185,7 @@ describe("loadPublicGallery", () => {
         "400": { key: "x/400.webp", width: 400, height: 300, size: 1 },
       },
     });
-    const r = await loadPublicGallery({ db, storage }, "anna-ben");
+    const r = await loadOpen({ db, storage }, "anna-ben");
     expect(r!.sets[0].photos).toEqual([]);
   });
 
@@ -195,14 +206,72 @@ describe("loadPublicGallery", () => {
       },
       { ...base, bunnyVideoId: "v-pending", processingStatus: "processing" },
     ]);
-    const r = await loadPublicGallery({ db, storage, video }, "anna-ben");
+    const r = await loadOpen({ db, storage, video }, "anna-ben");
     expect(r?.sets[0].videos).toHaveLength(1);
     expect(r?.sets[0].videos[0].durationS).toBe(90);
     expect(r?.sets[0].videos[0].playUrl).toContain("/api/test/player/v-ready?");
     expect(r?.sets[0].videos[0].hlsUrl).toBeUndefined();
     expect(r?.sets[0].photos).toEqual([]);
     // without a provider no video is exposed
-    const none = await loadPublicGallery({ db, storage }, "anna-ben");
+    const none = await loadOpen({ db, storage }, "anna-ben");
     expect(none?.sets[0].videos).toEqual([]);
+  });
+});
+
+describe("loadPublicGallery with a password", () => {
+  const SECRET = "test-secret-with-enough-length";
+
+  it("shows only title and slug until the access cookie is present", async () => {
+    const g = await gallery({ passwordHash: hashPassword("geheim-1") });
+    await db
+      .insert(sets)
+      .values({ accountId, galleryId: g.id, title: "Trauung" });
+    const locked = await loadPublicGallery(
+      { db, storage, accessSecret: SECRET },
+      "anna-ben",
+    );
+    expect(locked).toEqual({
+      locked: true,
+      slug: "anna-ben",
+      title: "Anna & Ben",
+    });
+    // no secret configured → stays locked, never open
+    expect(
+      await loadPublicGallery(
+        { db, storage, accessToken: () => "x" },
+        "anna-ben",
+      ),
+    ).toMatchObject({ locked: true });
+
+    const token = createAccessToken(SECRET, {
+      id: g.id,
+      passwordHash: g.passwordHash!,
+    });
+    const open = await loadPublicGallery(
+      { db, storage, accessSecret: SECRET, accessToken: () => token },
+      "anna-ben",
+    );
+    expect(open).toMatchObject({ locked: false });
+    expect(open && !open.locked && open.sets.map((s) => s.title)).toEqual([
+      "Trauung",
+    ]);
+  });
+
+  it("locks again once the password changed", async () => {
+    const g = await gallery({ passwordHash: hashPassword("geheim-1") });
+    const token = createAccessToken(SECRET, {
+      id: g.id,
+      passwordHash: g.passwordHash!,
+    });
+    await db
+      .update(galleries)
+      .set({ passwordHash: hashPassword("geheim-2") })
+      .where(eq(galleries.id, g.id));
+    expect(
+      await loadPublicGallery(
+        { db, storage, accessSecret: SECRET, accessToken: () => token },
+        "anna-ben",
+      ),
+    ).toMatchObject({ locked: true });
   });
 });

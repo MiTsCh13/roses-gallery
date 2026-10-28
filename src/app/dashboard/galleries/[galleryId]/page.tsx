@@ -16,6 +16,7 @@ import { SortableList } from "@/components/sortable-list";
 import {
   createSetAction,
   reorderSetsAction,
+  setGalleryPasswordAction,
   updateGalleryAction,
 } from "../actions";
 
@@ -108,6 +109,44 @@ async function GalleryContent({
         </label>
         <Button type="submit">{t("save")}</Button>
       </form>
+
+      <section aria-labelledby="password-title" className="max-w-md space-y-3">
+        <h2 id="password-title" className="text-lg font-medium">
+          {t("passwordTitle")}
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          {gallery.passwordHash ? t("passwordOn") : t("passwordOff")}
+        </p>
+        <form
+          action={setGalleryPasswordAction}
+          className="flex flex-wrap gap-2"
+        >
+          <input type="hidden" name="galleryId" value={gallery.id} />
+          <Input
+            name="password"
+            type="password"
+            required
+            minLength={6}
+            maxLength={200}
+            autoComplete="new-password"
+            placeholder={t("passwordNew")}
+            aria-label={t("passwordNew")}
+            className="max-w-xs"
+          />
+          <Button type="submit" variant="outline">
+            {t("passwordSet")}
+          </Button>
+        </form>
+        {gallery.passwordHash && (
+          <form action={setGalleryPasswordAction}>
+            <input type="hidden" name="galleryId" value={gallery.id} />
+            <input type="hidden" name="intent" value="remove" />
+            <Button type="submit" variant="ghost">
+              {t("passwordRemove")}
+            </Button>
+          </form>
+        )}
+      </section>
 
       <section aria-labelledby="sets-title" className="space-y-3">
         <h2 id="sets-title" className="text-lg font-medium">
