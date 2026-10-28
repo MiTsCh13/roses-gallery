@@ -38,6 +38,25 @@ describe("BunnyVideoProvider", () => {
     expect(url.href).not.toContain("api-key");
   });
 
+  it("signs the original URL with the CDN path token", () => {
+    const cdn = new BunnyVideoProvider({
+      libraryId: "123",
+      apiKey: "api-key",
+      tokenKey: "token-key",
+      cdnHostname: "vz-test.b-cdn.net",
+    });
+    const url = new URL(cdn.signOriginalUrl("vid", 60));
+    const expires = url.searchParams.get("expires")!;
+    expect(url.host).toBe("vz-test.b-cdn.net");
+    expect(url.pathname).toBe("/vid/original");
+    expect(url.searchParams.get("token")).toBe(
+      createHash("sha256")
+        .update(`token-key/vid/original${expires}`)
+        .digest("base64url"),
+    );
+    expect(() => provider.signOriginalUrl("vid", 60)).toThrow("CDN_HOSTNAME");
+  });
+
   it("creates, reads and deletes videos via the API", async () => {
     const fetchMock = vi
       .fn()

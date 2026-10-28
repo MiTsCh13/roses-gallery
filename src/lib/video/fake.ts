@@ -37,6 +37,11 @@ export class FakeVideoProvider implements VideoProvider {
     return `/api/test/player/${videoId}?expires=${expires}&token=fake`;
   }
 
+  signOriginalUrl(videoId: string, ttlSeconds: number) {
+    const expires = Math.floor(Date.now() / 1000) + ttlSeconds;
+    return `/api/test/original/${videoId}?expires=${expires}&token=fake`;
+  }
+
   async deleteVideo(videoId: string) {
     this.videos.delete(videoId);
   }

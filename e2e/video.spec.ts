@@ -48,4 +48,11 @@ test("uploads a video via tus and plays it once it is ready", async ({
     "src",
     /\/api\/test\/player\//,
   );
+
+  const download = page.waitForEvent("download");
+  await page
+    .getByRole("button", { name: "Original herunterladen" })
+    .first()
+    .click();
+  expect((await download).suggestedFilename()).toBe("original.mp4");
 });

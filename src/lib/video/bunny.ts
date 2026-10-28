@@ -30,6 +30,7 @@ export class BunnyVideoProvider implements VideoProvider {
       libraryId: string;
       apiKey: string;
       tokenKey: string;
+      cdnHostname?: string;
     },
   ) {}
 
@@ -103,6 +104,18 @@ export class BunnyVideoProvider implements VideoProvider {
     const expires = Math.floor(Date.now() / 1000) + ttlSeconds;
     const token = sha256Hex(`${this.config.tokenKey}${videoId}${expires}`);
     return `https://iframe.mediadelivery.net/embed/${this.config.libraryId}/${videoId}?token=${token}&expires=${expires}`;
+  }
+
+  signOriginalUrl(videoId: string, ttlSeconds: number) {
+    const host = this.config.cdnHostname;
+    if (!host) throw new Error("BUNNY_STREAM_CDN_HOSTNAME is required.");
+    const expires = Math.floor(Date.now() / 1000) + ttlSeconds;
+    const path = `/${videoId}/original`;
+    // CDN token authentication: url-safe base64 of the raw SHA-256 digest.
+    const token = createHash("sha256")
+      .update(`${this.config.tokenKey}${path}${expires}`)
+      .digest("base64url");
+    return `https://${host}${path}?token=${token}&expires=${expires}`;
   }
 
   async deleteVideo(videoId: string) {
