@@ -28,8 +28,8 @@
 - [x] Bunny-Smoke-Test (2026-10-28): Library erreichbar, API-Key gültig
 - [x] `VideoProvider` (Bunny + Fake, `VIDEO_TRANSPORT`), `lib/videos.ts` (start → tus-Parameter, Sync, Buchung genau einmal bei `ready`, signierte Embed-URL, Löschen), API `/api/videos/{start,refresh,playback,remove}`, Webhook `/api/bunny/webhook` (Body nicht vertraut, Status wird per API geholt). Gegen echtes Bunny nur Smoke-Test, kein Upload
 - [x] Upload-UI für Video-Sets (`VideoUploader`, tus-js-client, Fortschritt, Abbrechen) + Player-Vorschau (signierte Embed-URL erst per Klick) auf `/dashboard/sets/[setId]`; Seite zieht den Status offener Videos selbst nach (webhook-unabhängig). E2E gegen Fake-tus (`/api/test/tus`). Offen: Fortsetzen nach Reload
-- [ ] Original-Download (F-UP-04 „Original abrufbar“): blockiert durch D-115 (Library-Einstellung + CDN-Hostname); danach signierte Original-URL bauen
-- [ ] Fertig-Kriterium M4: Upload→Encoding gegen echtes Bunny verifiziert (D-116, 720p-Testvideo); Abspielen im Dashboard braucht D-115 (Embed-Host), 4K-Test steht aus
+- [x] Original-Download: signierte CDN-URL (`signOriginalUrl`, Token `base64url(sha256(key+pfad+expires))`), Aktion `/api/videos/original`, Button im Dashboard. **Live ungeprüft:** `BUNNY_STREAM_CDN_HOSTNAME` steht erst im nächsten Lauf in der Umgebung → dann Original-URL des Test-Videos abrufen (Token-Pfad-Format prüfen)
+- [ ] Fertig-Kriterium M4: Upload→Encoding und Embed-Token gegen echtes Bunny verifiziert (720p, Embed 200); offen: 4K-Test und Original-URL live (nächster Lauf)
 - [ ] Limit „Galerie anlegen“ (`assertCanCreateGallery`) mit M5
 
 ## Vorbereitet: M5 (Galerie-Verwaltung), nächste Schritte nach M4-Rest
@@ -42,7 +42,7 @@
 
 ## Entscheidungsbedarf
 
-D-115 (Bunny: Original behalten, CDN-Hostname, Allowlist, Test-Video löschen). Bunny-Library-ID ist ergänzt (D-111) → Bunny-Smoke-Test zu Beginn von M4. R2-Lifecycle steht (D-113).
+Bunny-Library-ID ist ergänzt (D-111) → Bunny-Smoke-Test zu Beginn von M4. R2-Lifecycle steht (D-113).
 
 ## Umgebung (Cloud-Sessions)
 
@@ -53,6 +53,9 @@ D-115 (Bunny: Original behalten, CDN-Hostname, Allowlist, Test-Video löschen). 
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-10-28 – M4 Original-Download
+- D-115 erledigt (Keep Originals, Allowlist, CDN-Hostname). Embed-Token live bestätigt. Original-URL + Download-Button, Tests inkl. E2E.
 
 ### 2026-10-28 – M4 Video-UI
 - Video-Sets in der Set-Seite, Fake-tus-Server und Test-Routen (`video-ready`, `player`) nur Nicht-Produktion/E2E; E2E setzt `VIDEO_TRANSPORT=fake`.

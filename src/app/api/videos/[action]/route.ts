@@ -5,6 +5,7 @@ import { db } from "@/db";
 import { PlanLimitError } from "@/lib/plans";
 import { getVideoProvider } from "@/lib/video";
 import {
+  originalUrl,
   playbackUrl,
   removeVideo,
   startVideoUpload,
@@ -42,6 +43,8 @@ export async function POST(
         );
       case "playback":
         return Response.json(await playbackUrl(deps, body));
+      case "original":
+        return Response.json(await originalUrl(deps, body));
       case "remove":
         await removeVideo(deps, body);
         return Response.json({ ok: true });

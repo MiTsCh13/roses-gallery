@@ -8,6 +8,7 @@ import { PlanLimitError } from "@/lib/plans";
 import { FakeVideoProvider } from "@/lib/video/fake";
 import { createTestDb, resetDb } from "@/test/db";
 import {
+  originalUrl,
   playbackUrl,
   removeVideo,
   startVideoUpload,
@@ -146,6 +147,22 @@ describe("videos", () => {
     );
     await expect(
       playbackUrl({ db, video, accountId: otherId }, { mediaId }),
+    ).rejects.toMatchObject({ code: "not_found" });
+  });
+
+  it("signs original downloads only for ready videos of the own account", async () => {
+    const { mediaId } = await start();
+    await expect(originalUrl(deps(), { mediaId })).rejects.toMatchObject({
+      code: "invalid_state",
+    });
+    const row = await tenantDb(db, accountId).media.get(mediaId);
+    video.set(row!.bunnyVideoId!, { status: "ready" });
+    await syncVideo(deps(), mediaId);
+    expect((await originalUrl(deps(), { mediaId })).url).toContain(
+      row!.bunnyVideoId!,
+    );
+    await expect(
+      originalUrl({ db, video, accountId: otherId }, { mediaId }),
     ).rejects.toMatchObject({ code: "not_found" });
   });
 

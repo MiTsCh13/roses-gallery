@@ -154,6 +154,18 @@ export async function playbackUrl(deps: Deps, input: unknown) {
   };
 }
 
+/** Signed download URL of the original; only for ready videos of the own account. */
+export async function originalUrl(deps: Deps, input: unknown) {
+  const { mediaId } = videoRefSchema.parse(input);
+  const row = await ownVideo(deps, mediaId);
+  if (row.processingStatus !== "ready") {
+    throw new VideoError("invalid_state", "Video is not ready.");
+  }
+  return {
+    url: deps.video.signOriginalUrl(row.bunnyVideoId, PLAYBACK_TTL_SECONDS),
+  };
+}
+
 export async function removeVideo(deps: Deps, input: unknown) {
   const { mediaId } = videoRefSchema.parse(input);
   const row = await ownVideo(deps, mediaId);
