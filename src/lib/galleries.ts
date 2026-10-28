@@ -225,3 +225,81 @@ export async function galleryOverview(
     storageBytes: r.storageBytes,
   }));
 }
+
+const orderSchema = z.object({
+  parentId: z.uuid(),
+  orderedIds: z.array(z.uuid()).max(5000),
+});
+
+/** Rewrites `position` for a parent's children; the list must name every child exactly once. */
+async function applyOrder(
+  deps: Deps,
+  table: typeof sets | typeof media,
+  parentColumn: typeof sets.galleryId | typeof media.setId,
+  input: unknown,
+) {
+  const { parentId, orderedIds } = orderSchema.parse(input);
+  await deps.db.transaction(async (tx) => {
+    const current = await tx
+      .select({ id: table.id })
+      .from(table)
+      .where(
+        and(eq(table.accountId, deps.accountId), eq(parentColumn, parentId)),
+      );
+    const known = new Set(current.map((r) => r.id));
+    if (
+      orderedIds.length !== known.size ||
+      new Set(orderedIds).size !== known.size ||
+      !orderedIds.every((id) => known.has(id))
+    ) {
+      throw new GalleryError("invalid_state", "Order does not match items.");
+    }
+    for (const [position, id] of orderedIds.entries()) {
+      await tx
+        .update(table)
+        .set({ position })
+        .where(and(eq(table.id, id), eq(table.accountId, deps.accountId)));
+    }
+  });
+}
+
+export async function reorderSets(
+  deps: Deps,
+  galleryId: string,
+  orderedIds: string[],
+) {
+  if (!(await tenantDb(deps.db, deps.accountId).galleries.get(galleryId)))
+    throw new GalleryError("not_found", "Gallery not found.");
+  await applyOrder(deps, sets, sets.galleryId, {
+    parentId: galleryId,
+    orderedIds,
+  });
+}
+
+export async function reorderMedia(
+  deps: Deps,
+  setId: string,
+  orderedIds: string[],
+) {
+  if (!(await tenantDb(deps.db, deps.accountId).sets.get(setId)))
+    throw new GalleryError("not_found", "Set not found.");
+  await applyOrder(deps, media, media.setId, { parentId: setId, orderedIds });
+}
+
+/** Sets (or, with null, clears) the cover; the media must belong to the gallery. */
+export async function setGalleryCover(
+  deps: Deps,
+  galleryId: string,
+  mediaId: string | null,
+) {
+  const g = await tenantDb(deps.db, deps.accountId).galleries.get(galleryId);
+  if (!g) throw new GalleryError("not_found", "Gallery not found.");
+  return updateGallery(deps, {
+    galleryId,
+    title: g.title,
+    status: g.status,
+    eventDate: g.eventDate,
+    expiresAt: g.expiresAt,
+    coverMediaId: mediaId,
+  });
+}

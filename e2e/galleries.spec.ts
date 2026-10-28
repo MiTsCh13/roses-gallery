@@ -62,6 +62,18 @@ test("create a gallery, edit it and add photo and video sets", async ({
     /Film.*Videos/,
   ]);
 
+  // Reorder: move "Film" above "Trauung"; the order survives a reload.
+  await page.getByRole("button", { name: "Nach oben: Film" }).click();
+  await expect(page.getByTestId("set-list").locator("li")).toHaveText([
+    /Film/,
+    /Trauung/,
+  ]);
+  await page.reload();
+  await expect(page.getByTestId("set-list").locator("li")).toHaveText([
+    /Film/,
+    /Trauung/,
+  ]);
+
   await page.getByRole("link", { name: "← Alle Galerien" }).click();
   await expect(page.getByTestId("gallery-list")).toContainText(
     "Veröffentlicht",

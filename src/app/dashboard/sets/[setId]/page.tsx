@@ -7,6 +7,12 @@ import { z } from "zod";
 
 import { AutoRefresh } from "@/components/auto-refresh";
 import { PhotoUploader } from "@/components/photo-uploader";
+import { SortableList } from "@/components/sortable-list";
+import { Button } from "@/components/ui/button";
+import {
+  reorderMediaAction,
+  setCoverAction,
+} from "@/app/dashboard/galleries/actions";
 import { VideoPreview } from "@/components/video-preview";
 import { VideoUploader } from "@/components/video-uploader";
 import { db } from "@/db";
@@ -32,6 +38,7 @@ async function SetContent({ params }: { params: Promise<{ setId: string }> }) {
   if (set.type === "video")
     return <VideoSet set={set} accountId={account.id} />;
 
+  const gallery = await tenant.galleries.get(set.galleryId);
   const photos = (await tenant.media.list(eq(media.setId, set.id))).sort(
     (a, b) => a.position - b.position,
   );
@@ -49,20 +56,29 @@ async function SetContent({ params }: { params: Promise<{ setId: string }> }) {
           {t("photos", { count: photos.length })}
         </h2>
         <AutoRefresh active={processing} />
-        <ul className="space-y-2" data-testid="photo-list">
-          {photos.map((p, i) => (
-            <li
-              key={p.id}
-              data-status={p.processingStatus}
-              className="flex justify-between rounded-md border p-3 text-sm"
-            >
-              <span>{t("photoN", { n: i + 1 })}</span>
-              <span className="text-muted-foreground">
-                {formatBytes(p.sizeBytes)} · {t(`status.${p.processingStatus}`)}
-              </span>
-            </li>
-          ))}
-        </ul>
+        <SortableList
+          testId="photo-list"
+          items={photos.map((p, i) => ({
+            id: p.id,
+            label: t("photoN", { n: i + 1 }),
+            detail: `${formatBytes(p.sizeBytes)} · ${t(`status.${p.processingStatus}`)}`,
+            extra:
+              p.processingStatus === "ready" ? (
+                <form action={setCoverAction}>
+                  <input type="hidden" name="galleryId" value={set.galleryId} />
+                  <input type="hidden" name="setId" value={set.id} />
+                  <input type="hidden" name="mediaId" value={p.id} />
+                  <Button type="submit" size="sm" variant="outline">
+                    {gallery?.coverMediaId === p.id
+                      ? t("isCover")
+                      : t("makeCover")}
+                  </Button>
+                </form>
+              ) : null,
+          }))}
+          onReorder={reorderMediaAction.bind(null, set.id)}
+          labels={{ up: t("moveUp"), down: t("moveDown"), handle: t("drag") }}
+        />
       </section>
     </main>
   );

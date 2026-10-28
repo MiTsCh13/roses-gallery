@@ -8,6 +8,9 @@ import {
   createGallery,
   createSet,
   GalleryError,
+  reorderMedia,
+  reorderSets,
+  setGalleryCover,
   updateGallery,
 } from "@/lib/galleries";
 import { PlanLimitError } from "@/lib/plans";
@@ -83,4 +86,36 @@ export async function createSetAction(formData: FormData) {
     redirect(`/dashboard/galleries/${galleryId}?error=${errorCode(e)}`);
   }
   redirect(`/dashboard/galleries/${galleryId}`);
+}
+
+export async function reorderSetsAction(
+  galleryId: string,
+  orderedIds: string[],
+) {
+  const { account } = await requireAccount();
+  await reorderSets({ db: db(), accountId: account.id }, galleryId, orderedIds);
+  revalidatePath(`/dashboard/galleries/${galleryId}`);
+}
+
+export async function reorderMediaAction(setId: string, orderedIds: string[]) {
+  const { account } = await requireAccount();
+  await reorderMedia({ db: db(), accountId: account.id }, setId, orderedIds);
+  revalidatePath(`/dashboard/sets/${setId}`);
+}
+
+export async function setCoverAction(formData: FormData) {
+  const { account } = await requireAccount();
+  const galleryId = field(formData, "galleryId") ?? "";
+  const setId = field(formData, "setId") ?? "";
+  const mediaId = field(formData, "mediaId");
+  try {
+    await setGalleryCover(
+      { db: db(), accountId: account.id },
+      galleryId,
+      mediaId ? mediaId : null,
+    );
+  } catch (e) {
+    errorCode(e);
+  }
+  redirect(`/dashboard/sets/${setId}?cover=1`);
 }

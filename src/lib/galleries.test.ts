@@ -8,6 +8,9 @@ import {
   createSet,
   galleryOverview,
   GalleryError,
+  reorderMedia,
+  reorderSets,
+  setGalleryCover,
   slugify,
   updateGallery,
 } from "./galleries";
@@ -183,5 +186,87 @@ describe("galleryOverview", () => {
       mediaCount: 0,
       storageBytes: 0,
     });
+  });
+});
+
+describe("ordering and cover", () => {
+  it("reorders sets and rejects incomplete or foreign lists", async () => {
+    const g = await createGallery(a, { title: "G" });
+    const ids: string[] = [];
+    for (const title of ["A", "B", "C"])
+      ids.push(
+        (await createSet(a, { galleryId: g.id, title, type: "photo" })).id,
+      );
+
+    await reorderSets(a, g.id, [ids[2], ids[0], ids[1]]);
+    const rows = await tenantDb(db, a.accountId).sets.list();
+    expect(
+      rows.sort((x, y) => x.position - y.position).map((r) => r.title),
+    ).toEqual(["C", "A", "B"]);
+
+    await expect(reorderSets(a, g.id, [ids[0], ids[1]])).rejects.toMatchObject({
+      code: "invalid_state",
+    });
+    await expect(
+      reorderSets(a, g.id, [ids[0], ids[0], ids[1]]),
+    ).rejects.toMatchObject({ code: "invalid_state" });
+    await expect(reorderSets(b, g.id, ids)).rejects.toMatchObject({
+      code: "not_found",
+    });
+  });
+
+  it("reorders media within a set only", async () => {
+    const g = await createGallery(a, { title: "G" });
+    const s1 = await createSet(a, {
+      galleryId: g.id,
+      title: "S1",
+      type: "photo",
+    });
+    const s2 = await createSet(a, {
+      galleryId: g.id,
+      title: "S2",
+      type: "photo",
+    });
+    const add = (setId: string) =>
+      db
+        .insert(media)
+        .values({ accountId: a.accountId, setId, type: "photo" })
+        .returning();
+    const [m1] = await add(s1.id);
+    const [m2] = await add(s1.id);
+    const [other] = await add(s2.id);
+
+    await reorderMedia(a, s1.id, [m2.id, m1.id]);
+    const t = tenantDb(db, a.accountId);
+    expect((await t.media.get(m2.id))?.position).toBe(0);
+    expect((await t.media.get(m1.id))?.position).toBe(1);
+    await expect(
+      reorderMedia(a, s1.id, [m2.id, other.id]),
+    ).rejects.toMatchObject({
+      code: "invalid_state",
+    });
+    await expect(reorderMedia(b, s1.id, [m1.id, m2.id])).rejects.toMatchObject({
+      code: "not_found",
+    });
+  });
+
+  it("sets and clears the cover without touching other fields", async () => {
+    const g = await createGallery(a, {
+      title: "G",
+      expiresAt: "2027-01-01",
+    });
+    const s = await createSet(a, {
+      galleryId: g.id,
+      title: "S",
+      type: "photo",
+    });
+    const [m] = await db
+      .insert(media)
+      .values({ accountId: a.accountId, setId: s.id, type: "photo" })
+      .returning();
+    const withCover = await setGalleryCover(a, g.id, m.id);
+    expect(withCover.coverMediaId).toBe(m.id);
+    expect(withCover.expiresAt?.toISOString().slice(0, 10)).toBe("2027-01-01");
+    expect((await setGalleryCover(a, g.id, null)).coverMediaId).toBeNull();
   });
 });

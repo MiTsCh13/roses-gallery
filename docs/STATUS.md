@@ -35,8 +35,9 @@
 ## Vorbereitet: M5 (Galerie-Verwaltung), nächste Schritte nach M4-Rest
 
 - [x] Galerie anlegen/bearbeiten (`lib/galleries.ts`, Server Actions + Zod, Slug eindeutig je Account, Status inkl. neuem Wert `expired`, `assertCanCreateGallery` verdrahtet), Sets anlegen (Foto/Video), Übersicht `/dashboard/galleries` mit Status, Medien, Speicher, Ablauf
-- [ ] Drag-and-Drop-Sortierung von Sets und Medien (`position`), `/api/test/seed-set` durch die echte UI in den E2E-Tests ablösen
-- [ ] Cover wählen; Galerie-Übersicht mit Status, Speicher, Ablauf (F-DASH-01)
+- [x] Sortierung von Sets und Fotos (`SortableList`: Drag-and-Drop + Hoch/Runter-Buttons, `reorderSets/reorderMedia` prüfen die vollständige ID-Liste). Offen: Video-Sortierung in der Video-Set-Seite, `/api/test/seed-set` durch die echte UI in den E2E-Tests ablösen (upload/video-Specs)
+- [x] Cover wählen (Button je fertigem Foto auf der Set-Seite, `setGalleryCover`); Galerie-Übersicht steht
+- [ ] Cover in der Übersicht anzeigen (mit Miniaturen, s. u.)
 - [x] Täglicher Job `gallery-expiry` (07:00 UTC): abgelaufene Galerien → „abgelaufen“, Erinnerung 7 Tage vorher (D-119), Mailer-Fake in Tests
 - [ ] Miniaturen im Dashboard über signierte Varianten-URLs
 
@@ -53,6 +54,9 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-10-28 – M5 Sortierung & Cover
+- `SortableList` (native DnD + Buttons), Server Actions, Unit-Tests (Reihenfolge, Mandantentrennung, Cover), E2E für Set-Reihenfolge inkl. Reload. Gesamt-E2E lokal 22/22.
 
 ### 2026-10-28 – M5 Ablauf-Job
 - Migration 0004 (`expiry_reminder_sent_at`), `lib/gallery-expiry.ts`, Job im Worker-Scheduler, Tests gegen Postgres. Neues Ablaufdatum setzt die Erinnerung zurück. D-119 angenommen.

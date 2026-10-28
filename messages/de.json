@@ -77,7 +77,12 @@
       "processing": "wird verarbeitet",
       "ready": "bereit",
       "failed": "Verarbeitung fehlgeschlagen"
-    }
+    },
+    "makeCover": "Als Cover",
+    "isCover": "Cover ✓",
+    "moveUp": "Nach oben",
+    "moveDown": "Nach unten",
+    "drag": "Zum Sortieren ziehen"
   },
   "VideoUpload": {
     "title": "Videos hochladen",
@@ -136,6 +141,10 @@
       "slug_taken": "Diese Adresse ist bereits vergeben.",
       "gallery_limit": "Das Galerie-Limit deines Plans ist erreicht.",
       "not_found": "Galerie nicht gefunden."
-    }
+    },
+    "open": "Öffnen",
+    "moveUp": "Nach oben",
+    "moveDown": "Nach unten",
+    "drag": "Zum Sortieren ziehen"
   }
 }
