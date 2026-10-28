@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 
+import { FavoriteButton } from "./favorites";
 import type { GalleryViewTile } from "./gallery-grid";
 
 const SWIPE_MIN_PX = 50;
@@ -91,6 +92,7 @@ export function Lightbox({
       >
         ×
       </button>
+      <FavoriteButton mediaId={photo.id} className="absolute top-4 left-4" />
       {count > 1 && (
         <>
           <button

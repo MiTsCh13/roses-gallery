@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import type { GRID_LAYOUTS } from "@/lib/themes";
+import { FavoriteButton } from "./favorites";
 import { Lightbox } from "./lightbox";
 
 export type GalleryViewTile = {
@@ -31,7 +32,7 @@ export function GalleryGrid({
       <div
         key={t.id}
         data-testid="gallery-tile"
-        className={`overflow-hidden ${className}`}
+        className={`relative overflow-hidden ${className}`}
         style={{ background: "var(--g-muted)", opacity: t.src ? 1 : 0.25 }}
       >
         {t.src && (
@@ -52,6 +53,12 @@ export function GalleryGrid({
               className="h-full w-full object-cover"
             />
           </button>
+        )}
+        {t.src && (
+          <FavoriteButton
+            mediaId={t.id}
+            className="absolute right-2 bottom-2 px-2 py-1 text-base"
+          />
         )}
       </div>
     );
