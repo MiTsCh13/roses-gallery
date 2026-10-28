@@ -21,6 +21,7 @@ export type GalleryViewProps = {
   logoUrl?: string;
   logoAlt?: string;
   coverUrl?: string;
+  coverSrcSet?: string;
   sets: GalleryViewSet[];
 };
 
@@ -36,6 +37,7 @@ export function GalleryView({
   logoUrl,
   logoAlt = "",
   coverUrl,
+  coverSrcSet,
   sets,
 }: GalleryViewProps) {
   const videoRows = sets
@@ -61,6 +63,7 @@ export function GalleryView({
         logoUrl={logoUrl}
         logoAlt={logoAlt}
         coverUrl={coverUrl}
+        coverSrcSet={coverSrcSet}
       />
       <div className="mx-auto max-w-6xl space-y-10 px-4 py-8 @lg:px-8">
         {videoRows.length > 0 && <VideoShelf rows={videoRows} />}
@@ -89,6 +92,7 @@ export function GalleryCover({
   logoUrl,
   logoAlt,
   coverUrl,
+  coverSrcSet,
 }: {
   style: ThemeConfig["cover"]["style"];
   title: string;
@@ -96,10 +100,18 @@ export function GalleryCover({
   logoUrl?: string;
   logoAlt?: string;
   coverUrl?: string;
+  coverSrcSet?: string;
 }) {
   const image = coverUrl ? (
     // eslint-disable-next-line @next/next/no-img-element -- signed, short-lived URLs bypass next/image
-    <img src={coverUrl} alt="" className="h-full w-full object-cover" />
+    <img
+      src={coverUrl}
+      srcSet={coverSrcSet}
+      sizes="100vw"
+      fetchPriority="high"
+      alt=""
+      className="h-full w-full object-cover"
+    />
   ) : (
     <div
       aria-hidden

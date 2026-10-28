@@ -4,7 +4,7 @@
 > und `docs/DECISIONS.md`. Log kurz halten (max. 10 Einträge, ältere löschen –
 > die Git-Historie bleibt).
 
-**Aktueller Meilenstein:** M7 – Galerie-Ansicht & Player (M4-Rest: nur Live-Abnahme Original-URL, D-117)
+**Aktueller Meilenstein:** M8 – Zugriff, Downloads, Favoriten (Rest: Live-Abnahme HLS/Original-URL, D-117)
 **Stand main:** M0–M3, M5 und M6 abgeschlossen (M2: Abnahme gegen echtes Stripe offen, D-006; M4: Original-URL live offen, D-117)
 
 ## Meilensteine
@@ -18,7 +18,7 @@
 | M4 | Video über Bunny Stream | ✅ fertig bis auf Live-Abnahme Original-URL (D-117) |
 | M5 | Galerie-Verwaltung | ✅ fertig (Reste unten) |
 | M6 | Design-Editor | ✅ fertig |
-| M7 | Galerie-Ansicht & Player | 🚧 offen, aufgeschlüsselt |
+| M7 | Galerie-Ansicht & Player | ✅ fertig bis auf Live-Abnahme HLS/Original (D-117) |
 | M8 | Zugriff, Downloads, Favoriten | offen |
 | M9 | Auslieferung & Statistik | offen |
 | M10 | Härtung & Launch | offen |
@@ -32,7 +32,17 @@
 - [ ] Fertig-Kriterium M4: Upload→Encoding, 4K (D-118) und Embed-Token live verifiziert. **Offen nur Original-URL live:** 403 mit dem Embed-Key, vermutlich eigener Pull-Zone-Key → D-117 (Mitsch)
 - [x] Limit „Galerie anlegen“ (`assertCanCreateGallery`) mit M5
 
-## Nächste Schritte (M7, in dieser Reihenfolge)
+## Nächste Schritte (M8, in dieser Reihenfolge)
+
+- [ ] Passwortschutz pro Galerie (F-SEC-01): Passwort setzen im Dashboard (Argon2/scrypt-Hash in `galleries.passwordHash`), Passwort-Formular vor `/g/[slug]`, signiertes Zugangs-Cookie, Rate-Limit (Redis) gegen Raten
+- [ ] Download-Rechte je Galerie und Set (F-SEC-02): aus / Web-Größe / Original, Einstellung im Dashboard, Einzel-Download über signierte URL mit `Content-Disposition`
+- [ ] ZIP-Download als Worker-Job (F-SEC-02) mit Mail-Link, Ablauf des Links
+- [ ] Wasserzeichen auf Web-Größen (F-SEC-03): Logo, Position, Deckkraft; Original unberührt
+- [ ] Favoriten mit mehreren Listen ohne Konto, Magic Link für Kunden (F-INT-01), Export an den Creator
+- [ ] Teilen per Link und Instagram-Story-Bild (F-INT-02)
+- [ ] Fertig-Kriterium M8: Passwort, ZIP-Download, Wasserzeichen, Favoritenlisten
+
+## Nächste Schritte (M7, erledigt)
 
 - [x] Öffentliche Route `/g/[slug]` (`lib/public-gallery.ts`, `noindex`): nur `published` und nicht abgelaufen, sonst `notFound`; Theme/Overrides + Logo über `GalleryView`; Slugs global eindeutig (Migration 0007 benennt Dubletten um, `freeSlug` global, Retry bei Race). Hinweis: `notFound` kommt im gestreamten Suspense-Shell, daher HTTP 200 mit Not-Found-Inhalt (E2E prüft Inhalt). Cover/Fotos folgen im nächsten Schritt
 - [x] Foto-Sets: Raster mit echten Fotos (signierte Varianten 1 h, `srcset` 400/1200/2400, lazy loading), Cover aus `coverMediaId` (größte Variante); nur `ready`-Fotos. Kein E2E mit echten Bildern (Worker läuft in E2E nicht) – Unit-Tests gegen Postgres + Komponententest
@@ -40,7 +50,8 @@
 - [x] Video-Reihen im Netflix-Stil (`video-shelf.tsx`: Hero-Player + Reihe je Video-Set, signierte Embed-URL 4 h, iframe erst nach Klick), Hybrid-Galerie (Video- und Foto-Sets gemeinsam). Nur `ready`-Videos; Titel „Film n“ (Medien haben keinen Titel), keine Poster/Thumbnails (Provider liefert noch keine). Kein E2E mit echtem Video-Set (Worker/Bunny-Fake) – Unit- und Komponententests
 - [x] HLS-Player (`hls-player.tsx`, hls.js, nativer HLS-Fallback für Safari inkl. `x-webkit-airplay`): Qualitätswahl, Vollbild (native Controls), Fortsetzen (`resume-position.ts`, localStorage). Provider `signHlsUrl` (Bunny: verzeichnisweiter CDN-Token `token_path`) liefert nur mit `BUNNY_STREAM_CDN_TOKEN_KEY` eine URL, sonst bleibt das Embed-iframe. **Live ungeprüft** (D-117: Token-Format/Segmente, ggf. CORS der Pull-Zone). Tests: Unit + jsdom, kein E2E mit echtem HLS
 - [x] AirPlay/Chromecast (`cast.ts`, Button im `HlsPlayer`): Remote Playback API, Fallback WebKit-Picker, Button nur bei Feature-Detection (D-121, kein Cast SDK). Tests: Unit + jsdom; echte Geräte ungeprüft
-- [ ] Performance: LCP < 2,5 s auf 4G prüfen (Lighthouse), Fertig-Kriterium M7
+- [x] Performance: `scripts/lighthouse-lcp.sh` (60 Fotos im Fake-Storage, Produktions-Build, Lighthouse mobil/Slow-4G): LCP erst 3,1 s (Cover lud immer die 2400-px-Variante), mit Cover-`srcset` + `fetchpriority=high` 0,9 s, CLS 0, TBT 82 ms. Einschränkung: lokaler Server, Fake-Storage statt R2/CDN
+- [ ] Fertig-Kriterium M7 abschließend prüfen (Abnahme live gegen R2/Bunny hängt an D-117)
 
 ## Nächste Schritte (M6, erledigt)
 
@@ -68,6 +79,9 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-10-28 – M7 LCP
+- Lighthouse-Skript + Cover-`srcset`, LCP 3,1 s → 0,9 s. M7 damit funktional fertig. Nächster Schritt: M8 in `UMSETZUNGSPLAN.md` aufschlüsseln. Cloud: Postgres `pg_ctlcluster 16 main start`, Rolle/DBs neu anlegen, `redis-server --daemonize yes`; Lighthouse per `npm i lighthouse` außerhalb des Repos.
 
 ### 2026-10-28 – M7 Cast
 - Cast-Button via Remote Playback API (D-121). Nächster Schritt: Lighthouse-LCP (<2,5 s) prüfen = letztes M7-Kriterium; Chromium ist vorinstalliert. Cloud: Rolle/DBs wie oben neu anlegen.

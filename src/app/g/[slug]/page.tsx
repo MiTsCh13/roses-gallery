@@ -37,6 +37,7 @@ async function GalleryContent({
         title={gallery.title}
         logoUrl={gallery.logoUrl ?? undefined}
         coverUrl={gallery.coverUrl ?? undefined}
+        coverSrcSet={gallery.coverSrcSet ?? undefined}
         sets={gallery.sets.map((s) => ({
           id: s.id,
           title: s.title,

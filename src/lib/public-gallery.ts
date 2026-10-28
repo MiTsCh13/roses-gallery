@@ -27,6 +27,8 @@ export type PublicGallery = {
   config: ThemeConfig;
   logoUrl: string | null;
   coverUrl: string | null;
+  /** Cover variants as `srcset`, so small screens do not load the largest one. */
+  coverSrcSet: string | null;
   sets: PublicSet[];
 };
 
@@ -173,6 +175,7 @@ export async function loadPublicGallery(
   const setIds = new Set(rows.map((r) => r.id));
   const bySet = new Map<string, PublicPhoto[]>();
   let coverUrl: string | null = null;
+  let coverSrcSet: string | null = null;
   for (const m of ready) {
     if (!setIds.has(m.setId)) continue;
     const variants = Object.values(m.variants as PhotoVariants).sort(
@@ -194,7 +197,10 @@ export async function loadPublicGallery(
       width: m.width ?? mid.width,
       height: m.height ?? mid.height,
     };
-    if (m.id === gallery.coverMediaId) coverUrl = signed.at(-1)!.url;
+    if (m.id === gallery.coverMediaId) {
+      coverUrl = signed.at(-1)!.url;
+      coverSrcSet = photo.srcSet;
+    }
     bySet.set(m.setId, [...(bySet.get(m.setId) ?? []), photo]);
   }
 
@@ -206,6 +212,7 @@ export async function loadPublicGallery(
     config,
     logoUrl,
     coverUrl,
+    coverSrcSet,
     sets: rows.map((r) => ({
       ...r,
       photos: bySet.get(r.id) ?? [],
