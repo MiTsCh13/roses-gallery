@@ -20,6 +20,12 @@ void scheduler.upsertJobScheduler(
 );
 
 void scheduler.upsertJobScheduler(
+  "cleanup-zip-exports",
+  { every: 60 * 60 * 1000 },
+  { name: "cleanup-zip-exports", data: {} },
+);
+
+void scheduler.upsertJobScheduler(
   "gallery-expiry",
   { pattern: "0 7 * * *" },
   { name: "gallery-expiry", data: {} },

@@ -242,6 +242,36 @@ export const media = pgTable(
   ],
 );
 
+export const zipStatus = pgEnum("zip_status", ["pending", "ready", "failed"]);
+
+// ZIP download of a gallery or set (F-SEC-02), built by the worker and mailed
+// as a link. The row id doubles as the unguessable link token.
+export const zipExports = pgTable(
+  "zip_exports",
+  {
+    id: id(),
+    accountId: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id, { onDelete: "cascade" }),
+    galleryId: uuid("gallery_id")
+      .notNull()
+      .references(() => galleries.id, { onDelete: "cascade" }),
+    // null = all downloadable sets of the gallery
+    setId: uuid("set_id").references(() => sets.id, { onDelete: "cascade" }),
+    size: text("size").notNull().$type<"web" | "original">(),
+    email: text("email").notNull(),
+    status: zipStatus("status").notNull().default("pending"),
+    storageKey: text("storage_key"),
+    sizeBytes: bigint("size_bytes", { mode: "number" }).notNull().default(0),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    index("zip_exports_account_idx").on(t.accountId),
+    index("zip_exports_expires_idx").on(t.expiresAt),
+  ],
+);
+
 export const visitors = pgTable(
   "visitors",
   {

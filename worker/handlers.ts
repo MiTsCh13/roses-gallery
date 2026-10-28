@@ -2,8 +2,10 @@ import { db } from "@/db";
 import { processPhoto } from "@/lib/photos";
 import { cleanupStaleUploads } from "@/lib/upload-cleanup";
 import { runGalleryExpiry } from "@/lib/gallery-expiry";
+import { buildZipExport, cleanupExpiredZips } from "@/lib/zip-exports";
 import { getMailer } from "@/lib/mailer";
 import { getStorage } from "@/lib/storage";
+import { serverEnv } from "@/lib/env";
 import {
   isJobName,
   parseJobPayload,
@@ -23,6 +25,18 @@ export const handlers: Handlers = {
     cleanupStaleUploads({ db: db(), storage: getStorage() }),
   "gallery-expiry": async () =>
     runGalleryExpiry({ db: db(), mailer: getMailer() }),
+  "build-zip": async (payload) =>
+    buildZipExport(
+      {
+        db: db(),
+        storage: getStorage(),
+        mailer: getMailer(),
+        baseUrl: serverEnv().AUTH_URL ?? "http://localhost:3000",
+      },
+      payload,
+    ),
+  "cleanup-zip-exports": async () =>
+    cleanupExpiredZips({ db: db(), storage: getStorage() }),
 };
 
 export async function dispatch(name: string, data: unknown) {

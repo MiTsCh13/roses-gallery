@@ -14,7 +14,7 @@ import { loadPublicGallery } from "@/lib/public-gallery";
 import { getStorage } from "@/lib/storage";
 import { getVideoProvider } from "@/lib/video";
 import { accessCookieName } from "@/lib/gallery-access";
-import { unlockGalleryAction } from "./actions";
+import { requestZipAction, unlockGalleryAction } from "./actions";
 
 // Never index client galleries.
 export const metadata: Metadata = { robots: { index: false, follow: false } };
@@ -40,7 +40,7 @@ async function GalleryContent({
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; zip?: string }>;
 }) {
   const gallery = await load(params);
   if (!gallery) notFound();
@@ -78,6 +78,8 @@ async function GalleryContent({
       </main>
     );
   }
+  const { zip } = await searchParams;
+  const photoSets = gallery.sets.filter((s) => s.photos.length > 0);
   return (
     <main className="flex-1">
       <GalleryView
@@ -105,13 +107,69 @@ async function GalleryContent({
           })),
         }))}
       />
+      {photoSets.length > 0 && (
+        <section className="mx-auto w-full max-w-xl space-y-3 px-6 py-10">
+          <h2 className="text-lg font-semibold">{t("zipTitle")}</h2>
+          <p className="text-sm text-muted-foreground">{t("zipIntro")}</p>
+          {zip && (
+            <p
+              role={zip === "sent" ? "status" : "alert"}
+              className={
+                zip === "sent" ? "text-sm" : "text-sm text-destructive"
+              }
+            >
+              {t.has(`zipResult.${zip}`)
+                ? t(`zipResult.${zip}`)
+                : t("zipResult.invalid")}
+            </p>
+          )}
+          <form action={requestZipAction} className="space-y-3">
+            <input type="hidden" name="slug" value={gallery.slug} />
+            <label className="block space-y-1 text-sm">
+              <span>{t("zipSet")}</span>
+              <select
+                name="setId"
+                className="h-9 w-full rounded-md border bg-background px-2"
+              >
+                <option value="">{t("zipAllSets")}</option>
+                {photoSets.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="block space-y-1 text-sm">
+              <span>{t("zipSize")}</span>
+              <select
+                name="size"
+                className="h-9 w-full rounded-md border bg-background px-2"
+              >
+                <option value="web">{t("zipWeb")}</option>
+                <option value="original">{t("zipOriginal")}</option>
+              </select>
+            </label>
+            <label className="block space-y-1 text-sm">
+              <span>{t("zipEmail")}</span>
+              <Input
+                name="email"
+                type="email"
+                required
+                maxLength={254}
+                autoComplete="email"
+              />
+            </label>
+            <Button type="submit">{t("zipSubmit")}</Button>
+          </form>
+        </section>
+      )}
     </main>
   );
 }
 
 export default function PublicGalleryPage(props: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; zip?: string }>;
 }) {
   return (
     <Suspense>

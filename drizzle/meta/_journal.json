@@ -57,6 +57,13 @@
       "when": 1793200975361,
       "tag": "0007_global_gallery_slug",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793225470067,
+      "tag": "0008_hard_glorian",
+      "breakpoints": true
     }
   ]
 }
