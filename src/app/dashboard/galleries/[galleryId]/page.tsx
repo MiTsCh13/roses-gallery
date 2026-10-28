@@ -13,6 +13,7 @@ import { sets } from "@/db/schema";
 import { tenantDb } from "@/db/tenant";
 import { DOWNLOAD_POLICIES } from "@/lib/download-policy";
 import { readWatermarkConfig, WATERMARK_POSITIONS } from "@/lib/watermark";
+import { EVENT_TYPES, galleryStats } from "@/lib/events";
 import { requireAccount } from "@/lib/session";
 import { SortableList } from "@/components/sortable-list";
 import {
@@ -48,6 +49,10 @@ async function GalleryContent({
   gallerySets.sort((a, b) => a.position - b.position);
 
   const watermark = readWatermarkConfig(account.branding);
+  const [stats7, stats30] = await Promise.all([
+    galleryStats(db(), account.id, gallery.id, 7),
+    galleryStats(db(), account.id, gallery.id, 30),
+  ]);
 
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-6 py-16">
@@ -71,6 +76,33 @@ async function GalleryContent({
           {t("saved")}
         </p>
       )}
+
+      <section aria-labelledby="stats-title" className="space-y-3">
+        <h2 id="stats-title" className="text-lg font-medium">
+          {t("statsTitle")}
+        </h2>
+        <table className="text-sm" data-testid="gallery-stats">
+          <thead>
+            <tr className="text-left text-muted-foreground">
+              <th className="pr-6 font-normal" />
+              <th className="pr-6 font-normal">{t("stats7")}</th>
+              <th className="font-normal">{t("stats30")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {EVENT_TYPES.map((type) => (
+              <tr key={type}>
+                <th scope="row" className="pr-6 text-left font-normal">
+                  {t(`statsType.${type}`)}
+                </th>
+                <td className="pr-6">{stats7[type]}</td>
+                <td>{stats30[type]}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <p className="text-xs text-muted-foreground">{t("statsPrivacy")}</p>
+      </section>
 
       <form action={updateGalleryAction} className="max-w-md space-y-4">
         <input type="hidden" name="galleryId" value={gallery.id} />

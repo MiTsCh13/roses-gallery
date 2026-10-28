@@ -21,6 +21,7 @@ import { db } from "@/db";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { serverEnv } from "@/lib/env";
+import { recordEvent } from "@/lib/events";
 import { loadPublicGallery } from "@/lib/public-gallery";
 import { getStorage } from "@/lib/storage";
 import { getVideoProvider } from "@/lib/video";
@@ -103,6 +104,7 @@ async function GalleryContent({
   }
   const { zip } = await searchParams;
   const favorites = await loadFavorites(gallery);
+  await recordEvent(db(), gallery, "view");
   const photoSets = gallery.sets.filter((s) => s.photos.length > 0);
   return (
     <FavoritesProvider slug={gallery.slug} initial={favorites}>

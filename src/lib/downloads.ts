@@ -10,6 +10,7 @@ import {
   effectivePolicy,
 } from "@/lib/download-policy";
 import { GalleryError } from "@/lib/galleries";
+import { recordEvent } from "@/lib/events";
 import { ensureWatermarked } from "@/lib/watermark";
 import { verifyAccessToken } from "@/lib/gallery-access";
 import type { PhotoVariants } from "@/lib/photos";
@@ -153,5 +154,6 @@ export async function resolvePhotoDownload(
   const url = await deps.storage.signGet(key, DOWNLOAD_URL_TTL_SECONDS, {
     downloadName: `${gallery.slug}-${n}${suffix}${ext}`,
   });
+  await recordEvent(deps.db, gallery, "download", row.media.id);
   return { ok: true, url };
 }

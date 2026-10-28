@@ -13,6 +13,7 @@ import {
   visitors,
   type galleries,
 } from "@/db/schema";
+import { recordEvent } from "@/lib/events";
 import type { Mailer } from "@/lib/mailer";
 
 // Favorites without an account (F-INT-01). A visitor is identified by a signed
@@ -277,6 +278,7 @@ export async function toggleFavorite(
       mediaId: photo.id,
     })
     .onConflictDoNothing();
+  await recordEvent(deps.db, gallery, "favorite", photo.id);
   return { favorite: true };
 }
 

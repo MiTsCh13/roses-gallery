@@ -34,8 +34,8 @@
 
 ## Nächste Schritte (M9, in dieser Reihenfolge)
 
-- [ ] Event-Erfassung datensparsam ohne Cookies (F-DASH-02): `events` (view, play, download, favorite), keine IP/kein Cookie, Besucher-Hash nur tagesweise rotierend (Entscheidung nötig → D-127 Annahme); Aufrufe von `/g/[slug]`, Video-Start, Download-Route, Favorit-Toggle
-- [ ] Statistik pro Galerie im Dashboard (Aufrufe, Wiedergaben, Downloads, Favoriten; Zeitraum 7/30 Tage)
+- [x] Event-Erfassung datensparsam (F-DASH-02, D-127): `lib/events.ts`, Tabelle `events` ohne Cookie/IP/Besucher-ID (nur Typ, Galerie, Foto/Video, Zeit); `view` beim Rendern von `/g/[slug]` (nur entsperrt), `play` per Server Action beim Videostart (Rate-Limit), `download` bei erfolgreichem Einzel-Download und ZIP-Link, `favorite` beim Hinzufügen
+- [x] Statistik pro Galerie im Dashboard (Galerie-Seite): Aufrufe, Wiedergaben, Downloads, Favoriten für 7/30 Tage. Tests: Unit gegen Postgres. Offen: Zeitreihe/Diagramm, Aufbewahrungsfrist/Aufräumen alter Events (M10)
 - [ ] Auslieferungs-Mail (F-DASH-03): Postmark, anpassbarer Text (Platzhalter Titel/Link/Passwort-Hinweis), Creator-Logo/Branding, Empfänger-Liste, Versand aus dem Dashboard, Protokoll
 - [ ] Fertig-Kriterium M9: Auslieferungs-Mail kommt an, Aufrufe werden gezählt
 - [ ] Optional aus M8: Dashboard-Ansicht der Favoritenlisten je Galerie (CSV)
@@ -87,6 +87,9 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-10-28 – M9 Statistik
+- Events + Dashboard-Statistik (D-127). Nächster Schritt: Auslieferungs-Mail (F-DASH-03). Cloud: Postgres/Redis neu starten, Rolle/DBs anlegen.
 
 ### 2026-10-28 – M8 Teilen, M8 fertig
 - Link-/Story-Teilen (D-126), M8-Kriterium erfüllt, M9 aufgeschlüsselt. Nächster Schritt: Event-Erfassung. Cloud: Postgres/Redis neu starten, Rolle/DBs anlegen.

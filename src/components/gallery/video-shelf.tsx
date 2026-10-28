@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
+import { recordPlayAction } from "@/app/g/[slug]/favorites-actions";
+import { useFavorites } from "./favorites";
 import { HlsPlayer } from "./hls-player";
 
 export type GalleryViewVideo = {
@@ -32,6 +34,12 @@ export function VideoShelf({
   rows: { id: string; title: string; videos: GalleryViewVideo[] }[];
 }) {
   const t = useTranslations("PublicGallery");
+  // the favorites context knows the public slug; absent in the editor preview
+  const slug = useFavorites()?.slug;
+  const play = (id: string) => {
+    setPlaying(id);
+    if (slug) void recordPlayAction(slug, id);
+  };
   const all = rows.flatMap((r) => r.videos);
   const [selected, setSelected] = useState<string | null>(all[0]?.id ?? null);
   const [playing, setPlaying] = useState<string | null>(null);
@@ -64,7 +72,7 @@ export function VideoShelf({
         ) : (
           <button
             type="button"
-            onClick={() => setPlaying(hero.id)}
+            onClick={() => play(hero.id)}
             disabled={!hero.playUrl && !hero.hlsUrl}
             className="absolute inset-0 flex flex-col items-center justify-center gap-2 disabled:opacity-40"
             style={{
@@ -97,7 +105,8 @@ export function VideoShelf({
                   aria-pressed={v.id === hero.id}
                   onClick={() => {
                     setSelected(v.id);
-                    setPlaying(v.playUrl || v.hlsUrl ? v.id : null);
+                    if (v.playUrl || v.hlsUrl) play(v.id);
+                    else setPlaying(null);
                   }}
                   className="block w-full text-left"
                 >

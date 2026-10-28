@@ -2,7 +2,10 @@
 
 import { cookies, headers } from "next/headers";
 
+import { z } from "zod";
+
 import { db } from "@/db";
+import { recordPlay } from "@/lib/events";
 import { serverEnv } from "@/lib/env";
 import { findVisibleGallery } from "@/lib/downloads";
 import {
@@ -220,4 +223,17 @@ export async function emailLinkAction(
     );
     return { state: await fresh(c, visitor.id), code: "link_sent" };
   });
+}
+
+/** Counts a video start (F-DASH-02); only for videos of a visible gallery. */
+export async function recordPlayAction(slug: string, mediaId: string) {
+  if (!z.uuid().safeParse(mediaId).success) return;
+  const c = await context(slug);
+  if (!c) return;
+  const limit = await getRateLimiter(c.env.REDIS_URL).hit(
+    `play:${await ip()}`,
+    300,
+    60 * 60,
+  );
+  if (limit.allowed) await recordPlay(db(), c.gallery, mediaId);
 }
