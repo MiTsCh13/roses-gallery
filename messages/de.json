@@ -33,7 +33,8 @@
     "title": "Dashboard",
     "signedInAs": "Angemeldet als {email}",
     "signOut": "Abmelden",
-    "billing": "Abo & Speicher"
+    "billing": "Abo & Speicher",
+    "galleries": "Galerien"
   },
   "Billing": {
     "title": "Abo & Speicher",
@@ -98,6 +99,43 @@
       "processing": "wird verarbeitet",
       "ready": "bereit",
       "failed": "Verarbeitung fehlgeschlagen"
+    }
+  },
+  "Galleries": {
+    "title": "Galerien",
+    "new": "Neue Galerie",
+    "create": "Galerie anlegen",
+    "empty": "Noch keine Galerie angelegt.",
+    "back": "← Alle Galerien",
+    "save": "Speichern",
+    "saved": "Gespeichert.",
+    "fieldTitle": "Titel",
+    "fieldSlug": "Adresse (Slug)",
+    "slugHint": "automatisch aus dem Titel",
+    "fieldEventDate": "Datum der Feier",
+    "fieldExpiresAt": "Ablaufdatum",
+    "fieldStatus": "Status",
+    "status": {
+      "draft": "Entwurf",
+      "published": "Veröffentlicht",
+      "expired": "Abgelaufen",
+      "archived": "Archiviert"
+    },
+    "media": "{count, plural, =0 {keine Medien} =1 {1 Medium} other {# Medien}}",
+    "expires": "Ablauf: {date}",
+    "sets": "{count, plural, =0 {Keine Sets} =1 {1 Set} other {# Sets}}",
+    "setTitle": "Titel des Sets",
+    "setTypeLabel": "Art des Sets",
+    "addSet": "Set hinzufügen",
+    "setType": {
+      "photo": "Fotos",
+      "video": "Videos"
+    },
+    "error": {
+      "invalid": "Bitte die Eingaben prüfen.",
+      "slug_taken": "Diese Adresse ist bereits vergeben.",
+      "gallery_limit": "Das Galerie-Limit deines Plans ist erreicht.",
+      "not_found": "Galerie nicht gefunden."
     }
   }
 }

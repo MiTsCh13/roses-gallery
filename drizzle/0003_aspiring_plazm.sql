@@ -1,0 +1,1 @@
+ALTER TYPE "public"."gallery_status" ADD VALUE 'expired' BEFORE 'archived';

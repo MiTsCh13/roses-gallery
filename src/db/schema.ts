@@ -20,6 +20,7 @@ export const userRole = pgEnum("user_role", ["owner", "member", "admin"]);
 export const galleryStatus = pgEnum("gallery_status", [
   "draft",
   "published",
+  "expired",
   "archived",
 ]);
 export const downloadPolicy = pgEnum("download_policy", [

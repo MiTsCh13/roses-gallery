@@ -30,12 +30,12 @@
 - [x] Upload-UI für Video-Sets (`VideoUploader`, tus-js-client, Fortschritt, Abbrechen) + Player-Vorschau (signierte Embed-URL erst per Klick) auf `/dashboard/sets/[setId]`; Seite zieht den Status offener Videos selbst nach (webhook-unabhängig). E2E gegen Fake-tus (`/api/test/tus`). Offen: Fortsetzen nach Reload
 - [x] Original-Download: signierte CDN-URL (`signOriginalUrl`, Token `base64url(sha256(key+pfad+expires))`), Aktion `/api/videos/original`, Button im Dashboard. **Live ungeprüft:** `BUNNY_STREAM_CDN_HOSTNAME` steht erst im nächsten Lauf in der Umgebung → dann Original-URL des Test-Videos abrufen (Token-Pfad-Format prüfen)
 - [ ] Fertig-Kriterium M4: Upload→Encoding, 4K (D-118) und Embed-Token live verifiziert. **Offen nur Original-URL live:** 403 mit dem Embed-Key, vermutlich eigener Pull-Zone-Key → D-117 (Mitsch)
-- [ ] Limit „Galerie anlegen“ (`assertCanCreateGallery`) mit M5
+- [x] Limit „Galerie anlegen“ (`assertCanCreateGallery`) mit M5
 
 ## Vorbereitet: M5 (Galerie-Verwaltung), nächste Schritte nach M4-Rest
 
-- [ ] Galerie anlegen/bearbeiten (Server Actions + Zod: Titel, Datum, Slug eindeutig je Account, Status, Ablaufdatum), `assertCanCreateGallery` verdrahten
-- [ ] Sets anlegen (Foto/Video) und Drag-and-Drop-Sortierung von Sets und Medien (`position`), `/api/test/seed-set` ablösen
+- [x] Galerie anlegen/bearbeiten (`lib/galleries.ts`, Server Actions + Zod, Slug eindeutig je Account, Status inkl. neuem Wert `expired`, `assertCanCreateGallery` verdrahtet), Sets anlegen (Foto/Video), Übersicht `/dashboard/galleries` mit Status, Medien, Speicher, Ablauf
+- [ ] Drag-and-Drop-Sortierung von Sets und Medien (`position`), `/api/test/seed-set` durch die echte UI in den E2E-Tests ablösen
 - [ ] Cover wählen; Galerie-Übersicht mit Status, Speicher, Ablauf (F-DASH-01)
 - [ ] Täglicher Job: abgelaufene Galerien → „abgelaufen“, Erinnerung 7 Tage vorher (Postmark-Fake)
 - [ ] Miniaturen im Dashboard über signierte Varianten-URLs
@@ -53,6 +53,9 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-10-28 – M5 Galerie anlegen
+- Migration 0003 (`gallery_status` + `expired`), `lib/galleries.ts`, Dashboard-Seiten für Übersicht/Anlegen/Bearbeiten/Sets, Unit-Tests gegen Postgres, E2E. Hinweis E2E: mit Cache Components bleiben Vorseiten im DOM → Locators über Rollen statt `getByLabel`. Cloud: DB `roses_gallery` für E2E zusätzlich anlegen. D-117 weiter offen.
 
 ### 2026-10-28 – M4 Live-Abnahme
 - 4K-Upload live grün; Original-URL 403 → optionaler `BUNNY_STREAM_CDN_TOKEN_KEY` (Fallback Embed-Key), Tests ergänzt. Frage D-117 offen.
