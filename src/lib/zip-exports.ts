@@ -4,6 +4,7 @@ import { z } from "zod";
 import type { Db } from "@/db";
 import { galleries, media, sets, zipExports } from "@/db/schema";
 import { allows, effectivePolicy } from "@/lib/download-policy";
+import { recordEvent } from "@/lib/events";
 import { findVisibleGallery } from "@/lib/downloads";
 import type { Mailer } from "@/lib/mailer";
 import type { PhotoVariants } from "@/lib/photos";
@@ -307,6 +308,7 @@ export async function resolveZipDownload(
     ZIP_URL_TTL_SECONDS,
     { downloadName: `${row.gallery.slug}.zip` },
   );
+  await recordEvent(deps.db, row.gallery, "download");
   return { ok: true, url };
 }
 

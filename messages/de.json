@@ -123,6 +123,16 @@
       "web": "Web-Größe",
       "original": "Original"
     },
+    "statsTitle": "Statistik",
+    "stats7": "7 Tage",
+    "stats30": "30 Tage",
+    "statsType": {
+      "view": "Aufrufe",
+      "play": "Video-Wiedergaben",
+      "download": "Downloads",
+      "favorite": "Favoriten"
+    },
+    "statsPrivacy": "Gezählt wird ohne Cookies und ohne IP-Adressen, daher keine Einzelbesucher.",
     "watermarkTitle": "Wasserzeichen",
     "watermarkEnable": "Wasserzeichen auf Web-Größen (Originale bleiben unberührt)",
     "watermarkHint": "Dein Logo wird auf Anzeige und Web-Download gelegt. Einstellungen gelten für alle Galerien.",
