@@ -14,6 +14,7 @@ import {
   updateGallery,
 } from "@/lib/galleries";
 import { BrandingError, removeLogo } from "@/lib/branding";
+import { setGalleryPassword } from "@/lib/gallery-access";
 import { getStorage } from "@/lib/storage";
 import { saveGalleryDesign } from "@/lib/gallery-design";
 import { PlanLimitError } from "@/lib/plans";
@@ -71,6 +72,23 @@ export async function updateGalleryAction(formData: FormData) {
     redirect(`/dashboard/galleries/${galleryId}?error=${errorCode(e)}`);
   }
   revalidatePath("/dashboard/galleries");
+  redirect(`/dashboard/galleries/${galleryId}?saved=1`);
+}
+
+export async function setGalleryPasswordAction(formData: FormData) {
+  const { account } = await requireAccount();
+  const galleryId = field(formData, "galleryId") ?? "";
+  const remove = field(formData, "intent") === "remove";
+  try {
+    await setGalleryPassword(
+      { db: db(), accountId: account.id },
+      galleryId,
+      remove ? null : (field(formData, "password") ?? ""),
+    );
+  } catch (e) {
+    redirect(`/dashboard/galleries/${galleryId}?error=${errorCode(e)}`);
+  }
+  revalidatePath(`/dashboard/galleries/${galleryId}`);
   redirect(`/dashboard/galleries/${galleryId}?saved=1`);
 }
 

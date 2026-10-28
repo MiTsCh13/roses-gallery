@@ -3,6 +3,7 @@ import { and, asc, eq, inArray, isNotNull, isNull, or } from "drizzle-orm";
 import type { Db } from "@/db";
 import { accounts, galleries, media, sets, themes } from "@/db/schema";
 import { LOGO_URL_TTL_SECONDS } from "@/lib/branding";
+import { verifyAccessToken } from "@/lib/gallery-access";
 import type { PhotoVariants } from "@/lib/photos";
 import type { Storage } from "@/lib/storage/types";
 import type { VideoProvider } from "@/lib/video/types";
@@ -17,9 +18,21 @@ type Deps = {
   storage: Storage;
   video?: VideoProvider;
   now?: Date;
+  /** Cookie value of this gallery's access cookie, if the visitor has one. */
+  accessToken?: (galleryId: string) => string | undefined;
+  /** Secret signing access cookies; without it, protected galleries stay locked. */
+  accessSecret?: string;
+};
+
+/** Shown instead of the gallery until the visitor entered the password. */
+export type LockedGallery = {
+  locked: true;
+  slug: string;
+  title: string;
 };
 
 export type PublicGallery = {
+  locked: false;
   id: string;
   accountId: string;
   title: string;
@@ -73,7 +86,7 @@ function parseConfig(raw: unknown): ThemeConfig | null {
 export async function loadPublicGallery(
   deps: Deps,
   slug: string,
-): Promise<PublicGallery | null> {
+): Promise<PublicGallery | LockedGallery | null> {
   const now = deps.now ?? new Date();
   const [gallery] = await deps.db
     .select()
@@ -82,6 +95,20 @@ export async function loadPublicGallery(
     .limit(1);
   if (!gallery || gallery.status !== "published") return null;
   if (gallery.expiresAt && gallery.expiresAt <= now) return null;
+
+  if (gallery.passwordHash) {
+    const granted =
+      deps.accessSecret &&
+      verifyAccessToken(
+        deps.accessSecret,
+        { id: gallery.id, passwordHash: gallery.passwordHash },
+        deps.accessToken?.(gallery.id),
+        now,
+      );
+    if (!granted) {
+      return { locked: true, slug: gallery.slug, title: gallery.title };
+    }
+  }
 
   const accountId = gallery.accountId;
   // a theme is a system theme (accountId null) or one of this account
@@ -205,6 +232,7 @@ export async function loadPublicGallery(
   }
 
   return {
+    locked: false,
     id: gallery.id,
     accountId,
     title: gallery.title,
