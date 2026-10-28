@@ -8,6 +8,7 @@
 
 | ID | Frage | Vorläufige Annahme | Benötigt bis |
 | --- | --- | --- | --- |
+| – | Keine offenen Fragen | – | – |
 
 Schlüssel bitte als Secrets in der Cloud-Umgebung (bzw. GitHub Actions Secrets) hinterlegen, nie ins Repo. Anleitung und Variablenliste: `docs/ZUGAENGE.md`.
 
@@ -15,6 +16,7 @@ Schlüssel bitte als Secrets in der Cloud-Umgebung (bzw. GitHub Actions Secrets)
 
 | ID | Entscheidung | Begründung | Datum |
 | --- | --- | --- | --- |
+| – | Keine offenen Fragen | – | – |
 | D-100 | PRs werden von Claude selbst gemergt, sobald CI grün ist | Vorgabe Mitsch: minimaler Human-in-the-Loop | 2026-10-27 |
 | D-101 | Externe Dienste zuerst gegen Mocks/Testmodi, echte Schlüssel erst bei Bedarf | Vorgabe Mitsch | 2026-10-27 |
 | D-102 | Next.js 16.4 mit `cacheComponents` (Default von create-next-app) | aktueller Stand; Docs liegen in `node_modules/next/dist/docs` | 2026-10-27 |
