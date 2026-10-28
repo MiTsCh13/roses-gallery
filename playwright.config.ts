@@ -29,6 +29,7 @@ export default defineConfig({
       MAIL_TRANSPORT: "fake",
       BILLING_TRANSPORT: "fake",
       STORAGE_TRANSPORT: "fake",
+      VIDEO_TRANSPORT: "fake",
       E2E_TEST_MODE: "1",
     },
     url: `http://localhost:${PORT}/api/health`,
