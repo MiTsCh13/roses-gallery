@@ -38,7 +38,7 @@
 - [x] Foto-Sets: Raster mit echten Fotos (signierte Varianten 1 h, `srcset` 400/1200/2400, lazy loading), Cover aus `coverMediaId` (größte Variante); nur `ready`-Fotos. Kein E2E mit echten Bildern (Worker läuft in E2E nicht) – Unit-Tests gegen Postgres + Komponententest
 - [x] Lightbox (`lightbox.tsx`, `gallery-grid.tsx` jetzt Client-Komponente): Klick öffnet, Pfeiltasten/Buttons/Wischen, Esc, Fokus + Scroll-Sperre; `/g/[slug]` reicht Fotos und Cover jetzt tatsächlich durch (zuvor `tiles: []`). Tests als jsdom-Komponententests; kein E2E mit echten Bildern (Worker läuft in E2E nicht)
 - [x] Video-Reihen im Netflix-Stil (`video-shelf.tsx`: Hero-Player + Reihe je Video-Set, signierte Embed-URL 4 h, iframe erst nach Klick), Hybrid-Galerie (Video- und Foto-Sets gemeinsam). Nur `ready`-Videos; Titel „Film n“ (Medien haben keinen Titel), keine Poster/Thumbnails (Provider liefert noch keine). Kein E2E mit echtem Video-Set (Worker/Bunny-Fake) – Unit- und Komponententests
-- [ ] HLS-Player (hls.js; derzeit Bunny-Embed-iframe): Qualitätswahl, Vollbild, Fortsetzen an letzter Position (localStorage)
+- [x] HLS-Player (`hls-player.tsx`, hls.js, nativer HLS-Fallback für Safari inkl. `x-webkit-airplay`): Qualitätswahl, Vollbild (native Controls), Fortsetzen (`resume-position.ts`, localStorage). Provider `signHlsUrl` (Bunny: verzeichnisweiter CDN-Token `token_path`) liefert nur mit `BUNNY_STREAM_CDN_TOKEN_KEY` eine URL, sonst bleibt das Embed-iframe. **Live ungeprüft** (D-117: Token-Format/Segmente, ggf. CORS der Pull-Zone). Tests: Unit + jsdom, kein E2E mit echtem HLS
 - [ ] AirPlay (Safari) und Chromecast (Cast SDK) – Fake/Feature-Detection für Tests
 - [ ] Performance: LCP < 2,5 s auf 4G prüfen (Lighthouse), Fertig-Kriterium M7
 
@@ -68,6 +68,9 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-10-28 – M7 HLS-Player
+- `HlsPlayer` + `signHlsUrl`, Fallback Embed ohne CDN-Key. Nächster Schritt: AirPlay/Chromecast (Cast SDK, Feature-Detection), dann Lighthouse-LCP. Live-Prüfung HLS hängt an D-117.
 
 ### 2026-10-28 – M7 Video-Reihen
 - `loadPublicGallery` liefert signierte Video-URLs, `VideoShelf` + Hybrid-Ansicht, Tests. Cloud: Rolle `roses` + DBs wieder anlegen (siehe oben). Nächster Schritt: HLS-Player (hls.js) mit Qualitätswahl/Fortsetzen; Thumbnails für Videos klären.

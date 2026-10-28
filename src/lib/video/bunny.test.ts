@@ -74,6 +74,30 @@ describe("BunnyVideoProvider", () => {
     );
   });
 
+  it("signs a directory-scoped HLS URL only with a dedicated CDN key", () => {
+    const base = {
+      libraryId: "123",
+      apiKey: "api-key",
+      tokenKey: "token-key",
+      cdnHostname: "vz-test.b-cdn.net",
+    };
+    expect(new BunnyVideoProvider(base).signHlsUrl("vid", 60)).toBeNull();
+    const url = new URL(
+      new BunnyVideoProvider({ ...base, cdnTokenKey: "cdn-key" }).signHlsUrl(
+        "vid",
+        60,
+      )!,
+    );
+    const expires = url.searchParams.get("expires")!;
+    expect(url.pathname).toBe("/vid/playlist.m3u8");
+    expect(url.searchParams.get("token_path")).toBe("/vid/");
+    expect(url.searchParams.get("token")).toBe(
+      createHash("sha256")
+        .update(`cdn-key/vid/${expires}token_path=/vid/`)
+        .digest("base64url"),
+    );
+  });
+
   it("creates, reads and deletes videos via the API", async () => {
     const fetchMock = vi
       .fn()

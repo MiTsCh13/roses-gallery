@@ -44,6 +44,7 @@ async function GalleryContent({
             id: v.id,
             title: t("videoTitle", { n: n + 1 }),
             playUrl: v.playUrl,
+            hlsUrl: v.hlsUrl,
             durationS: v.durationS,
           })),
           tiles: s.photos.map((p, n) => ({

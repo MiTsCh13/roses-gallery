@@ -23,6 +23,8 @@ export interface VideoProvider {
   createTusUpload(videoId: string, ttlSeconds: number): Promise<TusUpload>;
   getVideo(videoId: string): Promise<VideoInfo | null>;
   signPlaybackUrl(videoId: string, ttlSeconds: number): string;
+  /** Signed HLS playlist URL for the own player; null if the provider has none (embed is used). */
+  signHlsUrl(videoId: string, ttlSeconds: number): string | null;
   /** Signed, short-lived URL of the untouched original (needs "keep originals"). */
   signOriginalUrl(videoId: string, ttlSeconds: number): string;
   deleteVideo(videoId: string): Promise<void>;
