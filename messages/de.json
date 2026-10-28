@@ -203,5 +203,13 @@
     "logoHint": "PNG, JPEG oder WebP, bis 1,5 MB. Erscheint in jeder Galerie.",
     "logoUpload": "Logo hochladen",
     "logoRemove": "Logo entfernen"
+  },
+  "PublicGallery": {
+    "lightbox": "Fotoansicht",
+    "close": "Schließen",
+    "previous": "Vorheriges Foto",
+    "next": "Nächstes Foto",
+    "position": "{current} von {total}",
+    "photoAlt": "Foto {n}"
   }
 }

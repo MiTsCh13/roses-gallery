@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { connection } from "next/server";
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 import { GalleryView } from "@/components/gallery/gallery-view";
 import { db } from "@/db";
@@ -24,16 +25,23 @@ async function GalleryContent({
 }) {
   const gallery = await load(params);
   if (!gallery) notFound();
+  const t = await getTranslations("PublicGallery");
   return (
     <main className="flex-1">
       <GalleryView
         config={gallery.config}
         title={gallery.title}
         logoUrl={gallery.logoUrl ?? undefined}
+        coverUrl={gallery.coverUrl ?? undefined}
         sets={gallery.sets.map((s) => ({
           id: s.id,
           title: s.title,
-          tiles: [],
+          tiles: s.photos.map((p, n) => ({
+            id: p.id,
+            src: p.src,
+            srcSet: p.srcSet,
+            alt: t("photoAlt", { n: n + 1 }),
+          })),
         }))}
       />
     </main>
