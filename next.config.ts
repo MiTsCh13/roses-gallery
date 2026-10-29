@@ -1,7 +1,13 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
+import { buildCsp } from "./src/lib/csp";
+
 const securityHeaders = [
+  {
+    key: "Content-Security-Policy",
+    value: buildCsp(process.env.NODE_ENV !== "production"),
+  },
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "X-Frame-Options", value: "DENY" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },

@@ -34,8 +34,8 @@
 
 ## Nächste Schritte (M10, in dieser Reihenfolge)
 
-- [ ] Lückenliste: Nicht-funktionale Anforderungen (SPEC) gegen den Code prüfen, Ergebnis hier eintragen
-- [ ] Security-Header (CSP, HSTS, frame-ancestors, Referrer-Policy) in `next.config`, Test
+- [x] Lückenliste NFR: `docs/NFR-LUECKEN.md`
+- [x] Security-Header inkl. CSP (D-129) in `next.config.ts`, Unit- und E2E-Test
 - [ ] Sentry (hinter Interface/DSN-Env, ohne DSN no-op), Fehler im Worker
 - [ ] 2FA für Creator (TOTP), Pflicht-Entscheidung D-xxx: optional vs. Pflicht
 - [ ] Rate-Limits prüfen (Login, Magic Link, Passwort-Galerie vorhanden), `x-forwarded-for`-Vorgabe (D-122)
@@ -101,6 +101,9 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-10-29 – M10 Lückenliste + CSP
+- `docs/NFR-LUECKEN.md`, CSP (D-129). Nächster Schritt: Sentry-Interface. Cloud: Postgres/Redis neu starten, Rolle/DBs anlegen.
 
 ### 2026-10-29 – M9 abgeschlossen
 - Kriterium erfüllt, M10 aufgeschlüsselt. Nächster Schritt: Lückenliste NFR + Security-Header.
