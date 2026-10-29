@@ -3,6 +3,7 @@ import { processPhoto } from "@/lib/photos";
 import { cleanupStaleUploads } from "@/lib/upload-cleanup";
 import { runGalleryExpiry } from "@/lib/gallery-expiry";
 import { buildZipExport, cleanupExpiredZips } from "@/lib/zip-exports";
+import { cleanupOldEvents } from "@/lib/events";
 import { getMailer } from "@/lib/mailer";
 import { getStorage } from "@/lib/storage";
 import { serverEnv } from "@/lib/env";
@@ -37,6 +38,7 @@ export const handlers: Handlers = {
     ),
   "cleanup-zip-exports": async () =>
     cleanupExpiredZips({ db: db(), storage: getStorage() }),
+  "cleanup-events": async () => cleanupOldEvents(db()),
 };
 
 export async function dispatch(name: string, data: unknown) {

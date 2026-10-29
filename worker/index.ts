@@ -27,6 +27,12 @@ void scheduler.upsertJobScheduler(
 );
 
 void scheduler.upsertJobScheduler(
+  "cleanup-events",
+  { pattern: "30 3 * * *" },
+  { name: "cleanup-events", data: {} },
+);
+
+void scheduler.upsertJobScheduler(
   "gallery-expiry",
   { pattern: "0 7 * * *" },
   { name: "gallery-expiry", data: {} },

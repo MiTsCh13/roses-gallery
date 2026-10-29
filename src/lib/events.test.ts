@@ -8,7 +8,13 @@ import { accounts, events, galleries, media, sets } from "@/db/schema";
 import { FakeStorage } from "@/lib/storage/fake";
 import { createTestDb, resetDb } from "@/test/db";
 import { resolvePhotoDownload } from "./downloads";
-import { recordEvent, recordPlay, galleryStats } from "./events";
+import {
+  cleanupOldEvents,
+  EVENT_RETENTION_DAYS,
+  recordEvent,
+  recordPlay,
+  galleryStats,
+} from "./events";
 import { createGuest, createList, toggleFavorite } from "./favorites";
 
 const { db, close } = createTestDb();
@@ -144,5 +150,36 @@ describe("events", () => {
     expect((await galleryStats(db, other.id, gallery.id, 30, now)).view).toBe(
       0,
     );
+  });
+});
+
+describe("cleanupOldEvents", () => {
+  it("deletes only events older than the retention period", async () => {
+    const now = new Date("2026-10-29T12:00:00Z");
+    const day = 86_400_000;
+    const at = (days: number) => new Date(now.getTime() - days * day);
+    await db.insert(events).values([
+      {
+        accountId: gallery.accountId,
+        galleryId: gallery.id,
+        type: "view",
+        ts: at(EVENT_RETENTION_DAYS + 1),
+      },
+      {
+        accountId: gallery.accountId,
+        galleryId: gallery.id,
+        type: "view",
+        ts: at(EVENT_RETENTION_DAYS - 1),
+      },
+      {
+        accountId: gallery.accountId,
+        galleryId: gallery.id,
+        type: "play",
+        ts: at(1),
+      },
+    ]);
+    expect(await cleanupOldEvents(db, now)).toEqual({ deleted: 1 });
+    expect(await db.select().from(events)).toHaveLength(2);
+    expect(await cleanupOldEvents(db, now)).toEqual({ deleted: 0 });
   });
 });
