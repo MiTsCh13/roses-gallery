@@ -4,8 +4,8 @@
 > und `docs/DECISIONS.md`. Log kurz halten (max. 10 Einträge, ältere löschen –
 > die Git-Historie bleibt).
 
-**Aktueller Meilenstein:** M9 – Auslieferung & Statistik (Rest aus M4/M7: Live-Abnahme HLS/Original-URL, D-117)
-**Stand main:** M0–M3 und M5–M8 abgeschlossen (M2: Abnahme gegen echtes Stripe offen, D-006; M4: Original-URL live offen, D-117)
+**Aktueller Meilenstein:** M10 – Härtung & Launch (Rest aus M4/M7: Live-Abnahme HLS/Original-URL, D-117)
+**Stand main:** M0–M3 und M5–M9 abgeschlossen (M2: Abnahme gegen echtes Stripe offen, D-006; M4: Original-URL live offen, D-117)
 
 ## Meilensteine
 
@@ -20,8 +20,8 @@
 | M6 | Design-Editor | ✅ fertig |
 | M7 | Galerie-Ansicht & Player | ✅ fertig bis auf Live-Abnahme HLS/Original (D-117) |
 | M8 | Zugriff, Downloads, Favoriten | ✅ fertig (Dashboard-Ansicht der Favoriten optional, nicht Teil des Kriteriums) |
-| M9 | Auslieferung & Statistik | in Arbeit |
-| M10 | Härtung & Launch | offen |
+| M9 | Auslieferung & Statistik | ✅ fertig (Postmark live ungeprüft: nur Fake getestet) |
+| M10 | Härtung & Launch | in Arbeit |
 
 ## Nächste Schritte (M4, in dieser Reihenfolge)
 
@@ -32,12 +32,26 @@
 - [ ] Fertig-Kriterium M4: Upload→Encoding, 4K (D-118) und Embed-Token live verifiziert. **Offen nur Original-URL live:** 403 mit dem Embed-Key, vermutlich eigener Pull-Zone-Key → D-117 (Mitsch)
 - [x] Limit „Galerie anlegen“ (`assertCanCreateGallery`) mit M5
 
-## Nächste Schritte (M9, in dieser Reihenfolge)
+## Nächste Schritte (M10, in dieser Reihenfolge)
+
+- [ ] Lückenliste: Nicht-funktionale Anforderungen (SPEC) gegen den Code prüfen, Ergebnis hier eintragen
+- [ ] Security-Header (CSP, HSTS, frame-ancestors, Referrer-Policy) in `next.config`, Test
+- [ ] Sentry (hinter Interface/DSN-Env, ohne DSN no-op), Fehler im Worker
+- [ ] 2FA für Creator (TOTP), Pflicht-Entscheidung D-xxx: optional vs. Pflicht
+- [ ] Rate-Limits prüfen (Login, Magic Link, Passwort-Galerie vorhanden), `x-forwarded-for`-Vorgabe (D-122)
+- [ ] Barrierefreiheit Galerie-Ansicht (axe-Test in Playwright, Fokus, Kontraste, Alt-Texte)
+- [ ] Aufbewahrungsfrist/Aufräumen alter Events (D-127), Wasserzeichen-Kopien (D-124)
+- [ ] Tägliches DB-Backup (Skript + Worker-/Cron-Job, 30 Tage), Wiederherstellungs-Doku
+- [ ] Deployment Coolify/Hetzner (Dockerfile, App, Worker, Postgres, Redis), Doku
+- [ ] Seiten Impressum, Datenschutz, AGB als Platzhalter (Rechtstexte vom Anwalt)
+- [ ] Fertig-Kriterium M10: Produktion auf Hetzner, Impressum/Datenschutz online (Zugang nötig → DECISIONS)
+
+## Nächste Schritte (M9, erledigt)
 
 - [x] Event-Erfassung datensparsam (F-DASH-02, D-127): `lib/events.ts`, Tabelle `events` ohne Cookie/IP/Besucher-ID (nur Typ, Galerie, Foto/Video, Zeit); `view` beim Rendern von `/g/[slug]` (nur entsperrt), `play` per Server Action beim Videostart (Rate-Limit), `download` bei erfolgreichem Einzel-Download und ZIP-Link, `favorite` beim Hinzufügen
 - [x] Statistik pro Galerie im Dashboard (Galerie-Seite): Aufrufe, Wiedergaben, Downloads, Favoriten für 7/30 Tage. Tests: Unit gegen Postgres. Offen: Zeitreihe/Diagramm, Aufbewahrungsfrist/Aufräumen alter Events (M10)
 - [x] Auslieferungs-Mail (F-DASH-03, D-128): `lib/delivery-mail.ts`, Abschnitt „Galerie an Kunden senden“ auf der Galerie-Seite (Empfänger ≤ 20, Betreff/Text mit Platzhaltern `{titel} {link} {passwort_hinweis} {fotograf}`), Text + HTML, Protokoll (`delivery_mails`, Migration 0010), Empfänger werden Kunden-Besucher (Ablauf-Erinnerung). Tests: Unit gegen Postgres + E2E. Offen: Logo im Mail-Kopf (signierte URLs laufen ab, D-128), Vorlage nicht dauerhaft speicherbar
-- [ ] Fertig-Kriterium M9: Auslieferungs-Mail kommt an, Aufrufe werden gezählt
+- [x] Fertig-Kriterium M9: Mail kommt an (Fake-Postfach in E2E, Postmark-Format per Unit-Test), Aufrufe werden gezählt (Unit-Test Statistik)
 - [ ] Optional aus M8: Dashboard-Ansicht der Favoritenlisten je Galerie (CSV)
 
 ## Nächste Schritte (M8, erledigt)
@@ -87,6 +101,9 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-10-29 – M9 abgeschlossen
+- Kriterium erfüllt, M10 aufgeschlüsselt. Nächster Schritt: Lückenliste NFR + Security-Header.
 
 ### 2026-10-29 – M9 Auslieferungs-Mail
 - F-DASH-03 fertig (D-128). Nächster Schritt: Fertig-Kriterium M9 prüfen (Mail kommt an = Fake/Postmark-Test, Aufrufe gezählt), dann M10 aufschlüsseln. Cloud: Postgres/Redis neu starten, Rolle/DBs anlegen.
