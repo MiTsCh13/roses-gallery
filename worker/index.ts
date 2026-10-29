@@ -1,6 +1,7 @@
 import { Worker } from "bullmq";
 
 import { serverEnv } from "@/lib/env";
+import { reportError } from "@/lib/error-reporter";
 import { QUEUE_NAME, createQueue, redisConnection } from "@/lib/queue";
 import { dispatch } from "./handlers";
 
@@ -35,6 +36,11 @@ worker.on("failed", (job, error) => {
   console.error(
     `[worker] job ${job?.name}#${job?.id} failed: ${error.message}`,
   );
+  void reportError(error, { job: job?.name ?? "unknown", source: "worker" });
+});
+
+process.on("uncaughtException", (error) => {
+  void reportError(error, { source: "worker" }).finally(() => process.exit(1));
 });
 
 worker.on("ready", () => {

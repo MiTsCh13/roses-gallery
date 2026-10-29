@@ -36,7 +36,7 @@
 
 - [x] Lückenliste NFR: `docs/NFR-LUECKEN.md`
 - [x] Security-Header inkl. CSP (D-129) in `next.config.ts`, Unit- und E2E-Test
-- [ ] Sentry (hinter Interface/DSN-Env, ohne DSN no-op), Fehler im Worker
+- [x] Sentry (D-130): `lib/error-reporter.ts` (Envelope-API ohne SDK, No-op ohne `SENTRY_DSN`), `instrumentation.ts` (`onRequestError`), Worker (`failed`, `uncaughtException`). Live ungeprüft (DSN fehlt in der Umgebung)
 - [ ] 2FA für Creator (TOTP), Pflicht-Entscheidung D-xxx: optional vs. Pflicht
 - [ ] Rate-Limits prüfen (Login, Magic Link, Passwort-Galerie vorhanden), `x-forwarded-for`-Vorgabe (D-122)
 - [ ] Barrierefreiheit Galerie-Ansicht (axe-Test in Playwright, Fokus, Kontraste, Alt-Texte)
@@ -101,6 +101,9 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-10-29 – M10 Sentry
+- Fehlerberichte ohne SDK (D-130). Nächster Schritt: 2FA (TOTP) / Rate-Limits Login. Cloud: Postgres/Redis neu starten, Rolle/DBs anlegen.
 
 ### 2026-10-29 – M10 Lückenliste + CSP
 - `docs/NFR-LUECKEN.md`, CSP (D-129). Nächster Schritt: Sentry-Interface. Cloud: Postgres/Redis neu starten, Rolle/DBs anlegen.
