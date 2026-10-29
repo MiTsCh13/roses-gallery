@@ -40,7 +40,7 @@
 - [x] 2FA für Creator (TOTP, optional, D-131): `/dashboard/security`, Challenge `/login/2fa`, Unit- und E2E-Test
 - [x] Rate-Limits: Magic Link 5/h je E-Mail, 20/h je IP (D-132); 2FA, Passwort-Galerie vorhanden. `x-forwarded-for`-Überschreiben gehört in die Deployment-Doku (D-122)
 - [x] Barrierefreiheit Galerie-Ansicht (D-133): axe in Playwright + jsdom, Kontrast-Test, „Romantisch“ nachgebessert (Migration 0012). Offen: Kontrastwarnung für eigene Farben im Editor (optional)
-- [ ] Aufbewahrungsfrist/Aufräumen alter Events (D-127), Wasserzeichen-Kopien (D-124)
+- [x] Aufbewahrungsfrist Events 24 Monate, Job `cleanup-events` (D-134); Wasserzeichen-Kopien bewusst nicht aufgeräumt
 - [ ] Tägliches DB-Backup (Skript + Worker-/Cron-Job, 30 Tage), Wiederherstellungs-Doku
 - [ ] Deployment Coolify/Hetzner (Dockerfile, App, Worker, Postgres, Redis), Doku
 - [x] Seiten `/impressum`, `/datenschutz`, `/agb` als Platzhalter (Texte in `messages/de.json` → `Legal`, Rechtstexte vom Anwalt), Links auf der Startseite, E2E
