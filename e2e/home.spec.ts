@@ -41,6 +41,8 @@ test("legal placeholder pages are public and linked from the home page", async (
     await expect(
       page.getByRole("heading", { level: 1, name: title }),
     ).toBeVisible();
+    await expect(page.getByRole("heading", { level: 2 }).first()).toBeVisible();
+    await expect(page.getByRole("note")).toContainText("Entwurf");
     await page.goBack();
   }
 });

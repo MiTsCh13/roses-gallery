@@ -44,7 +44,8 @@
 - [x] Tägliches DB-Backup (D-135): Job `db-backup`, 30 Tage, `docs/BACKUP.md`. Offen: Wiederherstellungsprobe auf echtem Server, `pg_dump` im Worker-Image
 - [x] Deployment-Artefakte (D-136): `Dockerfile`, `docker-compose.prod.yml`, `docs/DEPLOYMENT.md`. **Ungeprüft** (kein Docker in der Cloud), Ausrollen braucht Zugang
 - [x] Seiten `/impressum`, `/datenschutz`, `/agb` als Platzhalter (Texte in `messages/de.json` → `Legal`, Rechtstexte vom Anwalt), Links auf der Startseite, E2E
-- [ ] Fertig-Kriterium M10: Produktion auf Hetzner, Impressum/Datenschutz online (Zugang nötig → DECISIONS)
+- [x] Rechtstexte als Entwurf (D-137), Anbieterdaten per `LEGAL_*`-Umgebung
+- [ ] Fertig-Kriterium M10: Produktion auf Hetzner (Mitsch deployt nach `docs/DEPLOYMENT.md`, `LEGAL_*` setzen), Rechtstexte anwaltlich prüfen
 
 ## Nächste Schritte (M9, erledigt)
 
@@ -101,6 +102,9 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-10-29 – M10 Rechtstexte
+- Impressum/Datenschutz/AGB als Entwurf (D-137, PR folgt im Log). Mitsch: D-117 erledigt (Live-Abnahme Original-URL/HLS beim nächsten Lauf prüfen), kein eigener Backup-Bucket, optionale Reste vorerst nicht. Cloud: Postgres/Redis neu starten (`service postgresql start`, `redis-server --daemonize yes`), Rolle `roses`/DBs `roses_gallery`, `roses_gallery_test` anlegen.
 
 ### 2026-10-29 – M10 Abschluss der baubaren Teile
 - Barrierefreiheit (PR #60), Event-Aufbewahrung (#61), DB-Backup (#62), Deployment-Artefakte (#63). Alles Baubare in M10 ist erledigt. Offen nur das Fertig-Kriterium (Produktion auf Hetzner, Impressum/Datenschutz online): braucht Coolify-Zugang, Domain, Rechtstexte (D-135, D-136) sowie Live-Abnahmen D-117, D-006. Docker-Build ungeprüft. Cloud: Postgres/Redis neu starten, Rolle `roses`/DBs anlegen.

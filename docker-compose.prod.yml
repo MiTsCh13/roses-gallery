@@ -25,6 +25,11 @@ services:
       BUNNY_STREAM_CDN_HOSTNAME: ${BUNNY_STREAM_CDN_HOSTNAME:-}
       BUNNY_STREAM_CDN_TOKEN_KEY: ${BUNNY_STREAM_CDN_TOKEN_KEY:-}
       SENTRY_DSN: ${SENTRY_DSN:-}
+      LEGAL_NAME: ${LEGAL_NAME:-}
+      LEGAL_ADDRESS: ${LEGAL_ADDRESS:-}
+      LEGAL_EMAIL: ${LEGAL_EMAIL:-}
+      LEGAL_PHONE: ${LEGAL_PHONE:-}
+      LEGAL_VAT_ID: ${LEGAL_VAT_ID:-}
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_healthy }
