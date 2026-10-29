@@ -27,3 +27,20 @@ test("health endpoint responds", async ({ request }) => {
   expect(response.ok()).toBe(true);
   expect(await response.json()).toEqual({ status: "ok" });
 });
+
+test("legal placeholder pages are public and linked from the home page", async ({
+  page,
+}) => {
+  await page.goto("/");
+  for (const [link, title] of [
+    [messages.Legal.impressum.linkLabel, messages.Legal.impressum.title],
+    [messages.Legal.datenschutz.linkLabel, messages.Legal.datenschutz.title],
+    [messages.Legal.agb.linkLabel, messages.Legal.agb.title],
+  ] as const) {
+    await page.getByRole("link", { name: link, exact: true }).click();
+    await expect(
+      page.getByRole("heading", { level: 1, name: title }),
+    ).toBeVisible();
+    await page.goBack();
+  }
+});

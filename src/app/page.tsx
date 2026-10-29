@@ -1,6 +1,18 @@
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
+
+function LegalLinks() {
+  const t = useTranslations("Legal");
+  return (
+    <nav className="mt-12 flex gap-6 text-sm text-muted-foreground">
+      <Link href="/impressum">{t("impressum.linkLabel")}</Link>
+      <Link href="/datenschutz">{t("datenschutz.linkLabel")}</Link>
+      <Link href="/agb">{t("agb.linkLabel")}</Link>
+    </nav>
+  );
+}
 
 export default function HomePage() {
   const t = useTranslations("HomePage");
@@ -11,6 +23,7 @@ export default function HomePage() {
       </h1>
       <p className="max-w-xl text-lg text-muted-foreground">{t("tagline")}</p>
       <Button disabled>{t("cta")}</Button>
+      <LegalLinks />
     </main>
   );
 }

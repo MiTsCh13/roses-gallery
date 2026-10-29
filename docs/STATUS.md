@@ -43,7 +43,7 @@
 - [ ] Aufbewahrungsfrist/Aufräumen alter Events (D-127), Wasserzeichen-Kopien (D-124)
 - [ ] Tägliches DB-Backup (Skript + Worker-/Cron-Job, 30 Tage), Wiederherstellungs-Doku
 - [ ] Deployment Coolify/Hetzner (Dockerfile, App, Worker, Postgres, Redis), Doku
-- [ ] Seiten Impressum, Datenschutz, AGB als Platzhalter (Rechtstexte vom Anwalt)
+- [x] Seiten `/impressum`, `/datenschutz`, `/agb` als Platzhalter (Texte in `messages/de.json` → `Legal`, Rechtstexte vom Anwalt), Links auf der Startseite, E2E
 - [ ] Fertig-Kriterium M10: Produktion auf Hetzner, Impressum/Datenschutz online (Zugang nötig → DECISIONS)
 
 ## Nächste Schritte (M9, erledigt)
@@ -101,6 +101,9 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-10-29 – M10 Rechtsseiten
+- Platzhalter-Seiten online-bereit. Offen für Launch: echte Texte (Anwalt). Nächster Schritt: 2FA (TOTP, Entscheidung optional vs. Pflicht in DECISIONS), dann Login-Rate-Limits, axe-Test. Cloud: Postgres/Redis neu starten, Rolle/DBs anlegen.
 
 ### 2026-10-29 – M10 Sentry
 - Fehlerberichte ohne SDK (D-130). Nächster Schritt: 2FA (TOTP) / Rate-Limits Login. Cloud: Postgres/Redis neu starten, Rolle/DBs anlegen.
