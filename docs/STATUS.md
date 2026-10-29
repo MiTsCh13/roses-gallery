@@ -102,6 +102,9 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 
 ## Log
 
+### 2026-10-29 – M10 Abschluss der baubaren Teile
+- Barrierefreiheit (PR #60), Event-Aufbewahrung (#61), DB-Backup (#62), Deployment-Artefakte (#63). Alles Baubare in M10 ist erledigt. Offen nur das Fertig-Kriterium (Produktion auf Hetzner, Impressum/Datenschutz online): braucht Coolify-Zugang, Domain, Rechtstexte (D-135, D-136) sowie Live-Abnahmen D-117, D-006. Docker-Build ungeprüft. Cloud: Postgres/Redis neu starten, Rolle `roses`/DBs anlegen.
+
 ### 2026-10-29 – M10 Barrierefreiheit
 - D-133, axe-Tests, Theme-Kontrast. Nächster Schritt: Aufbewahrung alter Events (D-127), dann Backup/Deployment. Cloud: Postgres/Redis neu starten, Rolle `roses`/DBs anlegen.
 
