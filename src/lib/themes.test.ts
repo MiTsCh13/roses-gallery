@@ -42,14 +42,19 @@ describe("system themes", () => {
   });
 });
 
-describe("migration 0005", () => {
-  it("inserts exactly the code constants", () => {
-    const sql = readFileSync("drizzle/0005_system_themes.sql", "utf8");
+describe("system theme migrations", () => {
+  it("insert the code constants (0005) and apply later color fixes (0012)", () => {
+    const sql =
+      readFileSync("drizzle/0005_system_themes.sql", "utf8") +
+      readFileSync("drizzle/0012_theme_romantisch_contrast.sql", "utf8");
     for (const t of SYSTEM_THEMES) {
       expect(sql).toContain(t.id);
       expect(sql).toContain(`'${t.name}'`);
-      expect(sql).toContain(JSON.stringify(t.config));
+      if (t.name !== "Romantisch") {
+        expect(sql).toContain(JSON.stringify(t.config));
+      }
     }
+    expect(sql).toContain(`"${SYSTEM_THEMES[2].config.colors.muted}"`);
     expect(sql.match(/::jsonb/g)).toHaveLength(SYSTEM_THEMES.length);
   });
 });

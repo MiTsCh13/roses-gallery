@@ -77,7 +77,7 @@ export const SYSTEM_THEMES: readonly SystemTheme[] = [
         background: "#fdf6f3",
         text: "#3a2a2a",
         accent: "#c0707b",
-        muted: "#8a7373",
+        muted: "#7a6363",
       },
       grid: { layout: "masonry", gap: "large" },
       cover: { style: "full" },
