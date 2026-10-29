@@ -39,7 +39,7 @@
 - [x] Sentry (D-130): `lib/error-reporter.ts` (Envelope-API ohne SDK, No-op ohne `SENTRY_DSN`), `instrumentation.ts` (`onRequestError`), Worker (`failed`, `uncaughtException`). Live ungeprüft (DSN fehlt in der Umgebung)
 - [x] 2FA für Creator (TOTP, optional, D-131): `/dashboard/security`, Challenge `/login/2fa`, Unit- und E2E-Test
 - [x] Rate-Limits: Magic Link 5/h je E-Mail, 20/h je IP (D-132); 2FA, Passwort-Galerie vorhanden. `x-forwarded-for`-Überschreiben gehört in die Deployment-Doku (D-122)
-- [ ] Barrierefreiheit Galerie-Ansicht (axe-Test in Playwright, Fokus, Kontraste, Alt-Texte)
+- [x] Barrierefreiheit Galerie-Ansicht (D-133): axe in Playwright + jsdom, Kontrast-Test, „Romantisch“ nachgebessert (Migration 0012). Offen: Kontrastwarnung für eigene Farben im Editor (optional)
 - [ ] Aufbewahrungsfrist/Aufräumen alter Events (D-127), Wasserzeichen-Kopien (D-124)
 - [ ] Tägliches DB-Backup (Skript + Worker-/Cron-Job, 30 Tage), Wiederherstellungs-Doku
 - [ ] Deployment Coolify/Hetzner (Dockerfile, App, Worker, Postgres, Redis), Doku
@@ -101,6 +101,9 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-10-29 – M10 Barrierefreiheit
+- D-133, axe-Tests, Theme-Kontrast. Nächster Schritt: Aufbewahrung alter Events (D-127), dann Backup/Deployment. Cloud: Postgres/Redis neu starten, Rolle `roses`/DBs anlegen.
 
 ### 2026-10-29 – M10 Login-Rate-Limit
 - D-132. Nächster Schritt: axe-Test Galerie, dann Backup/Deployment. Cloud: Postgres/Redis neu starten (`service postgresql start`, `redis-server --daemonize yes`), Rolle `roses`/DB `roses_gallery`.

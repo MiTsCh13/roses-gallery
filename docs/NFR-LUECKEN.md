@@ -12,7 +12,7 @@ Stand 2026-10-29, geprüft gegen den Code auf `main`. ✅ erfüllt · 🟡 teilw
 | DSGVO | 🟡 | Statistik ohne Cookies (D-127) ✅; Impressum/Datenschutz/AGB-Seiten fehlen; keine Aufbewahrungsfrist für Events; AV-Vertrag = Rechtstext; Hosting-Region EU beim Deployment sicherstellen |
 | Gesichtserkennung | ➖ | Phase 3, nicht Teil des MVP |
 | Sicherheit | 🟡 | Signierte URLs ✅, Passwort-Rate-Limit ✅, scrypt statt Argon2 (D-122), Security-Header + CSP ✅ (D-129); 2FA für Creator ✅ (optional, D-131); Rate-Limit für Login/Magic Link prüfen; `x-forwarded-for` hinter Proxy (D-122) |
-| Barrierefreiheit | ❌ | Kein automatisierter axe-Test, Fokus/Kontraste/Alt-Texte der Galerie-Ansicht ungeprüft |
+| Barrierefreiheit | ✅ | axe (WCAG 2.1 AA) in Playwright (öffentliche Galerie, Passwort-Seite, Start, Login, Impressum) und jsdom (Raster, Cover, Videos, Lightbox, alle Themes); Kontrast der Systemthemen per Unit-Test. Offen: Kontrast eigener Farben im Editor (D-133), manuelle Screenreader-Prüfung |
 | Sprache | ✅ | Alle UI-Texte über `messages/de.json` |
 | Geräte | ✅ | Galerie mobile-first, E2E läuft als Desktop und Mobil |
 
