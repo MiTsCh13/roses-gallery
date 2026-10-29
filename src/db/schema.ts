@@ -358,3 +358,24 @@ export const events = pgTable(
     index("events_gallery_ts_idx").on(t.galleryId, t.ts),
   ],
 );
+
+export const deliveryMails = pgTable(
+  "delivery_mails",
+  {
+    id: id(),
+    accountId: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id, { onDelete: "cascade" }),
+    galleryId: uuid("gallery_id")
+      .notNull()
+      .references(() => galleries.id, { onDelete: "cascade" }),
+    recipient: text("recipient").notNull(),
+    subject: text("subject").notNull(),
+    status: text("status", { enum: ["sent", "failed"] }).notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    index("delivery_mails_account_idx").on(t.accountId),
+    index("delivery_mails_gallery_idx").on(t.galleryId, t.createdAt),
+  ],
+);

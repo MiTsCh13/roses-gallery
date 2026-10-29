@@ -14,6 +14,10 @@ import {
   updateGallery,
 } from "@/lib/galleries";
 import { BrandingError, removeLogo } from "@/lib/branding";
+import { DeliveryError, sendDeliveryMail } from "@/lib/delivery-mail";
+import { serverEnv } from "@/lib/env";
+import { getMailer } from "@/lib/mailer";
+import { getRateLimiter } from "@/lib/rate-limit";
 import { setSetDownloadPolicy } from "@/lib/downloads";
 import { setGalleryPassword } from "@/lib/gallery-access";
 import { getStorage } from "@/lib/storage";
@@ -27,6 +31,7 @@ function errorCode(e: unknown): string {
   if (e instanceof PlanLimitError) return e.code;
   if (e instanceof GalleryError) return e.code;
   if (e instanceof BrandingError) return e.code;
+  if (e instanceof DeliveryError) return e.code;
   if (e instanceof ZodError) return "invalid";
   throw e;
 }
@@ -207,4 +212,41 @@ export async function removeLogoAction(formData: FormData) {
   const galleryId = field(formData, "galleryId") ?? "";
   await removeLogo({ db: db(), storage: getStorage(), accountId: account.id });
   redirect(`/dashboard/galleries/${galleryId}/design?saved=1`);
+}
+
+export async function sendDeliveryMailAction(formData: FormData) {
+  const { account } = await requireAccount();
+  const galleryId = field(formData, "galleryId") ?? "";
+  const env = serverEnv();
+  let result;
+  try {
+    const limit = await getRateLimiter(env.REDIS_URL).hit(
+      `delivery:${account.id}`,
+      60,
+      60 * 60,
+    );
+    if (!limit.allowed) {
+      redirect(`/dashboard/galleries/${galleryId}?error=rate_limited`);
+    }
+    result = await sendDeliveryMail(
+      {
+        db: db(),
+        mailer: getMailer(),
+        baseUrl: env.AUTH_URL ?? "http://localhost:3000",
+        accountId: account.id,
+      },
+      {
+        galleryId,
+        subject: field(formData, "subject"),
+        body: field(formData, "body"),
+        recipients: field(formData, "recipients") ?? "",
+      },
+    );
+  } catch (e) {
+    redirect(`/dashboard/galleries/${galleryId}?error=${errorCode(e)}`);
+  }
+  revalidatePath(`/dashboard/galleries/${galleryId}`);
+  redirect(
+    `/dashboard/galleries/${galleryId}?sent=${result.sent}&failed=${result.failed}`,
+  );
 }
