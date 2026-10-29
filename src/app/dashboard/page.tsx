@@ -18,7 +18,8 @@ async function DashboardContent() {
     getTranslations("Dashboard"),
     auth(),
   ]);
-  if (!session) redirect("/login");
+  if (session?.user?.secondFactorPending) redirect("/login/2fa");
+  if (!session?.user?.accountId) redirect("/login");
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-4 px-6 py-16">
       <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
@@ -30,6 +31,9 @@ async function DashboardContent() {
       </Link>
       <Link href="/dashboard/billing" className="underline">
         {t("billing")}
+      </Link>
+      <Link href="/dashboard/security" className="underline">
+        {t("security")}
       </Link>
       <form action={signOutAction}>
         <Button type="submit" variant="outline">

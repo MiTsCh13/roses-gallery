@@ -34,7 +34,41 @@
     "signedInAs": "Angemeldet als {email}",
     "signOut": "Abmelden",
     "billing": "Abo & Speicher",
-    "galleries": "Galerien"
+    "galleries": "Galerien",
+    "security": "Sicherheit (2FA)"
+  },
+  "TwoFactorLogin": {
+    "title": "Zwei-Faktor-Code",
+    "intro": "Gib den 6-stelligen Code aus deiner Authenticator-App ein – oder einen Wiederherstellungscode.",
+    "codeLabel": "Code",
+    "submit": "Bestätigen",
+    "signOut": "Abbrechen und abmelden",
+    "errors": {
+      "invalid": "Der Code ist ungültig oder bereits verwendet.",
+      "rate_limited": "Zu viele Versuche. Bitte warte einige Minuten."
+    }
+  },
+  "Security": {
+    "title": "Sicherheit",
+    "back": "Zurück zum Dashboard",
+    "twoFactor": "Zwei-Faktor-Anmeldung (2FA)",
+    "disabledInfo": "Schütze dein Konto zusätzlich mit einem Code aus einer Authenticator-App (z. B. Google Authenticator, 1Password, Aegis).",
+    "enabledInfo": "2FA ist aktiv. Bei jeder Anmeldung wird ein Code abgefragt.",
+    "recoveryLeft": "Übrige Wiederherstellungscodes: {count}",
+    "start": "2FA einrichten",
+    "setupIntro": "Füge den Schlüssel in deiner Authenticator-App hinzu (Eintrag „Zeitbasiert“) und gib danach den angezeigten Code ein.",
+    "secretLabel": "Geheimer Schlüssel",
+    "openApp": "In Authenticator-App öffnen",
+    "codeLabel": "Code",
+    "confirm": "2FA aktivieren",
+    "recoveryTitle": "Wiederherstellungscodes",
+    "recoveryInfo": "Bewahre diese Codes sicher auf. Sie werden nur jetzt angezeigt und funktionieren je einmal, falls du dein Gerät verlierst.",
+    "disableInfo": "Zum Deaktivieren gib einen aktuellen Code oder einen Wiederherstellungscode ein.",
+    "disable": "2FA deaktivieren",
+    "errors": {
+      "invalid": "Der Code ist ungültig oder bereits verwendet.",
+      "rate_limited": "Zu viele Versuche. Bitte warte einige Minuten."
+    }
   },
   "Billing": {
     "title": "Abo & Speicher",

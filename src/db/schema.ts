@@ -84,6 +84,11 @@ export const users = pgTable(
     image: text("image"),
     role: userRole("role").notNull().default("owner"),
     authProvider: text("auth_provider"),
+    // 2FA (TOTP, D-131): secret is AES-GCM encrypted; active once totpEnabledAt is set.
+    totpSecret: text("totp_secret"),
+    totpEnabledAt: timestamp("totp_enabled_at", { withTimezone: true }),
+    totpLastStep: integer("totp_last_step"),
+    totpRecoveryHashes: text("totp_recovery_hashes").array(),
     createdAt: createdAt(),
   },
   (t) => [
@@ -120,6 +125,7 @@ export const authSessions = pgTable("auth_sessions", {
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   expires: timestamp("expires", { withTimezone: true }).notNull(),
+  secondFactorAt: timestamp("second_factor_at", { withTimezone: true }),
 });
 
 export const authVerificationTokens = pgTable(

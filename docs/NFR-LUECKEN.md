@@ -11,7 +11,7 @@ Stand 2026-10-29, geprüft gegen den Code auf `main`. ✅ erfüllt · 🟡 teilw
 | Datenhaltung | ❌ | Kein DB-Backup, keine Wiederherstellungs-Doku. R2-Redundanz liegt beim Anbieter |
 | DSGVO | 🟡 | Statistik ohne Cookies (D-127) ✅; Impressum/Datenschutz/AGB-Seiten fehlen; keine Aufbewahrungsfrist für Events; AV-Vertrag = Rechtstext; Hosting-Region EU beim Deployment sicherstellen |
 | Gesichtserkennung | ➖ | Phase 3, nicht Teil des MVP |
-| Sicherheit | 🟡 | Signierte URLs ✅, Passwort-Rate-Limit ✅, scrypt statt Argon2 (D-122), Security-Header + CSP ✅ (D-129); **2FA für Creator fehlt**; Rate-Limit für Login/Magic Link prüfen; `x-forwarded-for` hinter Proxy (D-122) |
+| Sicherheit | 🟡 | Signierte URLs ✅, Passwort-Rate-Limit ✅, scrypt statt Argon2 (D-122), Security-Header + CSP ✅ (D-129); 2FA für Creator ✅ (optional, D-131); Rate-Limit für Login/Magic Link prüfen; `x-forwarded-for` hinter Proxy (D-122) |
 | Barrierefreiheit | ❌ | Kein automatisierter axe-Test, Fokus/Kontraste/Alt-Texte der Galerie-Ansicht ungeprüft |
 | Sprache | ✅ | Alle UI-Texte über `messages/de.json` |
 | Geräte | ✅ | Galerie mobile-first, E2E läuft als Desktop und Mobil |
