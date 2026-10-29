@@ -90,7 +90,7 @@
 
 ## Entscheidungsbedarf
 
-D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (blockiert nur die Live-Abnahme des Original-Downloads, nicht M5).
+D-117: HLS live bestätigt (2026-10-29, nur mit Referer; Produktionsdomain in den Allowed Referrers der Pull Zone eintragen). Offen nur der Original-Download (`/{id}/original` liefert 403) – siehe DECISIONS.md.
 
 ## Umgebung (Cloud-Sessions)
 

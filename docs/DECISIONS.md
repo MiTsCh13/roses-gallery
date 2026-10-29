@@ -8,7 +8,7 @@
 
 | ID | Frage | Vorläufige Annahme | Benötigt bis |
 | --- | --- | --- | --- |
-| D-117 | Original-Download liefert live 403 (auch signierte `playlist.m3u8`). Vermutung: Der Pull-Zone-Token-Key der Library (Bunny → Library → Delivery/Security → Pull-Zone *Token Authentication Key*) ist ein anderer als der Embed-Key `BUNNY_STREAM_TOKEN_KEY`. Bitte als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (ohne ihn wird der Embed-Key genutzt) | Code liest den Key bereits; Original-Download bleibt bis dahin ungeprüft | M4-Abnahme |
+| D-117 | **Live-Prüfung 2026-10-29** (`BUNNY_STREAM_CDN_TOKEN_KEY` gesetzt, ist identisch mit dem Embed-Key; Testvideo, danach gelöscht): signierte HLS-URL (`token_path`) funktioniert – Master-Playlist, Variant-Playlist, Segmente und MP4-Fallback je 200, manipuliertes Token und unsignierte URL 403. **Aber nur mit `Referer`-Header**: ohne Referer 403 (Hotlink-Schutz der Pull Zone blockt leeren Referer). Browser senden den Referer der Galerie-Seite; in der Pull Zone muss die Produktionsdomain unter *Allowed Referrers* stehen (bzw. dort nichts Restriktiveres als „leer blocken“ und eigene Domain eintragen). **Original-URL `/{id}/original` bleibt 403**, auch mit Referer und allen Token-Varianten (plain/hex/`token_path`). Mitsch bitte prüfen: Library → *Keep Original Files* aktiv, und ob der Original-Pfad bei Bunny anders heißt (Bunny-Support/Doku), sonst Original-Download über Storage-Zone lösen | HLS-Abnahme erledigt; Original-Download bleibt bis zur Klärung ungeprüft | M4-Abnahme |
 
 Schlüssel bitte als Secrets in der Cloud-Umgebung (bzw. GitHub Actions Secrets) hinterlegen, nie ins Repo. Anleitung und Variablenliste: `docs/ZUGAENGE.md`.
 
