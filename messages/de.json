@@ -365,21 +365,174 @@
   },
   "Legal": {
     "back": "Zur Startseite",
-    "placeholder": "Platzhalter: Dieser Text wird vor dem Launch durch den rechtsgeprüften Wortlaut ersetzt.",
     "impressum": {
       "title": "Impressum",
       "linkLabel": "Impressum",
-      "body": "Angaben gemäß § 5 DDG: Name, Anschrift, Kontakt und Umsatzsteuer-ID des Anbieters folgen."
+      "sections": [
+        {
+          "heading": "Angaben gemäß § 5 DDG",
+          "paragraphs": ["{LEGAL_NAME}\n{LEGAL_ADDRESS}"]
+        },
+        {
+          "heading": "Kontakt",
+          "paragraphs": ["E-Mail: {LEGAL_EMAIL}\nTelefon: {LEGAL_PHONE}"]
+        },
+        {
+          "heading": "Umsatzsteuer-ID",
+          "paragraphs": [
+            "Umsatzsteuer-Identifikationsnummer gemäß § 27a UStG: {LEGAL_VAT_ID}"
+          ]
+        },
+        {
+          "heading": "Verantwortlich für Inhalte",
+          "paragraphs": ["{LEGAL_NAME}, Anschrift wie oben."]
+        },
+        {
+          "heading": "Streitbeilegung",
+          "paragraphs": [
+            "Wir sind nicht bereit und nicht verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen."
+          ]
+        }
+      ]
     },
     "datenschutz": {
       "title": "Datenschutzerklärung",
       "linkLabel": "Datenschutz",
-      "body": "Hier folgt die Datenschutzerklärung: Verantwortlicher, Zwecke und Rechtsgrundlagen, Auftragsverarbeiter (Hosting in der EU, Cloudflare R2, Bunny Stream, Stripe, Postmark), Speicherdauer und Betroffenenrechte."
+      "sections": [
+        {
+          "heading": "1. Verantwortlicher",
+          "paragraphs": [
+            "Verantwortlich im Sinne der DSGVO ist {LEGAL_NAME}, {LEGAL_ADDRESS}, E-Mail: {LEGAL_EMAIL}."
+          ]
+        },
+        {
+          "heading": "2. Rollen: Fotografen und ihre Kunden",
+          "paragraphs": [
+            "Roses Gallery stellt Fotografen und Videografen („Creators“) Galerien für deren Kunden bereit. Für Konto- und Abrechnungsdaten der Creators sind wir Verantwortlicher. Für die Inhalte einer Galerie (Fotos, Videos, Kundendaten) ist der jeweilige Creator Verantwortlicher; wir verarbeiten diese Daten in dessen Auftrag auf Grundlage eines Auftragsverarbeitungsvertrags (Art. 28 DSGVO). Betroffene Personen, die in einer Galerie abgebildet sind oder dort Favoriten anlegen, wenden sich für Auskunft und Löschung bitte zuerst an ihren Fotografen."
+          ]
+        },
+        {
+          "heading": "3. Daten der Creators",
+          "paragraphs": [
+            "Bei Registrierung und Nutzung verarbeiten wir E-Mail-Adresse, Name, Tarif, Abrechnungsdaten, hochgeladene Medien, Galerie-Einstellungen und – falls aktiviert – ein verschlüsseltes 2FA-Geheimnis. Zweck ist die Vertragserfüllung (Art. 6 Abs. 1 lit. b DSGVO). Die Anmeldung erfolgt per E-Mail-Link oder Google-Login; bei Google erhalten wir E-Mail-Adresse und Name. Rechnungsrelevante Daten bewahren wir entsprechend den gesetzlichen Aufbewahrungsfristen auf (Art. 6 Abs. 1 lit. c DSGVO)."
+          ]
+        },
+        {
+          "heading": "4. Besucher einer Galerie",
+          "paragraphs": [
+            "Beim Aufruf einer Galerie zählen wir Ereignisse (Aufruf, Wiedergabe, Download, Favorit) ohne Cookie, ohne IP-Adresse und ohne Besucherkennung. Diese Zählwerte löschen wir nach 24 Monaten. Server-Logfiles mit IP-Adressen entstehen beim Hosting zur Sicherstellung des Betriebs und der Sicherheit (Art. 6 Abs. 1 lit. f DSGVO).\nGeben Besucher ihre E-Mail-Adresse an (Favoritenliste, ZIP-Download), verwenden wir sie nur für diesen Zweck und im Auftrag des Creators."
+          ]
+        },
+        {
+          "heading": "5. Cookies",
+          "paragraphs": [
+            "Wir setzen ausschließlich technisch notwendige Cookies: Anmeldesitzung der Creators, Zugangsfreigabe für passwortgeschützte Galerien (7 Tage) und eine Besucherkennung für Favoritenlisten (bis zu 1 Jahr, erst nach dem ersten Favoriten). Dafür ist keine Einwilligung erforderlich (§ 25 Abs. 2 Nr. 2 TDDDG). Tracking- oder Werbe-Cookies setzen wir nicht ein."
+          ]
+        },
+        {
+          "heading": "6. Empfänger und Auftragsverarbeiter",
+          "paragraphs": [
+            "Wir setzen folgende Dienstleister ein (jeweils mit Auftragsverarbeitungsvertrag):\n• Hetzner Online GmbH (Deutschland): Server-Hosting, Datenbank.\n• Cloudflare, Inc. (R2-Objektspeicher): Speicherung der Fotos und Dateien; Übermittlung in Drittländer nur auf Basis von EU-Standardvertragsklauseln bzw. des EU-US Data Privacy Framework.\n• BunnyWay d.o.o. (Bunny Stream, Slowenien): Transkodierung und Auslieferung von Videos.\n• Stripe Payments Europe, Ltd. (Irland): Zahlungsabwicklung für Abonnements.\n• Postmark / ActiveCampaign, LLC (USA): Versand von E-Mails; Übermittlung auf Basis von Standardvertragsklauseln.\n• Functional Software, Inc. (Sentry, EU-Region): Fehlerberichte ohne Nutzer- und Medieninhalte, nur sofern aktiviert.\nEine Weitergabe zu Werbezwecken findet nicht statt."
+          ]
+        },
+        {
+          "heading": "7. Speicherdauer",
+          "paragraphs": [
+            "Konto- und Galeriedaten bleiben bis zur Löschung des Kontos bzw. der Galerie gespeichert. Abgelaufene Galerien werden nicht mehr ausgeliefert. Datenbank-Sicherungen werden 30 Tage aufbewahrt. Statistik-Ereignisse werden nach 24 Monaten gelöscht."
+          ]
+        },
+        {
+          "heading": "8. Ihre Rechte",
+          "paragraphs": [
+            "Sie haben das Recht auf Auskunft (Art. 15), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung (Art. 18), Datenübertragbarkeit (Art. 20) und Widerspruch (Art. 21 DSGVO). Wenden Sie sich dazu an {LEGAL_EMAIL}. Außerdem können Sie sich bei einer Datenschutzaufsichtsbehörde beschweren."
+          ]
+        },
+        {
+          "heading": "9. Sicherheit",
+          "paragraphs": [
+            "Medien sind nie öffentlich abrufbar, sondern nur über kurzlebige, signierte Adressen. Die Übertragung erfolgt verschlüsselt (TLS). Die Daten der Konten sind voneinander getrennt."
+          ]
+        },
+        {
+          "heading": "10. Änderungen",
+          "paragraphs": [
+            "Wir passen diese Erklärung an, wenn sich Funktionen oder Rechtslage ändern. Es gilt die jeweils hier veröffentlichte Fassung."
+          ]
+        }
+      ]
     },
     "agb": {
       "title": "Allgemeine Geschäftsbedingungen",
       "linkLabel": "AGB",
-      "body": "Hier folgen die AGB für Fotografen und Videografen (Leistungsumfang, Tarife, Laufzeit und Kündigung, Haftung, Auftragsverarbeitung)."
-    }
+      "sections": [
+        {
+          "heading": "1. Geltungsbereich",
+          "paragraphs": [
+            "Diese Bedingungen gelten für die Nutzung von Roses Gallery, betrieben von {LEGAL_NAME}, {LEGAL_ADDRESS} („Anbieter“). Das Angebot richtet sich ausschließlich an Unternehmer im Sinne des § 14 BGB, insbesondere selbstständige Fotografen und Videografen („Creator“). Abweichende Bedingungen des Creators gelten nicht."
+          ]
+        },
+        {
+          "heading": "2. Leistung",
+          "paragraphs": [
+            "Der Anbieter stellt eine webbasierte Plattform bereit, auf der der Creator Fotos und Videos hochlädt, in gestalteten Galerien seinen Kunden bereitstellt und Zugriffe, Downloads und Favoriten verwaltet. Umfang und Speicherplatz richten sich nach dem gebuchten Tarif (Free, Bud, Bloom, Bouquet, Enterprise) laut Preisseite. Der Anbieter erhebt keine Provision auf Verkäufe oder Trinkgelder des Creators."
+          ]
+        },
+        {
+          "heading": "3. Vertragsschluss und Konto",
+          "paragraphs": [
+            "Der Vertrag kommt mit der Registrierung zustande. Der Creator muss wahrheitsgemäße Angaben machen und seine Zugangsdaten schützen. Er ist für alle Aktivitäten unter seinem Konto verantwortlich."
+          ]
+        },
+        {
+          "heading": "4. Preise, Zahlung, Laufzeit, Kündigung",
+          "paragraphs": [
+            "Alle Preise verstehen sich in Euro zuzüglich gesetzlicher Umsatzsteuer, sofern nicht anders angegeben. Bezahlte Tarife laufen monatlich oder jährlich und verlängern sich automatisch um den gebuchten Zeitraum. Der Creator kann jederzeit zum Ende des laufenden Zeitraums kündigen. Die Zahlung erfolgt über Stripe. Bereits bezahlte Zeiträume werden nicht anteilig erstattet. Der Free-Tarif kann jederzeit beendet werden."
+          ]
+        },
+        {
+          "heading": "5. Inhalte und Rechte",
+          "paragraphs": [
+            "Der Creator versichert, dass er an allen hochgeladenen Inhalten die erforderlichen Rechte besitzt, einschließlich der Rechte abgebildeter Personen. Er räumt dem Anbieter das einfache Recht ein, die Inhalte zum Zweck der vertragsgemäßen Speicherung, Verarbeitung (z. B. Verkleinerung, Wasserzeichen, Transkodierung) und Auslieferung zu nutzen. Rechtswidrige Inhalte sind untersagt; der Anbieter darf solche Inhalte nach Hinweis sperren oder löschen."
+          ]
+        },
+        {
+          "heading": "6. Datenschutz und Auftragsverarbeitung",
+          "paragraphs": [
+            "Soweit der Anbieter personenbezogene Daten im Auftrag des Creators verarbeitet (insbesondere Kundendaten und Abbildungen in Galerien), gilt der Auftragsverarbeitungsvertrag, der Bestandteil dieser Bedingungen ist und auf Anfrage unter {LEGAL_EMAIL} bereitgestellt wird. Ergänzend gilt die Datenschutzerklärung."
+          ]
+        },
+        {
+          "heading": "7. Verfügbarkeit und Sicherung",
+          "paragraphs": [
+            "Der Anbieter bemüht sich um eine hohe Verfügbarkeit, schuldet aber keine ununterbrochene Erreichbarkeit; Wartungsarbeiten sind möglich. Der Anbieter sichert die Datenbank täglich. Der Creator bleibt verpflichtet, seine Originaldateien selbst zu sichern; die Plattform ersetzt kein Archiv."
+          ]
+        },
+        {
+          "heading": "8. Haftung",
+          "paragraphs": [
+            "Der Anbieter haftet unbeschränkt bei Vorsatz und grober Fahrlässigkeit, bei Verletzung von Leben, Körper und Gesundheit sowie nach dem Produkthaftungsgesetz. Bei leichter Fahrlässigkeit haftet er nur für die Verletzung wesentlicher Vertragspflichten und begrenzt auf den vorhersehbaren, vertragstypischen Schaden. Für Datenverlust haftet er nur in der Höhe, die auch bei ordnungsgemäßer Datensicherung durch den Creator angefallen wäre."
+          ]
+        },
+        {
+          "heading": "9. Sperrung und Löschung",
+          "paragraphs": [
+            "Bei Verstößen gegen diese Bedingungen darf der Anbieter das Konto nach Fristsetzung sperren. Nach Vertragsende darf der Anbieter die Inhalte des Creators löschen; der Creator sollte sie vorher herunterladen."
+          ]
+        },
+        {
+          "heading": "10. Änderungen",
+          "paragraphs": [
+            "Der Anbieter kann diese Bedingungen mit angemessener Ankündigung in Textform ändern. Widerspricht der Creator nicht innerhalb von vier Wochen, gelten die Änderungen als angenommen; auf diese Folge wird in der Ankündigung hingewiesen."
+          ]
+        },
+        {
+          "heading": "11. Schlussbestimmungen",
+          "paragraphs": [
+            "Es gilt deutsches Recht unter Ausschluss des UN-Kaufrechts. Gerichtsstand ist, soweit zulässig, der Sitz des Anbieters. Sollte eine Bestimmung unwirksam sein, bleibt der Vertrag im Übrigen wirksam."
+          ]
+        }
+      ]
+    },
+    "draft": "Entwurf: Die Angaben des Anbieters sind noch nicht vollständig hinterlegt. Dieser Text ist vor dem Launch rechtlich zu prüfen."
   }
 }

@@ -17,7 +17,7 @@ Eine Compose-Ressource in Coolify mit vier Diensten:
 ## Einrichtung
 1. In Coolify: Neue Ressource → Git-Repository `MiTsCh13/roses-gallery` → Build Pack **Docker Compose**, Datei `docker-compose.prod.yml`.
 2. Domain dem Dienst `app` zuweisen (Port 3000), TLS über Coolify/Let's Encrypt.
-3. Umgebungsvariablen in Coolify setzen (Namen siehe `.env.example` und `docs/ZUGAENGE.md`). Pflicht: `POSTGRES_PASSWORD`, `AUTH_SECRET`, `AUTH_URL` (z. B. `https://roses-gallery.de`), `EMAIL_FROM`, `POSTMARK_SERVER_TOKEN`, `STRIPE_*`, `R2_*`, `BUNNY_STREAM_*`. Optional: `BUNNY_STREAM_CDN_*`, `SENTRY_DSN` (leer = aus). **Nie** `E2E_TEST_MODE` und keine `*_TRANSPORT=fake` setzen.
+3. Umgebungsvariablen in Coolify setzen (Namen siehe `.env.example` und `docs/ZUGAENGE.md`). Pflicht: `LEGAL_NAME`, `LEGAL_ADDRESS`, `LEGAL_EMAIL`, `LEGAL_PHONE`, `LEGAL_VAT_ID` (Impressum/Datenschutz/AGB, Adresse in einer Zeile; leer = Hinweis „bitte ergänzen“ auf der Seite), `POSTGRES_PASSWORD`, `AUTH_SECRET`, `AUTH_URL` (z. B. `https://roses-gallery.de`), `EMAIL_FROM`, `POSTMARK_SERVER_TOKEN`, `STRIPE_*`, `R2_*`, `BUNNY_STREAM_*`. Optional: `BUNNY_STREAM_CDN_*`, `SENTRY_DSN` (leer = aus). **Nie** `E2E_TEST_MODE` und keine `*_TRANSPORT=fake` setzen.
 4. Deploy auslösen. Beim ersten Start legt `pnpm db:migrate` das Schema an.
 5. Stripe-Webhook auf `https://<domain>/api/stripe/webhook`, Bunny-Webhook auf `https://<domain>/api/bunny/webhook` eintragen.
 6. Prüfen: `/api/health`, Anmeldung per Magic Link, Galerie anlegen, Foto hochladen, `/impressum` erreichbar.
