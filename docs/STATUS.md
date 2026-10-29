@@ -38,7 +38,7 @@
 - [x] Security-Header inkl. CSP (D-129) in `next.config.ts`, Unit- und E2E-Test
 - [x] Sentry (D-130): `lib/error-reporter.ts` (Envelope-API ohne SDK, No-op ohne `SENTRY_DSN`), `instrumentation.ts` (`onRequestError`), Worker (`failed`, `uncaughtException`). Live ungeprüft (DSN fehlt in der Umgebung)
 - [x] 2FA für Creator (TOTP, optional, D-131): `/dashboard/security`, Challenge `/login/2fa`, Unit- und E2E-Test
-- [ ] Rate-Limits prüfen (Login, Magic Link, Passwort-Galerie vorhanden), `x-forwarded-for`-Vorgabe (D-122)
+- [x] Rate-Limits: Magic Link 5/h je E-Mail, 20/h je IP (D-132); 2FA, Passwort-Galerie vorhanden. `x-forwarded-for`-Überschreiben gehört in die Deployment-Doku (D-122)
 - [ ] Barrierefreiheit Galerie-Ansicht (axe-Test in Playwright, Fokus, Kontraste, Alt-Texte)
 - [ ] Aufbewahrungsfrist/Aufräumen alter Events (D-127), Wasserzeichen-Kopien (D-124)
 - [ ] Tägliches DB-Backup (Skript + Worker-/Cron-Job, 30 Tage), Wiederherstellungs-Doku
@@ -101,6 +101,9 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-10-29 – M10 Login-Rate-Limit
+- D-132. Nächster Schritt: axe-Test Galerie, dann Backup/Deployment. Cloud: Postgres/Redis neu starten (`service postgresql start`, `redis-server --daemonize yes`), Rolle `roses`/DB `roses_gallery`.
 
 ### 2026-10-29 – M10 2FA
 - TOTP-2FA (D-131). Nächster Schritt: Login-Rate-Limits/`x-forwarded-for`, axe-Test. Cloud: Postgres/Redis neu starten (`service postgresql start`, `redis-server --daemonize yes`), Rolle `roses`/DB `roses_gallery` anlegen.
