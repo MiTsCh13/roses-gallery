@@ -26,4 +26,16 @@ describe("parseServerEnv", () => {
       /REDIS_URL/,
     );
   });
+
+  it("treats empty optional variables (as passed by Compose) as unset", () => {
+    const env = parseServerEnv({
+      ...valid,
+      SENTRY_DSN: "",
+      BUNNY_STREAM_CDN_HOSTNAME: "",
+    });
+    expect(env.BUNNY_STREAM_CDN_HOSTNAME).toBeUndefined();
+    expect(() => parseServerEnv({ ...valid, DATABASE_URL: "" })).toThrow(
+      /DATABASE_URL/,
+    );
+  });
 });
