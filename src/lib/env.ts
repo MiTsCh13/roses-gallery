@@ -38,7 +38,11 @@ const serverEnvSchema = z.object({
 export type ServerEnv = z.infer<typeof serverEnvSchema>;
 
 export function parseServerEnv(source: Record<string, string | undefined>) {
-  const result = serverEnvSchema.safeParse(source);
+  // Compose passes unset optional variables as "" – treat them as absent.
+  const present = Object.fromEntries(
+    Object.entries(source).filter(([, value]) => value !== ""),
+  );
+  const result = serverEnvSchema.safeParse(present);
   if (!result.success) {
     const issues = result.error.issues
       .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
