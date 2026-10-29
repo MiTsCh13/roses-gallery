@@ -328,5 +328,24 @@
     "qualityAuto": "Auto",
     "cast": "Auf Gerät wiedergeben",
     "playerError": "Das Video konnte nicht geladen werden."
+  },
+  "Legal": {
+    "back": "Zur Startseite",
+    "placeholder": "Platzhalter: Dieser Text wird vor dem Launch durch den rechtsgeprüften Wortlaut ersetzt.",
+    "impressum": {
+      "title": "Impressum",
+      "linkLabel": "Impressum",
+      "body": "Angaben gemäß § 5 DDG: Name, Anschrift, Kontakt und Umsatzsteuer-ID des Anbieters folgen."
+    },
+    "datenschutz": {
+      "title": "Datenschutzerklärung",
+      "linkLabel": "Datenschutz",
+      "body": "Hier folgt die Datenschutzerklärung: Verantwortlicher, Zwecke und Rechtsgrundlagen, Auftragsverarbeiter (Hosting in der EU, Cloudflare R2, Bunny Stream, Stripe, Postmark), Speicherdauer und Betroffenenrechte."
+    },
+    "agb": {
+      "title": "Allgemeine Geschäftsbedingungen",
+      "linkLabel": "AGB",
+      "body": "Hier folgen die AGB für Fotografen und Videografen (Leistungsumfang, Tarife, Laufzeit und Kündigung, Haftung, Auftragsverarbeitung)."
+    }
   }
 }
