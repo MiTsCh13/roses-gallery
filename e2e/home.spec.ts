@@ -16,6 +16,9 @@ test("responses carry security headers", async ({ request }) => {
   const headers = response.headers();
   expect(headers["x-content-type-options"]).toBe("nosniff");
   expect(headers["x-frame-options"]).toBe("DENY");
+  expect(headers["content-security-policy"]).toContain(
+    "frame-ancestors 'none'",
+  );
   expect(headers["x-powered-by"]).toBeUndefined();
 });
 
