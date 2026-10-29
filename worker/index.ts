@@ -27,6 +27,12 @@ void scheduler.upsertJobScheduler(
 );
 
 void scheduler.upsertJobScheduler(
+  "db-backup",
+  { pattern: "30 2 * * *" },
+  { name: "db-backup", data: {} },
+);
+
+void scheduler.upsertJobScheduler(
   "cleanup-events",
   { pattern: "30 3 * * *" },
   { name: "cleanup-events", data: {} },
