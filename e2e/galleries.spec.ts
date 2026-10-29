@@ -52,7 +52,7 @@ test("create a gallery, edit it and add photo and video sets", async ({
   // Delivery mail: edited text, placeholders filled, logged.
   const client = `kunde+${testInfo.project.name}-${Date.now()}@example.com`;
   await page.getByLabel(/^Empfänger/).fill(client);
-  await page.getByLabel("Text", { exact: true }).fill("Schau mal: {link}");
+  await page.locator("textarea[name=body]").fill("Schau mal: {link}");
   await page.getByRole("button", { name: "Mail senden" }).click();
   await expect(page.getByRole("status")).toHaveText("1 Mail gesendet.");
   await expect(page.getByTestId("delivery-log")).toContainText(client);
