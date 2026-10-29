@@ -20,7 +20,11 @@ RUN pnpm install --frozen-lockfile
 
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN pnpm build
+# Der Build prüft die Umgebung beim Vorrendern; echte Werte gibt es erst zur Laufzeit
+# (Platzhalter gelten nur für diesen Schritt und landen nicht im Image-Env).
+RUN DATABASE_URL=postgres://build:build@localhost:5432/build \
+    REDIS_URL=redis://localhost:6379 \
+    pnpm build
 
 ENV NODE_ENV=production
 ENV PORT=3000
