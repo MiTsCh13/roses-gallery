@@ -13,6 +13,7 @@ export const jobSchemas = {
   "build-zip": z.object({ accountId: z.uuid(), exportId: z.uuid() }),
   "cleanup-zip-exports": z.object({}),
   "cleanup-events": z.object({}),
+  "db-backup": z.object({}),
 } as const;
 
 export type JobName = keyof typeof jobSchemas;

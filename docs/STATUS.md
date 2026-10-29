@@ -41,7 +41,7 @@
 - [x] Rate-Limits: Magic Link 5/h je E-Mail, 20/h je IP (D-132); 2FA, Passwort-Galerie vorhanden. `x-forwarded-for`-Überschreiben gehört in die Deployment-Doku (D-122)
 - [x] Barrierefreiheit Galerie-Ansicht (D-133): axe in Playwright + jsdom, Kontrast-Test, „Romantisch“ nachgebessert (Migration 0012). Offen: Kontrastwarnung für eigene Farben im Editor (optional)
 - [x] Aufbewahrungsfrist Events 24 Monate, Job `cleanup-events` (D-134); Wasserzeichen-Kopien bewusst nicht aufgeräumt
-- [ ] Tägliches DB-Backup (Skript + Worker-/Cron-Job, 30 Tage), Wiederherstellungs-Doku
+- [x] Tägliches DB-Backup (D-135): Job `db-backup`, 30 Tage, `docs/BACKUP.md`. Offen: Wiederherstellungsprobe auf echtem Server, `pg_dump` im Worker-Image
 - [ ] Deployment Coolify/Hetzner (Dockerfile, App, Worker, Postgres, Redis), Doku
 - [x] Seiten `/impressum`, `/datenschutz`, `/agb` als Platzhalter (Texte in `messages/de.json` → `Legal`, Rechtstexte vom Anwalt), Links auf der Startseite, E2E
 - [ ] Fertig-Kriterium M10: Produktion auf Hetzner, Impressum/Datenschutz online (Zugang nötig → DECISIONS)
