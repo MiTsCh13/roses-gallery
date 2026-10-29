@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { detectCast, promptCast, type CastMethod } from "./cast";
+import { tokenAppender } from "./hls-token";
 import { readResume, writeResume } from "./resume-position";
 
 type Level = { index: number; label: string };
@@ -46,7 +47,12 @@ export function HlsPlayer({
       const { default: Hls } = await import("hls.js");
       if (cancelled) return;
       if (Hls.isSupported()) {
-        const hls = new Hls();
+        const withToken = tokenAppender(src);
+        const hls = new Hls({
+          xhrSetup: (xhr, url) => {
+            xhr.open("GET", withToken(url), true);
+          },
+        });
         hlsRef.current = hls;
         hls.on(Hls.Events.MANIFEST_PARSED, (_e, data) => {
           setLevels(
