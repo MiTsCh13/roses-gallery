@@ -49,6 +49,20 @@ test("create a gallery, edit it and add photo and video sets", async ({
   await page.getByRole("button", { name: "Speichern" }).click();
   await expect(page.getByRole("status")).toHaveText("Gespeichert.");
 
+  // Delivery mail: edited text, placeholders filled, logged.
+  const client = `kunde+${testInfo.project.name}-${Date.now()}@example.com`;
+  await page.getByLabel(/^Empfänger/).fill(client);
+  await page.locator("textarea[name=body]").fill("Schau mal: {link}");
+  await page.getByRole("button", { name: "Mail senden" }).click();
+  await expect(page.getByRole("status")).toHaveText("1 Mail gesendet.");
+  await expect(page.getByTestId("delivery-log")).toContainText(client);
+  const mailRes = await request.get(
+    `/api/test/mailbox?to=${encodeURIComponent(client)}`,
+  );
+  const mail = await mailRes.json();
+  expect(mail.subject).toBe("Deine Galerie „Anna & Jörg“ ist fertig");
+  expect(mail.text).toMatch(/Schau mal: https?:\/\/\S+\/g\/anna-joerg/);
+
   await page.getByRole("textbox", { name: "Titel des Sets" }).fill("Trauung");
   await page.getByRole("button", { name: "Set hinzufügen" }).click();
   await expect(page.getByTestId("set-list").locator("li")).toHaveCount(1);

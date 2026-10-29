@@ -11,6 +11,11 @@ import { Input } from "@/components/ui/input";
 import { db } from "@/db";
 import { sets } from "@/db/schema";
 import { tenantDb } from "@/db/tenant";
+import {
+  DEFAULT_BODY,
+  DEFAULT_SUBJECT,
+  listDeliveries,
+} from "@/lib/delivery-mail";
 import { DOWNLOAD_POLICIES } from "@/lib/download-policy";
 import { readWatermarkConfig, WATERMARK_POSITIONS } from "@/lib/watermark";
 import { EVENT_TYPES, galleryStats } from "@/lib/events";
@@ -20,6 +25,7 @@ import {
   createSetAction,
   reorderSetsAction,
   saveWatermarkAction,
+  sendDeliveryMailAction,
   setGalleryPasswordAction,
   updateGalleryAction,
 } from "../actions";
@@ -32,15 +38,21 @@ async function GalleryContent({
   searchParams,
 }: {
   params: Promise<{ galleryId: string }>;
-  searchParams: Promise<{ error?: string; saved?: string }>;
+  searchParams: Promise<{
+    error?: string;
+    saved?: string;
+    sent?: string;
+    failed?: string;
+  }>;
 }) {
   await connection();
-  const [{ galleryId }, { error, saved }, { account }, t] = await Promise.all([
-    params,
-    searchParams,
-    requireAccount(),
-    getTranslations("Galleries"),
-  ]);
+  const [{ galleryId }, { error, saved, sent, failed }, { account }, t] =
+    await Promise.all([
+      params,
+      searchParams,
+      requireAccount(),
+      getTranslations("Galleries"),
+    ]);
   if (!z.uuid().safeParse(galleryId).success) notFound();
   const tenant = tenantDb(db(), account.id);
   const gallery = await tenant.galleries.get(galleryId);
@@ -49,6 +61,7 @@ async function GalleryContent({
   gallerySets.sort((a, b) => a.position - b.position);
 
   const watermark = readWatermarkConfig(account.branding);
+  const deliveries = await listDeliveries(db(), account.id, gallery.id);
   const [stats7, stats30] = await Promise.all([
     galleryStats(db(), account.id, gallery.id, 7),
     galleryStats(db(), account.id, gallery.id, 30),
@@ -74,6 +87,14 @@ async function GalleryContent({
       {saved && (
         <p role="status" className="text-sm text-muted-foreground">
           {t("saved")}
+        </p>
+      )}
+
+      {sent !== undefined && (
+        <p role="status" className="text-sm text-muted-foreground">
+          {t("deliverySent", { sent: Number(sent) || 0 })}
+          {Number(failed) > 0 &&
+            ` ${t("deliveryFailed", { failed: Number(failed) })}`}
         </p>
       )}
 
@@ -220,6 +241,62 @@ async function GalleryContent({
         </form>
       </section>
 
+      <section aria-labelledby="delivery-title" className="max-w-md space-y-3">
+        <h2 id="delivery-title" className="text-lg font-medium">
+          {t("deliveryTitle")}
+        </h2>
+        <p className="text-sm text-muted-foreground">{t("deliveryHint")}</p>
+        <form action={sendDeliveryMailAction} className="space-y-3">
+          <input type="hidden" name="galleryId" value={gallery.id} />
+          <label className="block space-y-1 text-sm">
+            <span>{t("deliveryRecipients")}</span>
+            <textarea
+              name="recipients"
+              required
+              rows={2}
+              maxLength={2000}
+              className="w-full rounded-md border bg-transparent px-3 py-2"
+            />
+          </label>
+          <label className="block space-y-1 text-sm">
+            <span>{t("deliverySubject")}</span>
+            <Input
+              name="subject"
+              required
+              maxLength={200}
+              defaultValue={DEFAULT_SUBJECT}
+            />
+          </label>
+          <label className="block space-y-1 text-sm">
+            <span>{t("deliveryBody")}</span>
+            <textarea
+              name="body"
+              required
+              rows={10}
+              maxLength={5000}
+              defaultValue={DEFAULT_BODY}
+              className="w-full rounded-md border bg-transparent px-3 py-2"
+            />
+          </label>
+          <Button type="submit">{t("deliverySend")}</Button>
+        </form>
+        <h3 className="text-sm font-medium">{t("deliveryLog")}</h3>
+        {deliveries.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            {t("deliveryLogEmpty")}
+          </p>
+        ) : (
+          <ul className="space-y-1 text-sm" data-testid="delivery-log">
+            {deliveries.map((d) => (
+              <li key={d.id}>
+                {d.recipient} – {t(`deliveryStatus.${d.status}`)} (
+                {d.createdAt.toLocaleString("de-DE")})
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
       <section aria-labelledby="password-title" className="max-w-md space-y-3">
         <h2 id="password-title" className="text-lg font-medium">
           {t("passwordTitle")}
@@ -309,7 +386,12 @@ export default function GalleryPage({
   searchParams,
 }: {
   params: Promise<{ galleryId: string }>;
-  searchParams: Promise<{ error?: string; saved?: string }>;
+  searchParams: Promise<{
+    error?: string;
+    saved?: string;
+    sent?: string;
+    failed?: string;
+  }>;
 }) {
   return (
     <Suspense>

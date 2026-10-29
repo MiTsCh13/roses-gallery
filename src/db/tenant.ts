@@ -3,6 +3,7 @@ import type { PgColumn, PgTable } from "drizzle-orm/pg-core";
 
 import type { Db } from "./index";
 import {
+  deliveryMails,
   events,
   favoriteLists,
   galleries,
@@ -84,6 +85,7 @@ export function tenantDb(db: Db, accountId: string) {
     visitors: scoped(db, visitors, accountId),
     favoriteLists: scoped(db, favoriteLists, accountId),
     events: scoped(db, events, accountId),
+    deliveryMails: scoped(db, deliveryMails, accountId),
     themes: scoped(db, themes, accountId),
   };
 }

@@ -36,7 +36,7 @@
 
 - [x] Event-Erfassung datensparsam (F-DASH-02, D-127): `lib/events.ts`, Tabelle `events` ohne Cookie/IP/Besucher-ID (nur Typ, Galerie, Foto/Video, Zeit); `view` beim Rendern von `/g/[slug]` (nur entsperrt), `play` per Server Action beim Videostart (Rate-Limit), `download` bei erfolgreichem Einzel-Download und ZIP-Link, `favorite` beim Hinzufügen
 - [x] Statistik pro Galerie im Dashboard (Galerie-Seite): Aufrufe, Wiedergaben, Downloads, Favoriten für 7/30 Tage. Tests: Unit gegen Postgres. Offen: Zeitreihe/Diagramm, Aufbewahrungsfrist/Aufräumen alter Events (M10)
-- [ ] Auslieferungs-Mail (F-DASH-03): Postmark, anpassbarer Text (Platzhalter Titel/Link/Passwort-Hinweis), Creator-Logo/Branding, Empfänger-Liste, Versand aus dem Dashboard, Protokoll
+- [x] Auslieferungs-Mail (F-DASH-03, D-128): `lib/delivery-mail.ts`, Abschnitt „Galerie an Kunden senden“ auf der Galerie-Seite (Empfänger ≤ 20, Betreff/Text mit Platzhaltern `{titel} {link} {passwort_hinweis} {fotograf}`), Text + HTML, Protokoll (`delivery_mails`, Migration 0010), Empfänger werden Kunden-Besucher (Ablauf-Erinnerung). Tests: Unit gegen Postgres + E2E. Offen: Logo im Mail-Kopf (signierte URLs laufen ab, D-128), Vorlage nicht dauerhaft speicherbar
 - [ ] Fertig-Kriterium M9: Auslieferungs-Mail kommt an, Aufrufe werden gezählt
 - [ ] Optional aus M8: Dashboard-Ansicht der Favoritenlisten je Galerie (CSV)
 
@@ -87,6 +87,9 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-10-29 – M9 Auslieferungs-Mail
+- F-DASH-03 fertig (D-128). Nächster Schritt: Fertig-Kriterium M9 prüfen (Mail kommt an = Fake/Postmark-Test, Aufrufe gezählt), dann M10 aufschlüsseln. Cloud: Postgres/Redis neu starten, Rolle/DBs anlegen.
 
 ### 2026-10-28 – M9 Statistik
 - Events + Dashboard-Statistik (D-127). Nächster Schritt: Auslieferungs-Mail (F-DASH-03). Cloud: Postgres/Redis neu starten, Rolle/DBs anlegen.

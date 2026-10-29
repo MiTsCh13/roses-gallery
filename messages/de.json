@@ -148,6 +148,20 @@
     "watermarkOpacity": "Deckkraft (5–100 %)",
     "watermarkScale": "Größe (5–60 % der Bildbreite)",
     "watermarkSave": "Einstellungen übernehmen",
+    "deliveryTitle": "Galerie an Kunden senden",
+    "deliveryHint": "Platzhalter: {titel}, {link}, {passwort_hinweis}, {fotograf}. Das Passwort selbst wird nie mitgeschickt.",
+    "deliveryRecipients": "Empfänger (E-Mail-Adressen, durch Komma oder Zeilenumbruch getrennt)",
+    "deliverySubject": "Betreff",
+    "deliveryBody": "Text",
+    "deliverySend": "Mail senden",
+    "deliverySent": "{sent, plural, =1 {1 Mail gesendet} other {# Mails gesendet}}.",
+    "deliveryFailed": "{failed, plural, =1 {1 Mail konnte nicht gesendet werden} other {# Mails konnten nicht gesendet werden}}.",
+    "deliveryLog": "Versandprotokoll",
+    "deliveryLogEmpty": "Noch nichts verschickt.",
+    "deliveryStatus": {
+      "sent": "gesendet",
+      "failed": "fehlgeschlagen"
+    },
     "passwordTitle": "Passwortschutz",
     "passwordOn": "Die Galerie ist durch ein Passwort geschützt.",
     "passwordOff": "Die Galerie ist ohne Passwort über den Link erreichbar.",
@@ -180,7 +194,10 @@
       "invalid": "Bitte die Eingaben prüfen.",
       "slug_taken": "Diese Adresse ist bereits vergeben.",
       "gallery_limit": "Das Galerie-Limit deines Plans ist erreicht.",
-      "not_found": "Galerie nicht gefunden."
+      "not_found": "Galerie nicht gefunden.",
+      "not_published": "Die Galerie muss veröffentlicht sein, bevor du sie verschickst.",
+      "no_recipients": "Bitte mindestens eine E-Mail-Adresse angeben.",
+      "rate_limited": "Zu viele Mails in kurzer Zeit. Bitte später erneut versuchen."
     },
     "open": "Öffnen",
     "moveUp": "Nach oben",

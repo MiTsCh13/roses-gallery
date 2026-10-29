@@ -1,6 +1,6 @@
 import { serverEnv } from "@/lib/env";
 
-export type Mail = { to: string; subject: string; text: string };
+export type Mail = { to: string; subject: string; text: string; html?: string };
 
 export interface Mailer {
   send(mail: Mail): Promise<void>;
@@ -38,6 +38,7 @@ export class PostmarkMailer implements Mailer {
         To: mail.to,
         Subject: mail.subject,
         TextBody: mail.text,
+        ...(mail.html ? { HtmlBody: mail.html } : {}),
         MessageStream: "outbound",
       }),
     });
