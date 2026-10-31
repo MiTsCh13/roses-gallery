@@ -247,6 +247,8 @@
     "watermarkOpacity": "Deckkraft (5–100 %)",
     "watermarkScale": "Größe (5–60 % der Bildbreite)",
     "watermarkSave": "Einstellungen übernehmen",
+    "deliveryOpen": "An Kunden senden",
+    "close": "Schließen",
     "deliveryTitle": "Galerie an Kunden senden",
     "deliveryHint": "Platzhalter: {titel}, {link}, {passwort_hinweis}, {fotograf}. Das Passwort selbst wird nie mitgeschickt.",
     "deliveryRecipients": "Empfänger (E-Mail-Adressen, durch Komma oder Zeilenumbruch getrennt)",
