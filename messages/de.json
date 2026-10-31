@@ -654,6 +654,8 @@
     "addFromLibrary": "Aus Bibliothek hinzufügen",
     "addSelected": "{count} hinzufügen",
     "removeSelected": "{count} aus Galerie entfernen",
+    "deleteSelected": "{count} endgültig löschen",
+    "deleteConfirm": "{count} Medien endgültig aus der Bibliothek und allen Galerien löschen?",
     "moveEarlier": "Früher",
     "moveLater": "Später",
     "pickerEmpty": "Keine weiteren Medien in der Bibliothek.",

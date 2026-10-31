@@ -16,7 +16,9 @@ import { serverEnv } from "@/lib/env";
 import { getMailer } from "@/lib/mailer";
 import { getRateLimiter } from "@/lib/rate-limit";
 import { setGalleryPassword } from "@/lib/gallery-access";
+import { deleteMedia } from "@/lib/library";
 import { getStorage } from "@/lib/storage";
+import { getVideoProvider } from "@/lib/video";
 import { saveGalleryDesign } from "@/lib/gallery-design";
 import { PlanLimitError } from "@/lib/plans";
 import { saveWatermarkConfig } from "@/lib/watermark";
@@ -237,4 +239,20 @@ export async function reorderGalleryMediaAction(
   const gid = z.uuid().parse(galleryId);
   await reorderGalleryMedia(d, gid, mediaIds.parse(ids));
   revalidatePath(`/dashboard/galleries/${gid}`);
+}
+
+/** Deletes the marked media from the library for good (also from all galleries). */
+export async function deleteGalleryMediaAction(
+  galleryId: string,
+  ids: string[],
+) {
+  const { account } = await requireAccount();
+  const d = { db: db(), accountId: account.id };
+  const gid = z.uuid().parse(galleryId);
+  await deleteMedia(
+    { ...d, storage: getStorage(), video: getVideoProvider() },
+    mediaIds.parse(ids),
+  );
+  revalidatePath(`/dashboard/galleries/${gid}`);
+  revalidatePath("/dashboard/library");
 }
