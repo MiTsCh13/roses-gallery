@@ -84,6 +84,8 @@ export const users = pgTable(
     image: text("image"),
     role: userRole("role").notNull().default("owner"),
     authProvider: text("auth_provider"),
+    // Optional password login (D-141): scrypt hash, null = Magic Link / Google only.
+    passwordHash: text("password_hash"),
     // 2FA (TOTP, D-131): secret is AES-GCM encrypted; active once totpEnabledAt is set.
     totpSecret: text("totp_secret"),
     totpEnabledAt: timestamp("totp_enabled_at", { withTimezone: true }),
