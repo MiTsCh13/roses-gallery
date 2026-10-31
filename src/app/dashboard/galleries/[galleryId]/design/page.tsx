@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import { eq } from "drizzle-orm";
 import { connection } from "next/server";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -8,7 +7,6 @@ import { z } from "zod";
 
 import { DesignEditor } from "@/components/design-editor";
 import { db } from "@/db";
-import { sets } from "@/db/schema";
 import { tenantDb } from "@/db/tenant";
 import { GalleryError } from "@/lib/galleries";
 import { logoUrl } from "@/lib/branding";
@@ -43,17 +41,9 @@ async function DesignContent({
     throw e;
   });
   const logo = await logoUrl({ ...deps, storage: getStorage() });
-  const gallerySets = await tenant.sets.list(eq(sets.galleryId, gallery.id));
-  gallerySets.sort((a, b) => a.position - b.position);
-  const previewSets = (gallerySets.length ? gallerySets : [null]).map(
-    (s, i) => ({
-      id: s?.id ?? `placeholder-${i}`,
-      title: s?.title ?? gallery.title,
-      tiles: Array.from({ length: PLACEHOLDER_TILES }, (_, n) => ({
-        id: `${i}-${n}`,
-      })),
-    }),
-  );
+  const previewTiles = Array.from({ length: PLACEHOLDER_TILES }, (_, n) => ({
+    id: `placeholder-${n}`,
+  }));
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-6 py-16">
@@ -83,7 +73,7 @@ async function DesignContent({
         initialThemeId={design.themeId}
         initialConfig={design.config}
         logoUrl={logo ?? undefined}
-        sets={previewSets}
+        tiles={previewTiles}
         action={saveDesignAction}
         removeLogoAction={removeLogoAction}
       />

@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 
 import {
   GalleryView,
-  type GalleryViewSet,
+  type GalleryViewTile,
 } from "@/components/gallery/gallery-view";
 import { Button } from "@/components/ui/button";
 import { COVER_STYLES, GRID_LAYOUTS, type ThemeConfig } from "@/lib/themes";
@@ -25,7 +25,7 @@ export function DesignEditor({
   initialThemeId,
   initialConfig,
   logoUrl,
-  sets,
+  tiles,
   action,
   removeLogoAction,
 }: {
@@ -35,7 +35,7 @@ export function DesignEditor({
   initialThemeId: string;
   initialConfig: ThemeConfig;
   logoUrl?: string;
-  sets: GalleryViewSet[];
+  tiles: GalleryViewTile[];
   action: (formData: FormData) => void | Promise<void>;
   removeLogoAction: (formData: FormData) => void | Promise<void>;
 }) {
@@ -235,7 +235,7 @@ export function DesignEditor({
               title={title}
               subtitle={t("previewSubtitle")}
               logoUrl={logoUrl}
-              sets={sets}
+              tiles={tiles}
             />
           </div>
         </div>

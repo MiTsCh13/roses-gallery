@@ -2,7 +2,7 @@ import { afterAll, beforeEach, describe, expect, it } from "vitest";
 
 import { accounts, galleries, media, sets, users, visitors } from "@/db/schema";
 import { FakeMailer } from "@/lib/mailer";
-import { createTestDb, resetDb } from "@/test/db";
+import { createTestDb, resetDb, linkSetMedia } from "@/test/db";
 import {
   createGuest,
   createList,
@@ -47,6 +47,7 @@ async function makeGallery(acc: string, slug: string) {
       .returning();
     ids.push(m.id);
   }
+  await linkSetMedia(db);
   return { g, ids };
 }
 
@@ -218,7 +219,7 @@ describe("magic link", () => {
 });
 
 describe("export to the creator", () => {
-  it("mails the list with photo numbers per set to the owners", async () => {
+  it("mails the list with photo numbers to the owners", async () => {
     const v = await createGuest({ db }, gallery);
     const list = await createList({ db }, gallery, v.id, "Album");
     const mailer = new FakeMailer();
@@ -236,7 +237,7 @@ describe("export to the creator", () => {
     });
     const mail = mailer.lastTo("foto@example.com")!;
     expect(mail.subject).toContain("Album");
-    expect(mail.text).toContain("Trauung: Foto 1, 3");
+    expect(mail.text).toContain("Fotos: 1, 3");
     expect(mail.text).toContain("https://roses.test/g/anna-ben");
   });
 });

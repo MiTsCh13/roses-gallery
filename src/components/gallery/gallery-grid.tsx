@@ -6,6 +6,21 @@ import type { GRID_LAYOUTS } from "@/lib/themes";
 import { FavoriteButton } from "./favorites";
 import { Lightbox } from "./lightbox";
 
+export function formatDuration(totalSeconds: number) {
+  const s = Math.max(0, Math.round(totalSeconds));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = String(s % 60).padStart(2, "0");
+  return h ? `${h}:${String(m).padStart(2, "0")}:${sec}` : `${m}:${sec}`;
+}
+
+export type GalleryViewVideo = {
+  title: string;
+  playUrl?: string;
+  hlsUrl?: string;
+  durationS?: number | null;
+};
+
 export type GalleryViewTile = {
   id: string;
   src?: string;
@@ -15,6 +30,8 @@ export type GalleryViewTile = {
   downloads?: { web?: string; original?: string };
   /** Story image URL (F-INT-02); only set when web downloads are allowed. */
   story?: string;
+  /** Set for video tiles: a play tile that opens the player in the lightbox. */
+  video?: GalleryViewVideo;
 };
 
 export function GalleryGrid({
@@ -25,8 +42,8 @@ export function GalleryGrid({
   tiles: GalleryViewTile[];
 }) {
   const [open, setOpen] = useState<number | null>(null);
-  // only real photos open in the lightbox; placeholders stay inert
-  const photos = tiles.filter((t) => t.src);
+  // photos and videos open in the lightbox; placeholders stay inert
+  const photos = tiles.filter((t) => t.src || t.video);
 
   const tile = (t: GalleryViewTile, className: string) => {
     const index = photos.indexOf(t);
@@ -35,8 +52,34 @@ export function GalleryGrid({
         key={t.id}
         data-testid="gallery-tile"
         className={`relative overflow-hidden ${className}`}
-        style={{ background: "var(--g-muted)", opacity: t.src ? 1 : 0.25 }}
+        style={{
+          background: "var(--g-muted)",
+          opacity: t.src || t.video ? 1 : 0.25,
+        }}
       >
+        {t.video && (
+          <button
+            type="button"
+            data-testid="video-tile"
+            onClick={() => setOpen(index)}
+            className="flex h-full w-full cursor-pointer flex-col items-center justify-center gap-1"
+            style={{
+              background:
+                "linear-gradient(135deg, var(--g-accent), var(--g-muted) 120%)",
+              color: "var(--g-bg)",
+            }}
+            aria-label={t.video.title}
+          >
+            <span className="text-4xl" aria-hidden>
+              ▶
+            </span>
+            {t.video.durationS != null && (
+              <span className="text-xs">
+                {formatDuration(t.video.durationS)}
+              </span>
+            )}
+          </button>
+        )}
         {t.src && (
           <button
             type="button"
@@ -56,7 +99,7 @@ export function GalleryGrid({
             />
           </button>
         )}
-        {t.src && (
+        {t.src && !t.video && (
           <FavoriteButton
             mediaId={t.id}
             className="absolute right-2 bottom-2 px-2 py-1 text-base"

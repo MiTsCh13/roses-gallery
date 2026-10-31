@@ -37,9 +37,6 @@ test("public gallery has no WCAG 2.1 AA violations", async ({
       .getByRole("link", { name: "Galerie ansehen" })
       .getAttribute("href")) ?? ""
   ).replace("/g/", "");
-  await page.getByRole("textbox", { name: "Titel des Sets" }).fill("Trauung");
-  await page.getByRole("button", { name: "Set hinzufügen" }).click();
-  await expect(page.getByTestId("set-list").locator("li")).toHaveCount(1);
   await page
     .getByRole("combobox", { name: "Status" })
     .selectOption("published");

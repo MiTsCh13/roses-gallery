@@ -8,7 +8,7 @@ import {
   favoriteLists,
   favorites,
   media,
-  sets,
+  galleryMedia,
   users,
   visitors,
   type galleries,
@@ -245,12 +245,12 @@ export async function toggleFavorite(
   const [photo] = await deps.db
     .select({ id: media.id })
     .from(media)
-    .innerJoin(sets, eq(sets.id, media.setId))
+    .innerJoin(galleryMedia, eq(galleryMedia.mediaId, media.id))
     .where(
       and(
         eq(media.id, input.mediaId),
         eq(media.accountId, gallery.accountId),
-        eq(sets.galleryId, gallery.id),
+        eq(galleryMedia.galleryId, gallery.id),
         eq(media.type, "photo"),
       ),
     )
@@ -345,16 +345,16 @@ export async function sendListToCreator(
   if (!visitor) throw new FavoritesError("not_found", "Visitor not found.");
   const list = await ownList(deps, gallery, visitorId, listId);
   const rows = await deps.db
-    .select({ setTitle: sets.title, setPos: sets.position, m: media })
+    .select({ m: media })
     .from(favorites)
     .innerJoin(media, eq(media.id, favorites.mediaId))
-    .innerJoin(sets, eq(sets.id, media.setId))
+    .innerJoin(galleryMedia, eq(galleryMedia.mediaId, media.id))
     .where(
       and(
         eq(favorites.listId, list.id),
         eq(favorites.accountId, gallery.accountId),
         eq(media.accountId, gallery.accountId),
-        eq(sets.galleryId, gallery.id),
+        eq(galleryMedia.galleryId, gallery.id),
       ),
     );
   if (rows.length === 0) throw new FavoritesError("empty", "List is empty.");
@@ -370,37 +370,21 @@ export async function sendListToCreator(
 
   // photo numbers follow the gallery order, matching what the visitor sees
   const all = await deps.db
-    .select({ id: media.id, setId: media.setId })
-    .from(media)
-    .innerJoin(sets, eq(sets.id, media.setId))
+    .select({ id: media.id })
+    .from(galleryMedia)
+    .innerJoin(media, eq(media.id, galleryMedia.mediaId))
     .where(
       and(
-        eq(media.accountId, gallery.accountId),
-        eq(sets.galleryId, gallery.id),
+        eq(galleryMedia.accountId, gallery.accountId),
+        eq(galleryMedia.galleryId, gallery.id),
         eq(media.type, "photo"),
         eq(media.processingStatus, "ready"),
       ),
     )
-    .orderBy(asc(media.position), asc(media.createdAt));
-  const numberOf = new Map<string, number>();
-  const perSet = new Map<string, number>();
-  for (const p of all) {
-    const n = (perSet.get(p.setId!) ?? 0) + 1;
-    perSet.set(p.setId!, n);
-    numberOf.set(p.id, n);
-  }
-  const bySet = new Map<string, { pos: number; nums: number[] }>();
-  for (const r of rows) {
-    const e = bySet.get(r.setTitle) ?? { pos: r.setPos, nums: [] };
-    e.nums.push(numberOf.get(r.m.id) ?? 0);
-    bySet.set(r.setTitle, e);
-  }
-  const lines = [...bySet.entries()]
-    .sort((a, b) => a[1].pos - b[1].pos)
-    .map(
-      ([title, e]) =>
-        `${title}: Foto ${e.nums.sort((x, y) => x - y).join(", ")}`,
-    );
+    .orderBy(asc(galleryMedia.position), asc(media.createdAt));
+  const numberOf = new Map(all.map((p, i) => [p.id, i + 1]));
+  const nums = rows.map((r) => numberOf.get(r.m.id) ?? 0).sort((x, y) => x - y);
+  const lines = [`Fotos: ${nums.join(", ")}`];
   const who = visitor.email ?? "ein Gast";
   const mail = {
     subject: `Favoritenliste „${list.name}“ – ${gallery.title}`,

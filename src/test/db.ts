@@ -26,3 +26,16 @@ export async function resetDb(db: TestDb) {
       SYSTEM_THEMES.map((t) => ({ id: t.id, name: t.name, config: t.config })),
     );
 }
+
+/**
+ * Test fixtures still create media inside sets; the public side reads
+ * `gallery_media`. Links every set media to its set's gallery (idempotent).
+ */
+export async function linkSetMedia(db: TestDb) {
+  await db.execute(sql`
+    insert into gallery_media (account_id, gallery_id, media_id, position)
+    select m.account_id, s.gallery_id, m.id, m.position
+    from media m join sets s on s.id = m.set_id
+    on conflict do nothing
+  `);
+}

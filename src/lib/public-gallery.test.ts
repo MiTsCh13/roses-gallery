@@ -5,7 +5,7 @@ import path from "node:path";
 import { eq } from "drizzle-orm";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 
-import { accounts, galleries, media, sets, themes } from "@/db/schema";
+import { accounts, galleries, galleryMedia, media, themes } from "@/db/schema";
 import { createTestDb, resetDb } from "@/test/db";
 import { FakeStorage } from "@/lib/storage/fake";
 import { FakeVideoProvider } from "@/lib/video/fake";
@@ -46,6 +46,18 @@ beforeEach(async () => {
 });
 afterAll(close);
 
+// puts media into the gallery in the given order
+async function link(galleryId: string, ids: string[]) {
+  await db.insert(galleryMedia).values(
+    ids.map((mediaId, position) => ({
+      accountId,
+      galleryId,
+      mediaId,
+      position,
+    })),
+  );
+}
+
 // unprotected galleries: narrows away the password gate
 async function loadOpen(
   deps: Parameters<typeof loadPublicGallery>[0],
@@ -57,15 +69,11 @@ async function loadOpen(
 }
 
 describe("loadPublicGallery", () => {
-  it("returns a published gallery with ordered sets and default theme", async () => {
-    const g = await gallery();
-    await db.insert(sets).values([
-      { accountId, galleryId: g.id, title: "Zweites", position: 1 },
-      { accountId, galleryId: g.id, title: "Erstes", position: 0 },
-    ]);
+  it("returns a published gallery with default theme", async () => {
+    await gallery();
     const r = await loadOpen({ db, storage }, "anna-ben");
     expect(r?.title).toBe("Anna & Ben");
-    expect(r?.sets.map((s) => s.title)).toEqual(["Erstes", "Zweites"]);
+    expect(r?.items).toEqual([]);
     expect(r?.config).toEqual(SYSTEM_THEMES[0].config);
     expect(r?.logoUrl).toBeNull();
   });
@@ -112,12 +120,8 @@ describe("loadPublicGallery", () => {
     expect(r?.logoUrl).toContain("logo.png");
   });
 
-  it("lists ready photos in order with signed srcset and the cover", async () => {
+  it("lists ready photos in gallery order with signed srcset and the cover", async () => {
     const g = await gallery();
-    const [set] = await db
-      .insert(sets)
-      .values({ accountId, galleryId: g.id, title: "Trauung" })
-      .returning();
     const variants = (id: string) => ({
       "400": {
         key: `${accountId}/d/${id}-400.webp`,
@@ -138,8 +142,8 @@ describe("loadPublicGallery", () => {
         size: 1,
       },
     });
-    const base = { accountId, setId: set.id, type: "photo" as const };
-    const [second, first] = await db
+    const base = { accountId, type: "photo" as const };
+    const [second, first, pending, failed] = await db
       .insert(media)
       .values([
         {
@@ -158,9 +162,11 @@ describe("loadPublicGallery", () => {
         { ...base, position: 3, processingStatus: "failed" },
       ])
       .returning();
+    // gallery order, not the media's own position, decides
+    await link(g.id, [first.id, pending.id, second.id, failed.id]);
     await db.update(galleries).set({ coverMediaId: second.id });
     const r = await loadOpen({ db, storage }, "anna-ben");
-    const photos = r!.sets[0].photos;
+    const photos = r!.items.flatMap((i) => (i.kind === "photo" ? [i] : []));
     expect(photos.map((p) => p.id)).toEqual([first.id, second.id]);
     expect(photos[0].srcSet.split(", ")).toHaveLength(3);
     expect(photos[0].srcSet).toMatch(/400w.*1200w.*2400w/);
@@ -172,49 +178,70 @@ describe("loadPublicGallery", () => {
 
   it("does not leak another account's media into the gallery", async () => {
     const g = await gallery();
-    const [mine] = await db
-      .insert(sets)
-      .values({ accountId, galleryId: g.id, title: "Mein" })
+    const [foreign] = await db
+      .insert(media)
+      .values({
+        accountId: otherId,
+        type: "photo",
+        processingStatus: "ready",
+        variants: {
+          "400": { key: "x/400.webp", width: 400, height: 300, size: 1 },
+        },
+      })
       .returning();
-    await db.insert(media).values({
-      accountId: otherId,
-      setId: mine.id,
-      type: "photo",
-      processingStatus: "ready",
-      variants: {
-        "400": { key: "x/400.webp", width: 400, height: 300, size: 1 },
-      },
+    // even a stray link row must not expose another tenant's media
+    await db.insert(galleryMedia).values({
+      accountId,
+      galleryId: g.id,
+      mediaId: foreign.id,
     });
     const r = await loadOpen({ db, storage }, "anna-ben");
-    expect(r!.sets[0].photos).toEqual([]);
+    expect(r!.items).toEqual([]);
   });
 
-  it("lists only ready videos of the own account with signed play URLs", async () => {
+  it("mixes ready photos and videos in gallery order, videos with signed play URLs", async () => {
     const video = new FakeVideoProvider();
     const g = await gallery();
-    const [set] = await db
-      .insert(sets)
-      .values({ accountId, galleryId: g.id, title: "Filme", type: "video" })
+    const [photo, ready, pending] = await db
+      .insert(media)
+      .values([
+        {
+          accountId,
+          type: "photo",
+          processingStatus: "ready",
+          variants: {
+            "400": { key: "x/400.webp", width: 400, height: 300, size: 1 },
+          },
+        },
+        {
+          accountId,
+          type: "video",
+          bunnyVideoId: "v-ready",
+          processingStatus: "ready",
+          durationS: 90,
+        },
+        {
+          accountId,
+          type: "video",
+          bunnyVideoId: "v-pending",
+          processingStatus: "processing",
+        },
+      ])
       .returning();
-    const base = { accountId, setId: set.id, type: "video" as const };
-    await db.insert(media).values([
-      {
-        ...base,
-        bunnyVideoId: "v-ready",
-        processingStatus: "ready",
-        durationS: 90,
-      },
-      { ...base, bunnyVideoId: "v-pending", processingStatus: "processing" },
-    ]);
+    await link(g.id, [ready.id, photo.id, pending.id]);
     const r = await loadOpen({ db, storage, video }, "anna-ben");
-    expect(r?.sets[0].videos).toHaveLength(1);
-    expect(r?.sets[0].videos[0].durationS).toBe(90);
-    expect(r?.sets[0].videos[0].playUrl).toContain("/api/test/player/v-ready?");
-    expect(r?.sets[0].videos[0].hlsUrl).toBeUndefined();
-    expect(r?.sets[0].photos).toEqual([]);
+    expect(r?.items.map((i) => [i.kind, i.id])).toEqual([
+      ["video", ready.id],
+      ["photo", photo.id],
+    ]);
+    const v = r!.items[0];
+    if (v.kind !== "video") throw new Error("expected video");
+    expect(v.durationS).toBe(90);
+    expect(v.playUrl).toContain("/api/test/player/v-ready?");
+    expect(v.hlsUrl).toBeUndefined();
     // without a provider no video is exposed
     const none = await loadOpen({ db, storage }, "anna-ben");
-    expect(none?.sets[0].videos).toEqual([]);
+    expect(none?.items.map((i) => i.kind)).toEqual(["photo"]);
   });
 });
 
@@ -223,9 +250,6 @@ describe("loadPublicGallery with a password", () => {
 
   it("shows only title and slug until the access cookie is present", async () => {
     const g = await gallery({ passwordHash: hashPassword("geheim-1") });
-    await db
-      .insert(sets)
-      .values({ accountId, galleryId: g.id, title: "Trauung" });
     const locked = await loadPublicGallery(
       { db, storage, accessSecret: SECRET },
       "anna-ben",
@@ -252,9 +276,7 @@ describe("loadPublicGallery with a password", () => {
       "anna-ben",
     );
     expect(open).toMatchObject({ locked: false });
-    expect(open && !open.locked && open.sets.map((s) => s.title)).toEqual([
-      "Trauung",
-    ]);
+    expect(open && !open.locked && open.items).toEqual([]);
   });
 
   it("locks again once the password changed", async () => {

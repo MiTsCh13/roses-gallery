@@ -56,7 +56,6 @@ export async function requestZipAction(formData: FormData) {
     redirect(`/g/${encodeURIComponent(slug)}?zip=${code}`);
   const parsed = zipRequestSchema.safeParse({
     slug,
-    setId: String(formData.get("setId") ?? "") || null,
     size: formData.get("size"),
     email: String(formData.get("email") ?? "").trim(),
   });

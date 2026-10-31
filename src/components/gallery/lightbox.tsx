@@ -3,7 +3,9 @@
 import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 
-import { FavoriteButton } from "./favorites";
+import { recordPlayAction } from "@/app/g/[slug]/favorites-actions";
+import { FavoriteButton, useFavorites } from "./favorites";
+import { HlsPlayer } from "./hls-player";
 import { StoryShareButton } from "./share";
 import type { GalleryViewTile } from "./gallery-grid";
 
@@ -24,6 +26,8 @@ export function Lightbox({
   const t = useTranslations("PublicGallery");
   const touchX = useRef<number | null>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  // the favorites context knows the public slug; absent in the editor preview
+  const slug = useFavorites()?.slug;
   const count = photos.length;
   const photo = photos[index];
 
@@ -52,6 +56,12 @@ export function Lightbox({
     };
   }, []);
 
+  // a video starts when the visitor opens it (they just clicked its tile)
+  const videoId = photo?.video ? photo.id : null;
+  useEffect(() => {
+    if (videoId && slug) void recordPlayAction(slug, videoId);
+  }, [videoId, slug]);
+
   if (!photo) return null;
   const btn =
     "absolute rounded-full bg-black/50 px-3 py-2 text-xl text-white hover:bg-black/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white";
@@ -75,15 +85,40 @@ export function Lightbox({
         else if (dx >= SWIPE_MIN_PX) prev();
       }}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element -- signed, short-lived URLs bypass next/image */}
-      <img
-        src={photo.src}
-        srcSet={photo.srcSet}
-        sizes="100vw"
-        alt={photo.alt ?? ""}
-        data-testid="lightbox-image"
-        className="max-h-full max-w-full object-contain"
-      />
+      {photo.video ? (
+        <div
+          className="aspect-video w-full max-w-5xl"
+          data-testid="lightbox-video"
+        >
+          {photo.video.hlsUrl ? (
+            <HlsPlayer
+              key={photo.id}
+              videoId={photo.id}
+              src={photo.video.hlsUrl}
+              title={photo.video.title}
+            />
+          ) : photo.video.playUrl ? (
+            <iframe
+              key={photo.id}
+              src={photo.video.playUrl}
+              title={photo.video.title}
+              allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+              allowFullScreen
+              className="h-full w-full border-0"
+            />
+          ) : null}
+        </div>
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element -- signed, short-lived URLs bypass next/image
+        <img
+          src={photo.src}
+          srcSet={photo.srcSet}
+          sizes="100vw"
+          alt={photo.alt ?? ""}
+          data-testid="lightbox-image"
+          className="max-h-full max-w-full object-contain"
+        />
+      )}
       <button
         ref={closeRef}
         type="button"
@@ -93,7 +128,9 @@ export function Lightbox({
       >
         ×
       </button>
-      <FavoriteButton mediaId={photo.id} className="absolute top-4 left-4" />
+      {!photo.video && (
+        <FavoriteButton mediaId={photo.id} className="absolute top-4 left-4" />
+      )}
       {count > 1 && (
         <>
           <button

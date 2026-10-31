@@ -6,7 +6,7 @@ import { afterAll, beforeEach, describe, expect, it } from "vitest";
 
 import { accounts, events, galleries, media, sets } from "@/db/schema";
 import { FakeStorage } from "@/lib/storage/fake";
-import { createTestDb, resetDb } from "@/test/db";
+import { createTestDb, resetDb, linkSetMedia } from "@/test/db";
 import { resolvePhotoDownload } from "./downloads";
 import {
   cleanupOldEvents,
@@ -63,6 +63,7 @@ beforeEach(async () => {
       processingStatus: "ready",
     })
     .returning();
+  await linkSetMedia(db);
   photoId = p.id;
   videoId = v.id;
 });
