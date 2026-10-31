@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 
 import {
   addGalleryMediaAction,
+  deleteGalleryMediaAction,
   removeGalleryMediaAction,
   reorderGalleryMediaAction,
   setGalleryCoverAction,
@@ -201,6 +202,21 @@ export function GalleryMediaPanel({
           }
         >
           {t("removeSelected", { count: marked.size })}
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          disabled={marked.size === 0 || pending}
+          onClick={() => {
+            if (!window.confirm(t("deleteConfirm", { count: marked.size })))
+              return;
+            start(async () => {
+              await deleteGalleryMediaAction(galleryId, [...marked]);
+              setMarked(new Set());
+            });
+          }}
+        >
+          {t("deleteSelected", { count: marked.size })}
         </Button>
       </div>
 

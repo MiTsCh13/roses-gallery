@@ -5,9 +5,11 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import messages from "../../messages/de.json";
 
+const del = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 const reorder = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 vi.mock("@/app/dashboard/galleries/actions", () => ({
   addGalleryMediaAction: vi.fn(),
+  deleteGalleryMediaAction: del,
   removeGalleryMediaAction: vi.fn(),
   setGalleryCoverAction: vi.fn(),
   reorderGalleryMediaAction: reorder,
@@ -67,5 +69,20 @@ describe("GalleryMediaPanel order", () => {
       (screen.getByRole("button", { name: "Früher" }) as HTMLButtonElement)
         .disabled,
     ).toBe(true);
+  });
+});
+
+describe("GalleryMediaPanel delete", () => {
+  it("deletes marked media for good only after confirmation", async () => {
+    setup();
+    fireEvent.click(screen.getAllByRole("checkbox")[1]);
+    const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
+    const btn = screen.getByRole("button", { name: "1 endgültig löschen" });
+    fireEvent.click(btn);
+    expect(del).not.toHaveBeenCalled();
+    confirm.mockReturnValue(true);
+    fireEvent.click(btn);
+    await vi.waitFor(() => expect(del).toHaveBeenCalledWith("g1", ["b"]));
+    confirm.mockRestore();
   });
 });
