@@ -21,6 +21,7 @@ import {
   listGalleryMedia,
   moveMedia,
   removeFromGallery,
+  reorderGalleryMedia,
   renameFolder,
 } from "./library";
 
@@ -70,6 +71,26 @@ describe("library", () => {
     await removeFromGallery(a, galleryA, m);
     expect(await listGalleryMedia(a, galleryA)).toEqual([]);
     expect(await db.select().from(media)).toHaveLength(1);
+  });
+
+  it("reorders gallery media and appends unlisted ones", async () => {
+    const [m1, m2, m3] = [
+      await newMedia(a.accountId),
+      await newMedia(a.accountId),
+      await newMedia(a.accountId),
+    ];
+    for (const m of [m1, m2, m3]) await addToGallery(a, galleryA, m);
+    await reorderGalleryMedia(a, galleryA, [m3, m1]);
+    const ids = (await listGalleryMedia(a, galleryA)).map((m) => m.id);
+    expect(ids).toEqual([m3, m1, m2]);
+  });
+
+  it("reordering does not cross accounts", async () => {
+    const m = await newMedia(a.accountId);
+    await addToGallery(a, galleryA, m);
+    await expect(reorderGalleryMedia(b, galleryA, [m])).rejects.toBeInstanceOf(
+      LibraryError,
+    );
   });
 
   it("one medium can sit in several galleries", async () => {

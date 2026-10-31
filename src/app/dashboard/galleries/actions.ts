@@ -21,7 +21,11 @@ import { saveGalleryDesign } from "@/lib/gallery-design";
 import { PlanLimitError } from "@/lib/plans";
 import { saveWatermarkConfig } from "@/lib/watermark";
 import { requireAccount } from "@/lib/session";
-import { addToGallery, removeFromGallery } from "@/lib/library";
+import {
+  addToGallery,
+  removeFromGallery,
+  reorderGalleryMedia,
+} from "@/lib/library";
 import { z, ZodError } from "zod";
 
 function errorCode(e: unknown): string {
@@ -219,5 +223,16 @@ export async function removeGalleryMediaAction(
   for (const mediaId of mediaIds.parse(ids)) {
     await removeFromGallery(d, gid, mediaId);
   }
+  revalidatePath(`/dashboard/galleries/${gid}`);
+}
+
+export async function reorderGalleryMediaAction(
+  galleryId: string,
+  ids: string[],
+) {
+  const { account } = await requireAccount();
+  const d = { db: db(), accountId: account.id };
+  const gid = z.uuid().parse(galleryId);
+  await reorderGalleryMedia(d, gid, mediaIds.parse(ids));
   revalidatePath(`/dashboard/galleries/${gid}`);
 }

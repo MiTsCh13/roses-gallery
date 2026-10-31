@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useOptimistic, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 
 import {
   addGalleryMediaAction,
   removeGalleryMediaAction,
+  reorderGalleryMediaAction,
   setGalleryCoverAction,
 } from "@/app/dashboard/galleries/actions";
 import { Button } from "@/components/ui/button";
@@ -19,8 +20,10 @@ function Grid({
   testId,
   label,
   coverId,
+  onMove,
 }: {
   coverId?: string | null;
+  onMove?: (fromId: string, toId: string) => void;
   items: Item[];
   selected: Set<string>;
   onToggle: (id: string) => void;
@@ -28,13 +31,27 @@ function Grid({
   label: string;
 }) {
   const t = useTranslations("GalleryEditor");
+  const [dragId, setDragId] = useState<string | null>(null);
   return (
     <ul
       data-testid={testId}
       className="grid grid-cols-3 gap-2 sm:grid-cols-4 xl:grid-cols-5"
     >
       {items.map((m, i) => (
-        <li key={m.id}>
+        <li
+          key={m.id}
+          draggable={Boolean(onMove)}
+          data-media-id={m.id}
+          onDragStart={() => setDragId(m.id)}
+          onDragEnd={() => setDragId(null)}
+          onDragOver={(e) => onMove && e.preventDefault()}
+          onDrop={(e) => {
+            e.preventDefault();
+            if (onMove && dragId && dragId !== m.id) onMove(dragId, m.id);
+            setDragId(null);
+          }}
+          className={dragId === m.id ? "opacity-50" : undefined}
+        >
           <label className="relative block aspect-square cursor-pointer overflow-hidden rounded-md bg-muted">
             {m.type === "photo" ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -71,7 +88,7 @@ function Grid({
 export function GalleryMediaPanel({
   galleryId,
   coverMediaId,
-  inGallery,
+  inGallery: serverItems,
   addable,
 }: {
   galleryId: string;
@@ -84,6 +101,36 @@ export function GalleryMediaPanel({
   const [chosen, setChosen] = useState<Set<string>>(new Set());
   const [marked, setMarked] = useState<Set<string>>(new Set());
   const [pending, start] = useTransition();
+  const [inGallery, setInGallery] = useOptimistic(
+    serverItems,
+    (_: Item[], next: Item[]) => next,
+  );
+
+  const persist = (next: Item[]) => {
+    start(async () => {
+      setInGallery(next);
+      await reorderGalleryMediaAction(
+        galleryId,
+        next.map((m) => m.id),
+      );
+    });
+  };
+  // moves `fromId` to the position of `toId`
+  const move = (fromId: string, toId: string) => {
+    const from = inGallery.findIndex((m) => m.id === fromId);
+    const to = inGallery.findIndex((m) => m.id === toId);
+    if (from < 0 || to < 0) return;
+    const next = [...inGallery];
+    next.splice(to, 0, next.splice(from, 1)[0]);
+    persist(next);
+  };
+  const single = marked.size === 1 ? [...marked][0] : null;
+  const shift = (delta: number) => {
+    if (!single) return;
+    const i = inGallery.findIndex((m) => m.id === single);
+    const target = inGallery[i + delta];
+    if (target) move(single, target.id);
+  };
   // the cover can be any single marked photo
   const coverCandidate =
     marked.size === 1
@@ -125,6 +172,22 @@ export function GalleryMediaPanel({
           }
         >
           {t("makeCover")}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          disabled={!single || pending}
+          onClick={() => shift(-1)}
+        >
+          {t("moveEarlier")}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          disabled={!single || pending}
+          onClick={() => shift(1)}
+        >
+          {t("moveLater")}
         </Button>
         <Button
           type="button"
@@ -182,6 +245,7 @@ export function GalleryMediaPanel({
           testId="gallery-media"
           label={t("gallery")}
           coverId={coverMediaId}
+          onMove={move}
         />
       )}
     </section>

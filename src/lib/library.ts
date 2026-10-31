@@ -73,6 +73,44 @@ export async function removeFromGallery(
     );
 }
 
+/**
+ * Sets the display order of a gallery. `orderedIds` is the new order of
+ * (a subset of) the assigned media; unknown ids are ignored, media not listed
+ * keep their relative order behind the listed ones.
+ */
+export async function reorderGalleryMedia(
+  deps: Deps,
+  galleryId: string,
+  orderedIds: string[],
+) {
+  const t = tenantDb(deps.db, deps.accountId);
+  if (!(await t.galleries.get(galleryId))) {
+    throw new LibraryError("not_found", "Not found.");
+  }
+  const current = await listGalleryMedia(deps, galleryId);
+  const known = new Set(current.map((m) => m.id));
+  const first = [...new Set(orderedIds)].filter((id) => known.has(id));
+  const listed = new Set(first);
+  const order = [
+    ...first,
+    ...current.map((m) => m.id).filter((id) => !listed.has(id)),
+  ];
+  await deps.db.transaction(async (tx) => {
+    for (const [position, mediaId] of order.entries()) {
+      await tx
+        .update(galleryMedia)
+        .set({ position })
+        .where(
+          and(
+            eq(galleryMedia.accountId, deps.accountId),
+            eq(galleryMedia.galleryId, galleryId),
+            eq(galleryMedia.mediaId, mediaId),
+          ),
+        );
+    }
+  });
+}
+
 /** Media of a gallery in display order (own account only). */
 export async function listGalleryMedia(deps: Deps, galleryId: string) {
   const rows = await deps.db
