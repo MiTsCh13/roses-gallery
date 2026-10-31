@@ -29,7 +29,8 @@
 Anlass: Rückmeldung von Mitsch nach dem ersten Live-Test (D-140). Reihenfolge so, dass jeder Schritt für sich lauffähig bleibt.
 
 - [x] **1. Optik & Dashboard-Shell:** wärmeres Farbsystem (Rosé/Creme, Display-Schrift für Überschriften), `dashboard/layout.tsx` mit Kopfzeile/Navigation (Galerien, Bibliothek, Profil & Einstellungen, Abmelden), freundlichere Startseite, Login, Galerieliste als Karten. Nur Optik, keine Funktionsänderung
-- [ ] **2. Profil & Einstellungen:** ein Bereich mit Reitern: Profil (Name, Studio, Kontaktdaten, Logo), Abo & Speicher (bisher `/dashboard/billing`), Sicherheit (2FA, **Passwort ändern/setzen** = neu, D-141), Wasserzeichen-Standard. Alte Routen leiten um
+- [x] **2a. Profil & Einstellungen:** `/dashboard/settings` mit Reitern Profil (Studioname, Ansprechpartner, Telefon, Webseite, Instagram in `branding.contact`, Logo), Abo & Speicher (`/settings/billing`), Sicherheit (`/settings/security`); alte Routen leiten um
+- [ ] **2b. Passwort (D-141):** Passwort setzen/ändern im Profil, Login mit E-Mail + Passwort (Auth.js nutzt Datenbank-Sessions → Session-Zeile + Cookie selbst anlegen, 2FA und Rate-Limit beachten). Danach Wasserzeichen-Standard ins Profil
 - [ ] **3. Datenmodell Bibliothek:** Tabellen `folders` (verschachtelt) und `gallery_media` (Medium ↔ Galerie, Position); `media.setId` entfällt, `sets` werden migriert und entfernt (Sortierung: Set-Position, dann Medien-Position); Download-Recht nur noch je Galerie (D-142). Upload ohne Galerie möglich. Migration mit Datenübernahme + Test
 - [ ] **4. Bibliothek `/dashboard/library`:** Medienraster, Ordner anlegen/umbenennen/löschen, Upload per Drag & Drop (Foto und Video gemischt) in den aktuellen Ordner, Mehrfachauswahl (verschieben, löschen), Wiederholen-Button bei abgebrochenem Upload
 - [ ] **5. Galerie-Editor zweispaltig:** links Einstellungen in ausklappbaren Blöcken (Allgemein, Zugang & Ablauf mit Hinweis „kein Datum = kein Ablauf“, Downloads, Wasserzeichen nur sichtbar wenn aktiv, Design inline statt Unterseite), rechts Live-Vorschau der Galerie mit allen Fotos/Videos; Medien per Drag & Drop in die Vorschau hochladen oder aus der Bibliothek hinzufügen; Mehrfachauswahl zum Entfernen/Löschen; Reihenfolge per Ziehen. Slug wird nicht angezeigt (wird weiter automatisch aus dem Titel erzeugt)
@@ -116,6 +117,9 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-10-31 – M11 Schritt 2a (Profil & Einstellungen)
+- Reiter-Bereich unter `/dashboard/settings`, Profil-Lib mit Mandantenschutz-Test, E2E. Nächster Schritt: 2b Passwort, dann 3 Datenmodell Bibliothek. Cloud: Postgres/Redis neu starten, Rolle `roses`/DBs anlegen.
 
 ### 2026-10-31 – M11 Schritt 1 (Optik)
 - Farbsystem Rosé/Creme, Display-Schrift Fraunces, Dashboard-Layout mit Navigation, Startseite/Login/Galerieliste überarbeitet. Nächster Schritt: M11-2 Profil & Einstellungen. Cloud: Postgres/Redis neu starten, Rolle `roses`/DBs anlegen.

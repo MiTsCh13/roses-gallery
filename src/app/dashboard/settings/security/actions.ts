@@ -40,7 +40,7 @@ async function allowed(userId: string) {
 export async function startSetup() {
   const { user } = await requireAccount();
   await startTwoFactorSetup(db(), authSecret(), user.id);
-  revalidatePath("/dashboard/security");
+  revalidatePath("/dashboard/settings/security");
 }
 
 export async function confirmSetup(
@@ -73,6 +73,6 @@ export async function disableSetup(
   if (!(await allowed(user.id))) return { error: "rate_limited" };
   if (!(await disableTwoFactor(db(), authSecret(), user.id, parsed.data.code)))
     return { error: "invalid" };
-  revalidatePath("/dashboard/security");
+  revalidatePath("/dashboard/settings/security");
   return {};
 }

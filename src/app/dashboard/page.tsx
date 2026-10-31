@@ -8,8 +8,7 @@ import { auth } from "@/auth";
 
 const CARDS = [
   { href: "/dashboard/galleries", key: "galleries" },
-  { href: "/dashboard/billing", key: "billing" },
-  { href: "/dashboard/security", key: "security" },
+  { href: "/dashboard/settings", key: "settings" },
 ] as const;
 
 async function DashboardContent() {
@@ -31,7 +30,7 @@ async function DashboardContent() {
           {t("signedInAs", { email: session.user.email ?? "" })}
         </p>
       </div>
-      <ul className="grid gap-4 sm:grid-cols-3">
+      <ul className="grid gap-4 sm:grid-cols-2">
         {CARDS.map((card) => (
           <li key={card.href}>
             <Link

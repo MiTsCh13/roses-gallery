@@ -32,18 +32,18 @@ export async function startCheckout(formData: FormData) {
     email: user.email ?? "",
     customerId: account.stripeCustomerId,
     ...input,
-    successUrl: `${base}/dashboard/billing?checkout=success`,
-    cancelUrl: `${base}/dashboard/billing?checkout=cancelled`,
+    successUrl: `${base}/dashboard/settings/billing?checkout=success`,
+    cancelUrl: `${base}/dashboard/settings/billing?checkout=cancelled`,
   });
   redirect(url);
 }
 
 export async function openPortal() {
   const { account } = await requireAccount();
-  if (!account.stripeCustomerId) redirect("/dashboard/billing");
+  if (!account.stripeCustomerId) redirect("/dashboard/settings/billing");
   const { url } = await getBilling().createPortalSession({
     customerId: account.stripeCustomerId,
-    returnUrl: `${await origin()}/dashboard/billing`,
+    returnUrl: `${await origin()}/dashboard/settings/billing`,
   });
   redirect(url);
 }

@@ -48,16 +48,14 @@
     "title": "Dashboard",
     "signedInAs": "Angemeldet als {email}",
     "signOut": "Abmelden",
-    "billing": "Abo & Speicher",
     "galleries": "Galerien",
-    "security": "Sicherheit (2FA)",
     "brand": "Roses Gallery",
     "navLabel": "Hauptnavigation",
     "welcome": "Willkommen zurück",
     "welcomeText": "Was möchtest du heute tun?",
     "galleriesText": "Galerien anlegen, gestalten und an Kunden senden.",
-    "billingText": "Tarif, Speicherplatz und Rechnungen.",
-    "securityText": "Zwei-Faktor-Anmeldung für dein Konto."
+    "settings": "Profil & Einstellungen",
+    "settingsText": "Studio, Logo, Abo, Speicher und Sicherheit."
   },
   "TwoFactorLogin": {
     "title": "Zwei-Faktor-Code",
@@ -72,7 +70,6 @@
   },
   "Security": {
     "title": "Sicherheit",
-    "back": "Zurück zum Dashboard",
     "twoFactor": "Zwei-Faktor-Anmeldung (2FA)",
     "disabledInfo": "Schütze dein Konto zusätzlich mit einem Code aus einer Authenticator-App (z. B. Google Authenticator, 1Password, Aegis).",
     "enabledInfo": "2FA ist aktiv. Bei jeder Anmeldung wird ein Code abgefragt.",
@@ -556,5 +553,36 @@
       ]
     },
     "draft": "Entwurf: Die Angaben des Anbieters sind noch nicht vollständig hinterlegt. Dieser Text ist vor dem Launch rechtlich zu prüfen."
+  },
+  "Settings": {
+    "title": "Profil & Einstellungen",
+    "tabsLabel": "Einstellungen",
+    "tabs": {
+      "profile": "Profil",
+      "billing": "Abo & Speicher",
+      "security": "Sicherheit"
+    },
+    "save": "Speichern",
+    "saved": "Gespeichert.",
+    "errors": {
+      "invalid": "Bitte prüfe deine Angaben (Studioname ist Pflicht, die Webseite muss mit https:// beginnen)."
+    },
+    "profile": {
+      "title": "Studio & Kontakt",
+      "studioName": "Studioname",
+      "contactName": "Ansprechpartner",
+      "email": "E-Mail-Adresse (Anmeldung)",
+      "phone": "Telefon",
+      "website": "Webseite",
+      "instagram": "Instagram"
+    },
+    "logo": {
+      "title": "Logo",
+      "alt": "Aktuelles Logo",
+      "file": "Logo-Datei",
+      "hint": "PNG, JPEG oder WebP, höchstens 1,5 MB. Das Logo erscheint in allen Galerien.",
+      "upload": "Logo hochladen",
+      "remove": "Logo entfernen"
+    }
   }
 }

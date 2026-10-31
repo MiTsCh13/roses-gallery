@@ -32,8 +32,8 @@ async function BillingContent() {
   );
 
   return (
-    <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-6 py-16">
-      <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
+    <main className="flex flex-col gap-8 py-8">
+      <h2 className="font-display text-xl font-semibold">{t("title")}</h2>
 
       <section className="space-y-3" aria-labelledby="current-plan">
         <h2 id="current-plan" className="text-lg font-medium">
