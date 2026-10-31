@@ -53,6 +53,32 @@ afterAll(() => close());
 const start = (sizeBytes = 1000) =>
   startVideoUpload(deps(), { setId, title: "Trauung", sizeBytes });
 
+describe("library video uploads", () => {
+  it("creates a video without a set in the given folder", async () => {
+    const t = tenantDb(db, accountId);
+    const folder = await t.folders.create({ name: "F" });
+    const { mediaId } = await startVideoUpload(deps(), {
+      folderId: folder.id,
+      title: "Film",
+      sizeBytes: 10,
+    });
+    const row = await t.media.get(mediaId);
+    expect(row?.setId).toBeNull();
+    expect(row?.folderId).toBe(folder.id);
+  });
+
+  it("rejects a folder of another account", async () => {
+    const foreign = await tenantDb(db, otherId).folders.create({ name: "X" });
+    await expect(
+      startVideoUpload(deps(), {
+        folderId: foreign.id,
+        title: "Film",
+        sizeBytes: 10,
+      }),
+    ).rejects.toBeInstanceOf(VideoError);
+  });
+});
+
 describe("videos", () => {
   it("creates a pending video with tus settings", async () => {
     const { mediaId, tus } = await start();
