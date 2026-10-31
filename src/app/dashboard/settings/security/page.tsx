@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import Link from "next/link";
 import { connection } from "next/server";
 import { getTranslations } from "next-intl/server";
 import { eq } from "drizzle-orm";
@@ -31,11 +30,8 @@ async function SecurityContent() {
   const left = enabled ? await recoveryCodesLeft(db(), user.id) : 0;
 
   return (
-    <main className="mx-auto flex w-full max-w-xl flex-1 flex-col gap-6 px-6 py-16">
-      <Link href="/dashboard" className="text-sm underline">
-        {t("back")}
-      </Link>
-      <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
+    <main className="flex flex-col gap-6 py-8">
+      <h2 className="font-display text-xl font-semibold">{t("title")}</h2>
       <section className="space-y-3" aria-labelledby="two-factor">
         <h2 id="two-factor" className="text-lg font-medium">
           {t("twoFactor")}
