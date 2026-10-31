@@ -4,6 +4,7 @@ import { z } from "zod";
 import type { Db } from "@/db";
 import { accounts, media } from "@/db/schema";
 import { tenantDb } from "@/db/tenant";
+import { addToGallery } from "@/lib/library";
 import { assertCanUpload, type SubscriptionStatus } from "@/lib/plans";
 import {
   MAX_PHOTO_BYTES,
@@ -109,6 +110,7 @@ export async function startUpload(deps: Deps, input: unknown) {
     revision: 1,
     processingStatus: "pending",
   });
+  await addToGallery(deps, set.galleryId, row.id);
   const key = originalKey(deps.accountId, row.id, row.revision);
   await t.media.update(row.id, { originalKey: key });
 

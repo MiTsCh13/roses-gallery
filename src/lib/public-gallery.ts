@@ -194,8 +194,8 @@ export async function loadPublicGallery(
       : [];
   const videosBySet = new Map<string, PublicVideo[]>();
   for (const v of readyVideos) {
-    videosBySet.set(v.setId, [
-      ...(videosBySet.get(v.setId) ?? []),
+    videosBySet.set(v.setId!, [
+      ...(videosBySet.get(v.setId!) ?? []),
       {
         id: v.id,
         durationS: v.durationS,
@@ -220,7 +220,7 @@ export async function loadPublicGallery(
   let coverUrl: string | null = null;
   let coverSrcSet: string | null = null;
   for (const m of ready) {
-    if (!setIds.has(m.setId)) continue;
+    if (!setIds.has(m.setId!)) continue;
     const variants = Object.entries(m.variants as PhotoVariants)
       .map(([nominal, v]) => ({ ...v, nominal }))
       .sort(
@@ -246,7 +246,7 @@ export async function loadPublicGallery(
       height: m.height ?? mid.height,
       downloads: {},
     };
-    const policy = policyBySet.get(m.setId)!;
+    const policy = policyBySet.get(m.setId!)!;
     const base = `/api/g/${encodeURIComponent(gallery.slug)}/download/${m.id}`;
     if (allows(policy, "web")) photo.downloads.web = `${base}?size=web`;
     if (allows(policy, "original") && m.originalKey) {
@@ -256,7 +256,7 @@ export async function loadPublicGallery(
       coverUrl = signed.at(-1)!.url;
       coverSrcSet = photo.srcSet;
     }
-    bySet.set(m.setId, [...(bySet.get(m.setId) ?? []), photo]);
+    bySet.set(m.setId!, [...(bySet.get(m.setId!) ?? []), photo]);
   }
 
   return {

@@ -2,6 +2,7 @@
 // directly or via its parent (see docs/SPEC.md → Datenmodell).
 import { sql } from "drizzle-orm";
 import {
+  type AnyPgColumn,
   bigint,
   boolean,
   index,
@@ -217,6 +218,23 @@ export const sets = pgTable(
   ],
 );
 
+// Library folders (D-142); nested via parentId, optional for media.
+export const folders = pgTable(
+  "folders",
+  {
+    id: id(),
+    accountId: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id, { onDelete: "cascade" }),
+    parentId: uuid("parent_id").references((): AnyPgColumn => folders.id, {
+      onDelete: "cascade",
+    }),
+    name: text("name").notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [index("folders_account_idx").on(t.accountId, t.parentId)],
+);
+
 export const media = pgTable(
   "media",
   {
@@ -224,9 +242,12 @@ export const media = pgTable(
     accountId: uuid("account_id")
       .notNull()
       .references(() => accounts.id, { onDelete: "cascade" }),
-    setId: uuid("set_id")
-      .notNull()
-      .references(() => sets.id, { onDelete: "cascade" }),
+    // Legacy (D-142): sets are being replaced by the library; removed in M11-8.
+    // Null for media uploaded straight into the library.
+    setId: uuid("set_id").references(() => sets.id, { onDelete: "cascade" }),
+    folderId: uuid("folder_id").references(() => folders.id, {
+      onDelete: "set null",
+    }),
     type: mediaType("type").notNull(),
     originalKey: text("original_key"),
     bunnyVideoId: text("bunny_video_id"),
@@ -249,6 +270,31 @@ export const media = pgTable(
   (t) => [
     index("media_account_idx").on(t.accountId),
     index("media_set_idx").on(t.setId, t.position),
+  ],
+);
+
+// Assigns library media to galleries (D-142): a medium may sit in several
+// galleries; storage is still counted once on the medium.
+export const galleryMedia = pgTable(
+  "gallery_media",
+  {
+    accountId: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id, { onDelete: "cascade" }),
+    galleryId: uuid("gallery_id")
+      .notNull()
+      .references(() => galleries.id, { onDelete: "cascade" }),
+    mediaId: uuid("media_id")
+      .notNull()
+      .references(() => media.id, { onDelete: "cascade" }),
+    position: integer("position").notNull().default(0),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.galleryId, t.mediaId] }),
+    index("gallery_media_account_idx").on(t.accountId),
+    index("gallery_media_order_idx").on(t.galleryId, t.position),
+    index("gallery_media_media_idx").on(t.mediaId),
   ],
 );
 

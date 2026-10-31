@@ -385,8 +385,8 @@ export async function sendListToCreator(
   const numberOf = new Map<string, number>();
   const perSet = new Map<string, number>();
   for (const p of all) {
-    const n = (perSet.get(p.setId) ?? 0) + 1;
-    perSet.set(p.setId, n);
+    const n = (perSet.get(p.setId!) ?? 0) + 1;
+    perSet.set(p.setId!, n);
     numberOf.set(p.id, n);
   }
   const bySet = new Map<string, { pos: number; nums: number[] }>();

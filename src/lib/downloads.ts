@@ -145,7 +145,7 @@ export async function resolvePhotoDownload(
     .where(
       and(
         eq(media.accountId, gallery.accountId),
-        eq(media.setId, row.media.setId),
+        eq(media.setId, row.media.setId!),
       ),
     )
     .orderBy(asc(media.position), asc(media.createdAt));
