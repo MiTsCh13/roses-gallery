@@ -33,20 +33,6 @@ const nextConfig: NextConfig = {
       },
     },
   },
-  async redirects() {
-    return [
-      {
-        source: "/dashboard/billing",
-        destination: "/dashboard/settings/billing",
-        permanent: true,
-      },
-      {
-        source: "/dashboard/security",
-        destination: "/dashboard/settings/security",
-        permanent: true,
-      },
-    ];
-  },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
