@@ -55,6 +55,7 @@
     "signedInAs": "Angemeldet als {email}",
     "signOut": "Abmelden",
     "galleries": "Galerien",
+    "library": "Bibliothek",
     "brand": "Roses Gallery",
     "navLabel": "Hauptnavigation",
     "welcome": "Willkommen zurück",
@@ -62,6 +63,45 @@
     "galleriesText": "Galerien anlegen, gestalten und an Kunden senden.",
     "settings": "Profil & Einstellungen",
     "settingsText": "Studio, Logo, Abo, Speicher und Sicherheit."
+  },
+  "Library": {
+    "title": "Bibliothek",
+    "root": "Bibliothek",
+    "hint": "Fotos und Videos hierher ziehen oder auswählen – sie landen im aktuellen Ordner.",
+    "choose": "Dateien auswählen",
+    "cancel": "Abbrechen",
+    "retry": "Wiederholen",
+    "done": "Hochgeladen",
+    "error": {
+      "unsupported_type": "Dateityp wird nicht unterstützt",
+      "plan_limit": "Speicherplatz im Plan erschöpft",
+      "aborted": "Abgebrochen",
+      "failed": "Upload fehlgeschlagen"
+    },
+    "newFolder": "Neuer Ordner",
+    "folderName": "Ordnername",
+    "create": "Anlegen",
+    "rename": "Umbenennen",
+    "renamePrompt": "Neuer Name",
+    "deleteFolder": "Ordner löschen",
+    "deleteFolderConfirm": "Ordner „{name}“ löschen? Die Dateien darin bleiben in der Bibliothek.",
+    "empty": "Hier ist noch nichts.",
+    "selected": "{count, plural, one {# ausgewählt} other {# ausgewählt}}",
+    "select": "Auswählen: {n}",
+    "moveTo": "Verschieben nach …",
+    "move": "Verschieben",
+    "delete": "Löschen",
+    "deleteConfirm": "{count, plural, one {Diese Datei} other {Diese # Dateien}} endgültig löschen? Sie verschwinden auch aus allen Galerien.",
+    "clear": "Auswahl aufheben",
+    "photoN": "Foto",
+    "videoN": "Video",
+    "status": {
+      "pending": "wird verarbeitet",
+      "processing": "wird verarbeitet",
+      "ready": "bereit",
+      "failed": "Verarbeitung fehlgeschlagen"
+    },
+    "actionFailed": "Das hat nicht geklappt."
   },
   "TwoFactorLogin": {
     "title": "Zwei-Faktor-Code",

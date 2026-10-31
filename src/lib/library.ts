@@ -1,10 +1,12 @@
 // Media library (D-142): folders and the assignment of media to galleries.
 // Every statement is restricted to one account.
-import { and, asc, eq, max } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNull, max, sql } from "drizzle-orm";
 import { z } from "zod";
 
 import type { Db } from "@/db";
-import { galleries, galleryMedia, media } from "@/db/schema";
+import { accounts, folders, galleries, galleryMedia, media } from "@/db/schema";
+import type { Storage } from "@/lib/storage/types";
+import type { VideoProvider } from "@/lib/video/types";
 import { tenantDb } from "@/db/tenant";
 
 type Deps = { db: Db; accountId: string };
@@ -121,4 +123,109 @@ export async function moveMedia(
     throw new LibraryError("not_found", "Folder not found.");
   }
   for (const id of mediaIds) await t.media.update(id, { folderId });
+}
+
+/** Subfolders and media of one folder (null = root), newest media first. */
+export async function listFolder(deps: Deps, folderId: string | null) {
+  const own = eq(folders.accountId, deps.accountId);
+  const [subfolders, items, current] = await Promise.all([
+    deps.db
+      .select()
+      .from(folders)
+      .where(
+        and(
+          own,
+          folderId ? eq(folders.parentId, folderId) : isNull(folders.parentId),
+        ),
+      )
+      .orderBy(asc(folders.name)),
+    deps.db
+      .select()
+      .from(media)
+      .where(
+        and(
+          eq(media.accountId, deps.accountId),
+          folderId ? eq(media.folderId, folderId) : isNull(media.folderId),
+        ),
+      )
+      .orderBy(desc(media.createdAt)),
+    folderId
+      ? tenantDb(deps.db, deps.accountId).folders.get(folderId)
+      : Promise.resolve(undefined),
+  ]);
+  if (folderId && !current) throw new LibraryError("not_found", "Not found.");
+  return { folder: current ?? null, folders: subfolders, media: items };
+}
+
+/** Path from the root to the folder (own account only). */
+export async function folderPath(deps: Deps, folderId: string) {
+  const t = tenantDb(deps.db, deps.accountId);
+  const path: { id: string; name: string }[] = [];
+  const seen = new Set<string>();
+  for (
+    let cur = await t.folders.get(folderId);
+    cur && !seen.has(cur.id);
+    cur = cur.parentId ? await t.folders.get(cur.parentId) : undefined
+  ) {
+    seen.add(cur.id);
+    path.unshift({ id: cur.id, name: cur.name });
+  }
+  return path;
+}
+
+/** Deletes the folder and its subfolders; media move to the library root. */
+export async function deleteFolder(deps: Deps, id: string) {
+  const t = tenantDb(deps.db, deps.accountId);
+  if (!(await t.folders.get(id)))
+    throw new LibraryError("not_found", "Folder not found.");
+  // Collect the subtree first: the FK only nulls media.folderId for rows whose
+  // folder is deleted, which is exactly the wanted behavior (back to root).
+  await t.folders.remove(id);
+}
+
+type DeleteDeps = Deps & { storage: Storage; video: VideoProvider };
+
+/**
+ * Deletes media from the library for good: files, gallery assignments (cascade)
+ * and the booked storage. Ids of other accounts are ignored.
+ */
+export async function deleteMedia(deps: DeleteDeps, mediaIds: string[]) {
+  if (!mediaIds.length) return 0;
+  const rows = await deps.db
+    .select()
+    .from(media)
+    .where(
+      and(eq(media.accountId, deps.accountId), inArray(media.id, mediaIds)),
+    );
+  for (const row of rows) {
+    if (row.type === "video") {
+      if (row.bunnyVideoId) await deps.video.deleteVideo(row.bunnyVideoId);
+    } else {
+      if (row.originalKey) await deps.storage.delete(row.originalKey);
+      for (const v of Object.values(row.variants) as { key?: string }[]) {
+        if (v?.key) await deps.storage.delete(v.key);
+      }
+    }
+    const derived =
+      row.type === "photo"
+        ? (Object.values(row.variants) as { size?: number }[]).reduce(
+            (sum, v) => sum + (v?.size ?? 0),
+            0,
+          )
+        : 0;
+    await deps.db.transaction(async (tx) => {
+      await tx
+        .delete(media)
+        .where(and(eq(media.id, row.id), eq(media.accountId, deps.accountId)));
+      if (row.processingStatus === "ready") {
+        await tx
+          .update(accounts)
+          .set({
+            storageUsedBytes: sql`greatest(${accounts.storageUsedBytes} - ${row.sizeBytes + derived}, 0)`,
+          })
+          .where(eq(accounts.id, deps.accountId));
+      }
+    });
+  }
+  return rows.length;
 }

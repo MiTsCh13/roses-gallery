@@ -1,10 +1,21 @@
+import { mkdtemp, rm } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 
-import { accounts, galleries, media, sets } from "@/db/schema";
+import { eq } from "drizzle-orm";
+
+import { accounts, folders, galleries, media, sets } from "@/db/schema";
+import { FakeStorage } from "@/lib/storage/fake";
+import { FakeVideoProvider } from "@/lib/video/fake";
 import { createTestDb, resetDb } from "@/test/db";
 import {
   addToGallery,
   createFolder,
+  deleteFolder,
+  deleteMedia,
+  folderPath,
+  listFolder,
   LibraryError,
   listGalleryMedia,
   moveMedia,
@@ -141,5 +152,72 @@ describe("migration 0014 data takeover", () => {
     await db.execute(insert as unknown as import("drizzle-orm").SQL);
     const list = await listGalleryMedia(a, galleryA);
     expect(list.map((m) => m.id)).toEqual([m3.id, m1.id, m2.id]);
+  });
+});
+
+describe("library browsing and deleting", () => {
+  it("lists folder content per level and builds the path", async () => {
+    const f1 = await createFolder(a, { name: "Trauung" });
+    const f2 = await createFolder(a, { name: "Ringe", parentId: f1.id });
+    const m = await newMedia(a.accountId);
+    await moveMedia(a, [m], f2.id);
+    const root = await listFolder(a, null);
+    expect(root.folders.map((f) => f.name)).toEqual(["Trauung"]);
+    expect(root.media).toHaveLength(0);
+    const inner = await listFolder(a, f2.id);
+    expect(inner.media.map((x) => x.id)).toEqual([m]);
+    expect((await folderPath(a, f2.id)).map((p) => p.name)).toEqual([
+      "Trauung",
+      "Ringe",
+    ]);
+    await expect(listFolder(b, f1.id)).rejects.toBeInstanceOf(LibraryError);
+    expect(await folderPath(b, f1.id)).toEqual([]);
+  });
+
+  it("deleting a folder removes subfolders and moves media to the root", async () => {
+    const f1 = await createFolder(a, { name: "A" });
+    const f2 = await createFolder(a, { name: "B", parentId: f1.id });
+    const m = await newMedia(a.accountId);
+    await moveMedia(a, [m], f2.id);
+    await expect(deleteFolder(b, f1.id)).rejects.toBeInstanceOf(LibraryError);
+    await deleteFolder(a, f1.id);
+    expect(await db.select().from(folders)).toHaveLength(0);
+    expect((await listFolder(a, null)).media.map((x) => x.id)).toEqual([m]);
+  });
+
+  it("deletes photos and videos, frees storage and ignores foreign ids", async () => {
+    const dir = await mkdtemp(path.join(os.tmpdir(), "library-"));
+    const storage = new FakeStorage(dir, "secret-secret-secret");
+    const video = new FakeVideoProvider();
+    await storage.put("x/o", Buffer.from("o"));
+    await storage.put("x/v400", Buffer.from("v"));
+    await db
+      .update(accounts)
+      .set({ storageUsedBytes: 1000 })
+      .where(eq(accounts.id, a.accountId));
+    const [photo] = await db
+      .insert(media)
+      .values({
+        accountId: a.accountId,
+        type: "photo",
+        originalKey: "x/o",
+        sizeBytes: 600,
+        processingStatus: "ready",
+        variants: { "400": { key: "x/v400", width: 1, height: 1, size: 100 } },
+      })
+      .returning();
+    const foreign = await newMedia(b.accountId);
+    const deps = { ...a, storage, video };
+    const n = await deleteMedia(deps, [photo.id, foreign]);
+    expect(n).toBe(1);
+    expect(await storage.head("x/o")).toBeNull();
+    expect(await storage.head("x/v400")).toBeNull();
+    const [acc] = await db
+      .select()
+      .from(accounts)
+      .where(eq(accounts.id, a.accountId));
+    expect(acc.storageUsedBytes).toBe(300);
+    expect(await db.select().from(media)).toHaveLength(1); // foreign stays
+    await rm(dir, { recursive: true, force: true });
   });
 });

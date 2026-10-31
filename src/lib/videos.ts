@@ -1,4 +1,4 @@
-import { and, eq, max, sql } from "drizzle-orm";
+import { and, eq, isNull, max, sql } from "drizzle-orm";
 import { z } from "zod";
 
 import type { Db } from "@/db";
@@ -24,7 +24,9 @@ export class VideoError extends Error {
 }
 
 export const startVideoSchema = z.object({
-  setId: z.uuid(),
+  // Without a set the video goes straight into the library (optionally a folder).
+  setId: z.uuid().optional(),
+  folderId: z.uuid().optional(),
   title: z.string().trim().min(1).max(200),
   sizeBytes: z.number().int().positive().max(MAX_VIDEO_BYTES),
 });
@@ -60,26 +62,35 @@ export async function startVideoUpload(deps: Deps, input: unknown) {
   assertCanUpload(await loadAccount(deps), data.sizeBytes);
 
   const t = tenantDb(deps.db, deps.accountId);
-  const set = await t.sets.get(data.setId);
-  if (!set || set.type !== "video") {
+  const set = data.setId ? await t.sets.get(data.setId) : undefined;
+  if (data.setId && (!set || set.type !== "video")) {
     throw new VideoError("not_found", "Video set not found.");
+  }
+  if (data.folderId && !(await t.folders.get(data.folderId))) {
+    throw new VideoError("not_found", "Folder not found.");
   }
 
   const [{ top }] = await deps.db
     .select({ top: max(media.position) })
     .from(media)
-    .where(and(eq(media.accountId, deps.accountId), eq(media.setId, set.id)));
+    .where(
+      and(
+        eq(media.accountId, deps.accountId),
+        set ? eq(media.setId, set.id) : isNull(media.setId),
+      ),
+    );
 
   const { videoId } = await deps.video.createVideo(data.title);
   const row = await t.media.create({
-    setId: set.id,
+    setId: set?.id ?? null,
+    folderId: set ? null : (data.folderId ?? null),
     type: "video",
     bunnyVideoId: videoId,
     sizeBytes: data.sizeBytes,
     position: (top ?? -1) + 1,
     processingStatus: "pending",
   });
-  await addToGallery(deps, set.galleryId, row.id);
+  if (set) await addToGallery(deps, set.galleryId, row.id);
   const tus = await deps.video.createTusUpload(videoId, TUS_TTL_SECONDS);
   return { mediaId: row.id, tus };
 }

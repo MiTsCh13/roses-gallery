@@ -67,6 +67,32 @@ async function uploadAll(body: Buffer) {
   return { start, parts: [{ partNumber: 1, etag }] };
 }
 
+describe("library uploads", () => {
+  it("creates a photo without a set in the given folder", async () => {
+    const t = tenantDb(db, accountId);
+    const folder = await t.folders.create({ name: "F" });
+    const start = await startUpload(deps(), {
+      folderId: folder.id,
+      contentType: "image/jpeg",
+      sizeBytes: 10,
+    });
+    const row = await t.media.get(start.mediaId);
+    expect(row?.setId).toBeNull();
+    expect(row?.folderId).toBe(folder.id);
+  });
+
+  it("rejects a folder of another account", async () => {
+    const foreign = await tenantDb(db, otherId).folders.create({ name: "X" });
+    await expect(
+      startUpload(deps(), {
+        folderId: foreign.id,
+        contentType: "image/jpeg",
+        sizeBytes: 10,
+      }),
+    ).rejects.toBeInstanceOf(UploadError);
+  });
+});
+
 describe("uploads", () => {
   it("runs start → sign → complete and hands over to processing", async () => {
     const body = Buffer.from("jpeg-bytes");

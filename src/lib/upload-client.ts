@@ -26,7 +26,8 @@ export type UploadTransport = {
 };
 
 export type UploadOptions = {
-  setId: string;
+  setId?: string;
+  folderId?: string;
   signal: AbortSignal;
   onProgress: (loaded: number, total: number) => void;
   /** Attempts per part before the whole file fails. */
@@ -49,6 +50,7 @@ export async function uploadPhoto(
   transport: UploadTransport,
   {
     setId,
+    folderId,
     signal,
     onProgress,
     partAttempts = 3,
@@ -58,7 +60,12 @@ export async function uploadPhoto(
   if (!isSupported(file.type)) throw new UploadClientError("unsupported_type");
 
   const start = (await transport
-    .post("start", { setId, contentType: file.type, sizeBytes: file.size })
+    .post("start", {
+      setId,
+      folderId,
+      contentType: file.type,
+      sizeBytes: file.size,
+    })
     .catch(asClientError)) as StartResponse;
   const { mediaId, uploadId, partSize } = start;
   const total = file.size;

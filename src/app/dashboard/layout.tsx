@@ -11,6 +11,7 @@ async function signOutAction() {
 
 const NAV = [
   { href: "/dashboard/galleries", key: "galleries" },
+  { href: "/dashboard/library", key: "library" },
   { href: "/dashboard/settings", key: "settings" },
 ] as const;
 

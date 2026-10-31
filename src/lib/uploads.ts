@@ -1,4 +1,4 @@
-import { and, eq, max, sql } from "drizzle-orm";
+import { and, eq, isNull, max, sql } from "drizzle-orm";
 import { z } from "zod";
 
 import type { Db } from "@/db";
@@ -27,7 +27,9 @@ export class UploadError extends Error {
 }
 
 export const startUploadSchema = z.object({
-  setId: z.uuid(),
+  // Without a set the photo goes straight into the library (optionally a folder).
+  setId: z.uuid().optional(),
+  folderId: z.uuid().optional(),
   contentType: z.enum(PHOTO_CONTENT_TYPES),
   sizeBytes: z.number().int().positive().max(MAX_PHOTO_BYTES),
 });
@@ -92,25 +94,34 @@ export async function startUpload(deps: Deps, input: unknown) {
   assertCanUpload(account, data.sizeBytes);
 
   const t = tenantDb(deps.db, deps.accountId);
-  const set = await t.sets.get(data.setId);
-  if (!set || set.type !== "photo") {
+  const set = data.setId ? await t.sets.get(data.setId) : undefined;
+  if (data.setId && (!set || set.type !== "photo")) {
     throw new UploadError("not_found", "Photo set not found.");
+  }
+  if (data.folderId && !(await t.folders.get(data.folderId))) {
+    throw new UploadError("not_found", "Folder not found.");
   }
 
   const [{ top }] = await deps.db
     .select({ top: max(media.position) })
     .from(media)
-    .where(and(eq(media.accountId, deps.accountId), eq(media.setId, set.id)));
+    .where(
+      and(
+        eq(media.accountId, deps.accountId),
+        set ? eq(media.setId, set.id) : isNull(media.setId),
+      ),
+    );
 
   const row = await t.media.create({
-    setId: set.id,
+    setId: set?.id ?? null,
+    folderId: set ? null : (data.folderId ?? null),
     type: "photo",
     sizeBytes: data.sizeBytes,
     position: (top ?? -1) + 1,
     revision: 1,
     processingStatus: "pending",
   });
-  await addToGallery(deps, set.galleryId, row.id);
+  if (set) await addToGallery(deps, set.galleryId, row.id);
   const key = originalKey(deps.accountId, row.id, row.revision);
   await t.media.update(row.id, { originalKey: key });
 
