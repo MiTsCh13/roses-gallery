@@ -6,7 +6,7 @@ import path from "node:path";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 
 import { accounts, galleries, media, sets, zipExports } from "@/db/schema";
-import { createTestDb, resetDb } from "@/test/db";
+import { createTestDb, resetDb, linkSetMedia } from "@/test/db";
 import { FakeMailer } from "@/lib/mailer";
 import { FakeStorage } from "@/lib/storage/fake";
 import {
@@ -36,7 +36,7 @@ const ask = (
       enqueue: async (p) => void queued.push(p),
       ...deps,
     },
-    { slug, setId: null, size: "web", email: "Gast@Example.com", ...extra },
+    { slug, size: "web", email: "Gast@Example.com", ...extra },
   );
 
 async function setup(
@@ -92,6 +92,7 @@ async function setup(
     );
     keys.push(m.id);
   }
+  await linkSetMedia(db);
   return { g, set, keys };
 }
 
@@ -136,18 +137,10 @@ describe("requestZipExport", () => {
       ok: false,
       reason: "forbidden",
     });
-    await resetDb(db);
-    const [a] = await db.insert(accounts).values({ name: "A" }).returning();
-    accountId = a.id;
-    await setup({ downloadPolicy: "none" }, "original");
-    expect((await ask("anna-ben", { size: "original" })).ok).toBe(true);
   });
 
-  it("rejects a set from another gallery and invalid input", async () => {
+  it("rejects invalid input", async () => {
     await setup();
-    expect(
-      await ask("anna-ben", { setId: "00000000-0000-4000-8000-000000000000" }),
-    ).toEqual({ ok: false, reason: "not_found" });
     await expect(ask("anna-ben", { email: "kaputt" })).rejects.toThrow();
   });
 
@@ -191,11 +184,11 @@ describe("buildZipExport", () => {
     writeFileSync(file, await storage.get(done.storageKey!));
     const names = execFileSync("unzip", ["-Z1", file], { encoding: "utf8" });
     expect(names.trim().split("\n")).toEqual([
-      "Trauung _ Kirche/anna-ben-1.webp",
-      "Trauung _ Kirche/anna-ben-2.webp",
+      "anna-ben-1.webp",
+      "anna-ben-2.webp",
     ]);
     expect(
-      execFileSync("unzip", ["-p", file, "Trauung _ Kirche/anna-ben-2.webp"], {
+      execFileSync("unzip", ["-p", file, "anna-ben-2.webp"], {
         encoding: "utf8",
       }),
     ).toBe("web-2");

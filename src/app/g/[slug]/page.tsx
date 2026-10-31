@@ -105,7 +105,31 @@ async function GalleryContent({
   const { zip } = await searchParams;
   const favorites = await loadFavorites(gallery);
   await recordEvent(db(), gallery, "view");
-  const photoSets = gallery.sets.filter((s) => s.photos.length > 0);
+  let photoNo = 0;
+  let videoNo = 0;
+  const tiles = gallery.items.map((item) =>
+    item.kind === "video"
+      ? {
+          id: item.id,
+          video: {
+            title: t("videoTitle", { n: ++videoNo }),
+            playUrl: item.playUrl,
+            hlsUrl: item.hlsUrl,
+            durationS: item.durationS,
+          },
+        }
+      : {
+          id: item.id,
+          src: item.src,
+          srcSet: item.srcSet,
+          alt: t("photoAlt", { n: ++photoNo }),
+          downloads: item.downloads,
+          story: item.downloads.web
+            ? `/api/g/${encodeURIComponent(gallery.slug)}/story/${item.id}`
+            : undefined,
+        },
+  );
+  const hasPhotos = photoNo > 0;
   return (
     <FavoritesProvider slug={gallery.slug} initial={favorites}>
       <main className="flex-1">
@@ -115,33 +139,13 @@ async function GalleryContent({
           logoUrl={gallery.logoUrl ?? undefined}
           coverUrl={gallery.coverUrl ?? undefined}
           coverSrcSet={gallery.coverSrcSet ?? undefined}
-          sets={gallery.sets.map((s) => ({
-            id: s.id,
-            title: s.title,
-            videos: s.videos.map((v, n) => ({
-              id: v.id,
-              title: t("videoTitle", { n: n + 1 }),
-              playUrl: v.playUrl,
-              hlsUrl: v.hlsUrl,
-              durationS: v.durationS,
-            })),
-            tiles: s.photos.map((p, n) => ({
-              id: p.id,
-              src: p.src,
-              srcSet: p.srcSet,
-              alt: t("photoAlt", { n: n + 1 }),
-              downloads: p.downloads,
-              story: p.downloads.web
-                ? `/api/g/${encodeURIComponent(gallery.slug)}/story/${p.id}`
-                : undefined,
-            })),
-          }))}
+          tiles={tiles}
         />
         <div className="mx-auto w-full max-w-xl px-6 pt-10">
           <ShareLinkButton path={`/g/${encodeURIComponent(gallery.slug)}`} />
         </div>
-        {photoSets.length > 0 && <FavoritesPanel />}
-        {photoSets.length > 0 && (
+        {hasPhotos && <FavoritesPanel />}
+        {hasPhotos && (
           <section className="mx-auto w-full max-w-xl space-y-3 px-6 py-10">
             <h2 className="text-lg font-semibold">{t("zipTitle")}</h2>
             <p className="text-sm text-muted-foreground">{t("zipIntro")}</p>
@@ -159,20 +163,6 @@ async function GalleryContent({
             )}
             <form action={requestZipAction} className="space-y-3">
               <input type="hidden" name="slug" value={gallery.slug} />
-              <label className="block space-y-1 text-sm">
-                <span>{t("zipSet")}</span>
-                <select
-                  name="setId"
-                  className="h-9 w-full rounded-md border bg-background px-2"
-                >
-                  <option value="">{t("zipAllSets")}</option>
-                  {photoSets.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.title}
-                    </option>
-                  ))}
-                </select>
-              </label>
               <label className="block space-y-1 text-sm">
                 <span>{t("zipSize")}</span>
                 <select

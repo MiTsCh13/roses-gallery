@@ -8,7 +8,7 @@ import { afterAll, beforeEach, describe, expect, it } from "vitest";
 
 import { accounts, galleries, media, sets, zipExports } from "@/db/schema";
 import { FakeStorage } from "@/lib/storage/fake";
-import { createTestDb, resetDb } from "@/test/db";
+import { createTestDb, resetDb, linkSetMedia } from "@/test/db";
 import { FakeMailer } from "@/lib/mailer";
 import { buildZipExport } from "./zip-exports";
 import { resolvePhotoDownload } from "./downloads";
@@ -105,6 +105,7 @@ async function setup(enabled = true) {
   await storage.put(`${accountId}/m/r1-400.webp`, img);
   await storage.put(`${accountId}/m/r1-1200.webp`, img);
   await storage.put(`${accountId}/m/original-1`, img);
+  await linkSetMedia(db);
   return { g, photo };
 }
 
@@ -230,17 +231,18 @@ describe("stamped copies", () => {
     );
     expect(img.ok && img.url).not.toContain("wm");
     const pub = await loadPublicGallery({ db, storage }, "anna-ben");
-    expect(!pub?.locked && pub?.sets[0].photos[0].src).not.toContain("/img/");
+    const first = !pub?.locked ? pub?.items[0] : undefined;
+    expect(first?.kind === "photo" && first.src).not.toContain("/img/");
   });
 
   it("route the public gallery through the stamping route", async () => {
     const { photo } = await setup();
     const pub = await loadPublicGallery({ db, storage }, "anna-ben");
     if (!pub || pub.locked) throw new Error("expected gallery");
-    expect(pub.sets[0].photos[0].src).toBe(
-      `/api/g/anna-ben/img/${photo.id}?w=1200`,
-    );
-    expect(pub.sets[0].photos[0].srcSet).toContain("?w=400");
+    const item = pub.items[0];
+    if (item.kind !== "photo") throw new Error("expected photo");
+    expect(item.src).toBe(`/api/g/anna-ben/img/${photo.id}?w=1200`);
+    expect(item.srcSet).toContain("?w=400");
   });
 
   it("refuse unpublished galleries and foreign media", async () => {

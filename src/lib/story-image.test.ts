@@ -7,7 +7,7 @@ import { afterAll, beforeEach, describe, expect, it } from "vitest";
 
 import { accounts, galleries, media, sets } from "@/db/schema";
 import { FakeStorage } from "@/lib/storage/fake";
-import { createTestDb, resetDb } from "@/test/db";
+import { createTestDb, resetDb, linkSetMedia } from "@/test/db";
 import { renderStory, resolveStoryImage } from "./story-image";
 
 const { db, close } = createTestDb();
@@ -65,6 +65,7 @@ async function setup(
     })
     .returning();
   await storage.put(`${accountId}/m/r1-1200.webp`, await photo(1200, 800));
+  await linkSetMedia(db);
   return m;
 }
 
@@ -103,8 +104,8 @@ describe("resolveStoryImage", () => {
     if (r.ok) expect((await sharp(r.jpeg).metadata()).height).toBe(1920);
   });
 
-  it("is forbidden when downloads are off for the set or gallery", async () => {
-    const m = await setup({ downloadPolicy: "web" }, "none");
+  it("is forbidden when downloads are off for the gallery", async () => {
+    const m = await setup({ downloadPolicy: "none" });
     expect(
       await resolveStoryImage(
         { db, storage },

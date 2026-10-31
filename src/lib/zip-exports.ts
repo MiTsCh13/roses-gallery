@@ -2,8 +2,8 @@ import { and, asc, eq, inArray, lte } from "drizzle-orm";
 import { z } from "zod";
 
 import type { Db } from "@/db";
-import { galleries, media, sets, zipExports } from "@/db/schema";
-import { allows, effectivePolicy } from "@/lib/download-policy";
+import { galleries, galleryMedia, media, zipExports } from "@/db/schema";
+import { allows } from "@/lib/download-policy";
 import { recordEvent } from "@/lib/events";
 import { findVisibleGallery } from "@/lib/downloads";
 import type { Mailer } from "@/lib/mailer";
@@ -19,7 +19,6 @@ export const ZIP_URL_TTL_SECONDS = 60;
 
 export const zipRequestSchema = z.object({
   slug: z.string().min(1).max(200),
-  setId: z.uuid().nullable(),
   size: z.enum(["web", "original"]),
   email: z.email().max(254),
 });
@@ -28,50 +27,39 @@ export type ZipRequest = z.infer<typeof zipRequestSchema>;
 type Gallery = typeof galleries.$inferSelect;
 type ZipFile = { key: string; name: string; bytes: number };
 
-const safeName = (value: string) =>
-  value.replace(/[^\p{L}\p{N}._ -]+/gu, "_").trim() || "Set";
-
 /**
- * Files a ZIP of the gallery (or one set) may contain: ready photos of sets
- * whose effective download policy allows the requested size.
+ * Files a ZIP of the gallery may contain: its ready photos, in gallery order,
+ * if the gallery's download policy allows the requested size.
  */
 async function selectFiles(
   db: Db,
   gallery: Gallery,
-  setId: string | null,
   size: "web" | "original",
   enforcePolicy = true,
   /** Given by the worker only: stamps web sizes of watermarked galleries. */
   storage?: Storage,
 ): Promise<ZipFile[]> {
   const rows = await db
-    .select({ media, setTitle: sets.title, setPolicy: sets.downloadPolicy })
-    .from(media)
-    .innerJoin(sets, eq(sets.id, media.setId))
+    .select({ media })
+    .from(galleryMedia)
+    .innerJoin(media, eq(media.id, galleryMedia.mediaId))
     .where(
       and(
-        eq(media.accountId, gallery.accountId),
-        eq(sets.galleryId, gallery.id),
+        eq(galleryMedia.accountId, gallery.accountId),
+        eq(galleryMedia.galleryId, gallery.id),
         eq(media.type, "photo"),
         eq(media.processingStatus, "ready"),
-        ...(setId ? [eq(sets.id, setId)] : []),
       ),
     )
-    .orderBy(asc(sets.position), asc(media.position), asc(media.createdAt));
+    .orderBy(asc(galleryMedia.position), asc(media.createdAt));
 
   const stamp =
     storage && gallery.watermarkEnabled
       ? await loadStamp(db, gallery.accountId)
       : undefined;
-  const counters = new Map<string, number>();
   const files: ZipFile[] = [];
   for (const row of rows) {
-    if (
-      enforcePolicy &&
-      !allows(effectivePolicy(gallery.downloadPolicy, row.setPolicy), size)
-    ) {
-      continue;
-    }
+    if (enforcePolicy && !allows(gallery.downloadPolicy, size)) continue;
     let key: string | null;
     let bytes: number;
     let ext = "";
@@ -100,13 +88,10 @@ async function selectFiles(
       }
     }
     if (!key) continue;
-    const folder = safeName(row.setTitle);
-    const n = (counters.get(row.media.setId!) ?? 0) + 1;
-    counters.set(row.media.setId!, n);
     files.push({
       key,
       bytes,
-      name: `${folder}/${gallery.slug}-${n}${size === "original" ? "-original" : ""}${ext}`,
+      name: `${gallery.slug}-${files.length + 1}${size === "original" ? "-original" : ""}${ext}`,
     });
   }
   return files;
@@ -135,24 +120,10 @@ export async function requestZipExport(
   const gallery = await findVisibleGallery(deps, req.slug, now);
   if (!gallery) return { ok: false, reason: "not_found" };
 
-  if (req.setId) {
-    const [set] = await deps.db
-      .select({ id: sets.id })
-      .from(sets)
-      .where(and(eq(sets.id, req.setId), eq(sets.galleryId, gallery.id)))
-      .limit(1);
-    if (!set) return { ok: false, reason: "not_found" };
-  }
-  const files = await selectFiles(deps.db, gallery, req.setId, req.size);
+  const files = await selectFiles(deps.db, gallery, req.size);
   if (files.length === 0) {
     // Distinguish "downloads are off" from "nothing uploaded yet".
-    const anyPolicy = await selectFiles(
-      deps.db,
-      gallery,
-      req.setId,
-      req.size,
-      false,
-    );
+    const anyPolicy = await selectFiles(deps.db, gallery, req.size, false);
     return {
       ok: false,
       reason: anyPolicy.length > 0 ? "forbidden" : "empty",
@@ -167,7 +138,6 @@ export async function requestZipExport(
     .values({
       accountId: gallery.accountId,
       galleryId: gallery.id,
-      setId: req.setId,
       size: req.size,
       email: req.email.trim().toLowerCase(),
       expiresAt: new Date(now.getTime() + ZIP_LINK_TTL_MS),
@@ -233,14 +203,7 @@ export async function buildZipExport(
 
   let key = row.storageKey;
   if (!key) {
-    const files = await selectFiles(
-      db,
-      gallery,
-      row.setId,
-      row.size,
-      true,
-      storage,
-    );
+    const files = await selectFiles(db, gallery, row.size, true, storage);
     if (
       files.length === 0 ||
       files.reduce((sum, f) => sum + f.bytes, 0) > ZIP_MAX_BYTES

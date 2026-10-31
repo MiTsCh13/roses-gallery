@@ -2,13 +2,9 @@ import { and, asc, eq } from "drizzle-orm";
 import { z } from "zod";
 
 import type { Db } from "@/db";
-import { galleries, media, sets } from "@/db/schema";
+import { galleries, galleryMedia, media } from "@/db/schema";
 import { tenantDb } from "@/db/tenant";
-import {
-  allows,
-  downloadPolicySchema,
-  effectivePolicy,
-} from "@/lib/download-policy";
+import { allows, downloadPolicySchema } from "@/lib/download-policy";
 import { GalleryError } from "@/lib/galleries";
 import { recordEvent } from "@/lib/events";
 import { ensureWatermarked } from "@/lib/watermark";
@@ -96,14 +92,14 @@ export async function resolvePhotoDownload(
   if (!gallery) return { ok: false, reason: "not_found" };
 
   const [row] = await deps.db
-    .select({ media, setPolicy: sets.downloadPolicy })
+    .select({ media })
     .from(media)
-    .innerJoin(sets, eq(sets.id, media.setId))
+    .innerJoin(galleryMedia, eq(galleryMedia.mediaId, media.id))
     .where(
       and(
         eq(media.id, input.mediaId),
         eq(media.accountId, gallery.accountId),
-        eq(sets.galleryId, gallery.id),
+        eq(galleryMedia.galleryId, gallery.id),
         eq(media.type, "photo"),
         eq(media.processingStatus, "ready"),
       ),
@@ -111,9 +107,7 @@ export async function resolvePhotoDownload(
     .limit(1);
   if (!row) return { ok: false, reason: "not_found" };
 
-  if (
-    !allows(effectivePolicy(gallery.downloadPolicy, row.setPolicy), input.size)
-  ) {
+  if (!allows(gallery.downloadPolicy, input.size)) {
     return { ok: false, reason: "forbidden" };
   }
 
@@ -141,14 +135,17 @@ export async function resolvePhotoDownload(
 
   const siblings = await deps.db
     .select({ id: media.id })
-    .from(media)
+    .from(galleryMedia)
+    .innerJoin(media, eq(media.id, galleryMedia.mediaId))
     .where(
       and(
-        eq(media.accountId, gallery.accountId),
-        eq(media.setId, row.media.setId!),
+        eq(galleryMedia.accountId, gallery.accountId),
+        eq(galleryMedia.galleryId, gallery.id),
+        eq(media.type, "photo"),
+        eq(media.processingStatus, "ready"),
       ),
     )
-    .orderBy(asc(media.position), asc(media.createdAt));
+    .orderBy(asc(galleryMedia.position), asc(media.createdAt));
   const n = siblings.findIndex((m) => m.id === row.media.id) + 1;
   const suffix = input.size === "original" ? "-original" : "";
   const url = await deps.storage.signGet(key, DOWNLOAD_URL_TTL_SECONDS, {
