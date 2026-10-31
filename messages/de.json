@@ -36,7 +36,13 @@
     "emailPlaceholder": "du@beispiel.de",
     "submit": "Anmeldelink senden",
     "google": "Mit Google fortfahren",
+    "passwordToggle": "Mit Passwort anmelden",
+    "passwordEmailLabel": "E-Mail",
+    "passwordLabel": "Passwort",
+    "passwordSubmit": "Anmelden",
     "errors": {
+      "invalid_credentials": "E-Mail-Adresse oder Passwort stimmen nicht.",
+      "rate_limited": "Zu viele Versuche. Bitte warte einige Minuten.",
       "invalid_email": "Bitte gib eine gültige E-Mail-Adresse ein."
     }
   },
@@ -565,7 +571,19 @@
     "save": "Speichern",
     "saved": "Gespeichert.",
     "errors": {
-      "invalid": "Bitte prüfe deine Angaben (Studioname ist Pflicht, die Webseite muss mit https:// beginnen)."
+      "invalid": "Bitte prüfe deine Angaben (Studioname ist Pflicht, die Webseite muss mit https:// beginnen).",
+      "password_invalid": "Das neue Passwort braucht mindestens 8 Zeichen, die Wiederholung muss übereinstimmen.",
+      "wrong_current": "Das aktuelle Passwort stimmt nicht."
+    },
+    "password": {
+      "title": "Passwort",
+      "introNone": "Du meldest dich bisher per Anmeldelink an. Du kannst zusätzlich ein Passwort festlegen.",
+      "introSet": "Ein Passwort ist festgelegt. Der Anmeldelink funktioniert weiterhin.",
+      "current": "Aktuelles Passwort",
+      "next": "Neues Passwort (mind. 8 Zeichen)",
+      "repeat": "Neues Passwort wiederholen",
+      "submitSet": "Passwort festlegen",
+      "submitChange": "Passwort ändern"
     },
     "profile": {
       "title": "Studio & Kontakt",

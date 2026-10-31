@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { ZodError } from "zod";
 
 import { db } from "@/db";
+import { PasswordError, setAccountPassword } from "@/lib/account-password";
 import { BrandingError, removeLogo } from "@/lib/branding";
 import { saveProfile } from "@/lib/profile";
 import { requireAccount } from "@/lib/session";
@@ -41,6 +42,29 @@ export async function removeAccountLogoAction() {
     });
   } catch (e) {
     if (!(e instanceof BrandingError)) throw e;
+  }
+  redirect("/dashboard/settings?saved=1");
+}
+
+export async function savePasswordAction(formData: FormData) {
+  const { account, user } = await requireAccount();
+  const next = text(formData, "next");
+  if (next !== text(formData, "repeat")) {
+    redirect("/dashboard/settings?error=password_invalid");
+  }
+  try {
+    await setAccountPassword(db(), account.id, user.id, {
+      current: text(formData, "current"),
+      next,
+    });
+  } catch (e) {
+    if (e instanceof ZodError) {
+      redirect("/dashboard/settings?error=password_invalid");
+    }
+    if (e instanceof PasswordError && e.code === "wrong_current") {
+      redirect("/dashboard/settings?error=wrong_current");
+    }
+    throw e;
   }
   redirect("/dashboard/settings?saved=1");
 }

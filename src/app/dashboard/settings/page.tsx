@@ -5,11 +5,16 @@ import { getTranslations } from "next-intl/server";
 import { db } from "@/db";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { hasPassword } from "@/lib/account-password";
 import { logoUrl } from "@/lib/branding";
 import { getProfile } from "@/lib/profile";
 import { requireAccount } from "@/lib/session";
 import { getStorage } from "@/lib/storage";
-import { removeAccountLogoAction, saveProfileAction } from "./actions";
+import {
+  removeAccountLogoAction,
+  savePasswordAction,
+  saveProfileAction,
+} from "./actions";
 
 async function ProfileContent({
   searchParams,
@@ -22,9 +27,10 @@ async function ProfileContent({
     requireAccount(),
     searchParams,
   ]);
-  const [profile, logo] = await Promise.all([
+  const [profile, logo, passwordSet] = await Promise.all([
     getProfile(db(), account.id, user.id),
     logoUrl({ db: db(), storage: getStorage(), accountId: account.id }),
+    hasPassword(db(), account.id, user.id),
   ]);
 
   const field = (
@@ -75,6 +81,60 @@ async function ProfileContent({
           {field("instagram", profile.instagram, { placeholder: "@" })}
           <div className="sm:col-span-2">
             <Button type="submit">{t("save")}</Button>
+          </div>
+        </form>
+      </section>
+
+      <section aria-labelledby="profile-password" className="space-y-4">
+        <h2
+          id="profile-password"
+          className="font-display text-xl font-semibold"
+        >
+          {t("password.title")}
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          {t(passwordSet ? "password.introSet" : "password.introNone")}
+        </p>
+        <form
+          action={savePasswordAction}
+          className="grid max-w-sm gap-3"
+          autoComplete="off"
+        >
+          {passwordSet && (
+            <label className="flex flex-col gap-1 text-sm">
+              <span className="font-medium">{t("password.current")}</span>
+              <Input
+                name="current"
+                type="password"
+                autoComplete="current-password"
+                required
+              />
+            </label>
+          )}
+          <label className="flex flex-col gap-1 text-sm">
+            <span className="font-medium">{t("password.next")}</span>
+            <Input
+              name="next"
+              type="password"
+              autoComplete="new-password"
+              minLength={8}
+              required
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
+            <span className="font-medium">{t("password.repeat")}</span>
+            <Input
+              name="repeat"
+              type="password"
+              autoComplete="new-password"
+              minLength={8}
+              required
+            />
+          </label>
+          <div>
+            <Button type="submit">
+              {t(passwordSet ? "password.submitChange" : "password.submitSet")}
+            </Button>
           </div>
         </form>
       </section>
