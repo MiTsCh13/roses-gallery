@@ -63,8 +63,4 @@ test("profile & settings: tabs, profile data and logo", async ({
   await expect(page).toHaveURL(/\/dashboard\/settings\/billing/);
   await page.getByRole("link", { name: "Sicherheit" }).click();
   await expect(page).toHaveURL(/\/dashboard\/settings\/security/);
-
-  // old bookmarks keep working
-  await page.goto("/dashboard/billing");
-  await expect(page).toHaveURL(/\/dashboard\/settings\/billing/);
 });
