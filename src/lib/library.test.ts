@@ -17,6 +17,7 @@ import {
   folderPath,
   listFolder,
   LibraryError,
+  listAddableMedia,
   listGalleryMedia,
   moveMedia,
   removeFromGallery,
@@ -112,6 +113,33 @@ describe("library", () => {
     await moveMedia(a, [m], null);
     expect((await db.select().from(media))[0].folderId).toBeNull();
     await expect(createFolder(a, { name: " " })).rejects.toThrow();
+  });
+});
+
+describe("addable media", () => {
+  it("lists only own, ready media that are not yet in the gallery", async () => {
+    const inside = await newMedia(a.accountId);
+    const free = await newMedia(a.accountId);
+    const foreign = await newMedia(b.accountId);
+    const [pending] = await db
+      .insert(media)
+      .values({ accountId: a.accountId, type: "photo" })
+      .returning();
+    await db
+      .update(media)
+      .set({ processingStatus: "ready" })
+      .where(eq(media.accountId, a.accountId));
+    await db
+      .update(media)
+      .set({ processingStatus: "pending" })
+      .where(eq(media.id, pending.id));
+    await db
+      .update(media)
+      .set({ processingStatus: "ready" })
+      .where(eq(media.id, foreign));
+    await addToGallery(a, galleryA, inside);
+    const ids = (await listAddableMedia(a, galleryA)).map((m) => m.id);
+    expect(ids).toEqual([free]);
   });
 });
 

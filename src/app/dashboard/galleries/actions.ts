@@ -25,7 +25,8 @@ import { saveGalleryDesign } from "@/lib/gallery-design";
 import { PlanLimitError } from "@/lib/plans";
 import { saveWatermarkConfig } from "@/lib/watermark";
 import { requireAccount } from "@/lib/session";
-import { ZodError } from "zod";
+import { addToGallery, removeFromGallery } from "@/lib/library";
+import { z, ZodError } from "zod";
 
 function errorCode(e: unknown): string {
   if (e instanceof PlanLimitError) return e.code;
@@ -249,4 +250,29 @@ export async function sendDeliveryMailAction(formData: FormData) {
   redirect(
     `/dashboard/galleries/${galleryId}?sent=${result.sent}&failed=${result.failed}`,
   );
+}
+
+const mediaIds = z.array(z.uuid()).min(1).max(500);
+
+export async function addGalleryMediaAction(galleryId: string, ids: string[]) {
+  const { account } = await requireAccount();
+  const d = { db: db(), accountId: account.id };
+  const gid = z.uuid().parse(galleryId);
+  for (const mediaId of mediaIds.parse(ids)) {
+    await addToGallery(d, gid, mediaId);
+  }
+  revalidatePath(`/dashboard/galleries/${gid}`);
+}
+
+export async function removeGalleryMediaAction(
+  galleryId: string,
+  ids: string[],
+) {
+  const { account } = await requireAccount();
+  const d = { db: db(), accountId: account.id };
+  const gid = z.uuid().parse(galleryId);
+  for (const mediaId of mediaIds.parse(ids)) {
+    await removeFromGallery(d, gid, mediaId);
+  }
+  revalidatePath(`/dashboard/galleries/${gid}`);
 }
