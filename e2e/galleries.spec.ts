@@ -40,8 +40,8 @@ test("create a gallery, edit it and add photo and video sets", async ({
     page.getByRole("heading", { name: "Anna & Jörg" }),
   ).toBeVisible();
   await expect(
-    page.getByRole("textbox", { name: "Adresse (Slug)" }),
-  ).toHaveValue(/^anna-joerg(-\d+)?$/);
+    page.getByRole("link", { name: "Galerie ansehen" }),
+  ).toHaveAttribute("href", /^\/g\/anna-joerg(-\d+)?$/);
 
   await page
     .getByRole("combobox", { name: "Status" })

@@ -229,3 +229,32 @@ export async function deleteMedia(deps: DeleteDeps, mediaIds: string[]) {
   }
   return rows.length;
 }
+
+/** Library media not yet in the gallery, newest first (own account only). */
+export async function listAddableMedia(
+  deps: Deps,
+  galleryId: string,
+  limit = 200,
+) {
+  const assigned = deps.db
+    .select({ id: galleryMedia.mediaId })
+    .from(galleryMedia)
+    .where(
+      and(
+        eq(galleryMedia.accountId, deps.accountId),
+        eq(galleryMedia.galleryId, galleryId),
+      ),
+    );
+  return deps.db
+    .select()
+    .from(media)
+    .where(
+      and(
+        eq(media.accountId, deps.accountId),
+        eq(media.processingStatus, "ready"),
+        sql`${media.id} not in ${assigned}`,
+      ),
+    )
+    .orderBy(desc(media.createdAt))
+    .limit(limit);
+}

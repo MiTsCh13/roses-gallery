@@ -302,7 +302,11 @@
     "moveUp": "Nach oben",
     "moveDown": "Nach unten",
     "drag": "Zum Sortieren ziehen",
-    "design": "Design"
+    "design": "Design",
+    "blockGeneral": "Allgemein",
+    "blockAccess": "Zugang & Ablauf",
+    "expiresHint": "Kein Datum = kein Ablauf.",
+    "view": "Galerie ansehen ↗"
   },
   "Design": {
     "title": "Design",
@@ -642,5 +646,17 @@
       "upload": "Logo hochladen",
       "remove": "Logo entfernen"
     }
+  },
+  "GalleryEditor": {
+    "mediaTitle": "Fotos & Videos ({count})",
+    "addFromLibrary": "Aus Bibliothek hinzufügen",
+    "addSelected": "{count} hinzufügen",
+    "removeSelected": "{count} aus Galerie entfernen",
+    "pickerEmpty": "Keine weiteren Medien in der Bibliothek.",
+    "mediaEmpty": "Diese Galerie enthält noch keine Fotos oder Videos.",
+    "select": "{label} {n} auswählen",
+    "video": "Video",
+    "library": "Bibliothek",
+    "gallery": "Galerie"
   }
 }

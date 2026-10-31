@@ -32,9 +32,11 @@ test("public gallery has no WCAG 2.1 AA violations", async ({
     .fill(`A11y ${testInfo.project.name} ${Date.now()}`);
   await page.getByRole("button", { name: "Galerie anlegen" }).click();
   await expect(page).toHaveURL(/\/dashboard\/galleries\/[0-9a-f-]{36}$/);
-  const slug = await page
-    .getByRole("textbox", { name: "Adresse (Slug)" })
-    .inputValue();
+  const slug = (
+    (await page
+      .getByRole("link", { name: "Galerie ansehen" })
+      .getAttribute("href")) ?? ""
+  ).replace("/g/", "");
   await page.getByRole("textbox", { name: "Titel des Sets" }).fill("Trauung");
   await page.getByRole("button", { name: "Set hinzufügen" }).click();
   await expect(page.getByTestId("set-list").locator("li")).toHaveCount(1);

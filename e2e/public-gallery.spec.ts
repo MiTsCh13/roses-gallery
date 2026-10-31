@@ -20,9 +20,11 @@ test("public gallery is only visible once published", async ({
   await page.getByLabel("Titel").fill(title);
   await page.getByRole("button", { name: "Galerie anlegen" }).click();
   await expect(page).toHaveURL(/\/dashboard\/galleries\/[0-9a-f-]{36}$/);
-  const slug = await page
-    .getByRole("textbox", { name: "Adresse (Slug)" })
-    .inputValue();
+  const slug = (
+    (await page
+      .getByRole("link", { name: "Galerie ansehen" })
+      .getAttribute("href")) ?? ""
+  ).replace("/g/", "");
   await page.getByRole("textbox", { name: "Titel des Sets" }).fill("Trauung");
   await page.getByRole("button", { name: "Set hinzufügen" }).click();
   await expect(page.getByTestId("set-list").locator("li")).toHaveCount(1);
@@ -71,9 +73,11 @@ test("password-protected gallery asks for the password and stays open with the c
     .fill(`Geschützt ${testInfo.project.name} ${Date.now()}`);
   await page.getByRole("button", { name: "Galerie anlegen" }).click();
   await expect(page).toHaveURL(/\/dashboard\/galleries\/[0-9a-f-]{36}$/);
-  const slug = await page
-    .getByRole("textbox", { name: "Adresse (Slug)" })
-    .inputValue();
+  const slug = (
+    (await page
+      .getByRole("link", { name: "Galerie ansehen" })
+      .getAttribute("href")) ?? ""
+  ).replace("/g/", "");
   await page.getByRole("textbox", { name: "Titel des Sets" }).fill("Feier");
   await page.getByRole("button", { name: "Set hinzufügen" }).click();
   await expect(page.getByTestId("set-list").locator("li")).toHaveCount(1);
