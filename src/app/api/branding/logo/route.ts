@@ -19,7 +19,7 @@ export async function POST(request: Request) {
   if (rawGalleryId !== null && !galleryId.success)
     return new Response("Bad request", { status: 400 });
   const back = galleryId.success
-    ? `/dashboard/galleries/${galleryId.data}/design`
+    ? `/dashboard/galleries/${galleryId.data}?saved=1#design-block`
     : "/dashboard/settings";
   const redirect = (query: string) =>
     new Response(null, {

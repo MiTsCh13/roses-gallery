@@ -18,10 +18,16 @@ import { DOWNLOAD_POLICIES } from "@/lib/download-policy";
 import { readWatermarkConfig, WATERMARK_POSITIONS } from "@/lib/watermark";
 import { EVENT_TYPES, galleryStats } from "@/lib/events";
 import { requireAccount } from "@/lib/session";
+import { DesignEditor } from "@/components/design-editor";
+import { logoUrl } from "@/lib/branding";
+import { galleryDesign } from "@/lib/gallery-design";
+import { getStorage } from "@/lib/storage";
 import { DialogButton } from "@/components/dialog-button";
 import { GalleryMediaPanel } from "@/components/gallery-media-panel";
 import { listAddableMedia, listGalleryMedia } from "@/lib/library";
 import {
+  removeLogoAction,
+  saveDesignAction,
   saveWatermarkAction,
   sendDeliveryMailAction,
   setGalleryPasswordAction,
@@ -87,6 +93,15 @@ async function GalleryContent({
     listGalleryMedia({ db: db(), accountId: account.id }, gallery.id),
     listAddableMedia({ db: db(), accountId: account.id }, gallery.id),
   ]);
+  const design = await galleryDesign(
+    { db: db(), accountId: account.id },
+    gallery.id,
+  );
+  const logo = await logoUrl({
+    db: db(),
+    accountId: account.id,
+    storage: getStorage(),
+  });
   const watermark = readWatermarkConfig(account.branding);
   const deliveries = await listDeliveries(db(), account.id, gallery.id);
   const [stats7, stats30] = await Promise.all([
@@ -166,12 +181,6 @@ async function GalleryContent({
             </ul>
           )}
         </DialogButton>
-        <Link
-          href={`/dashboard/galleries/${gallery.id}/design`}
-          className="text-sm underline"
-        >
-          {t("design")}
-        </Link>
         {error && (
           <p role="alert" className="text-sm text-destructive">
             {t.has(`error.${error}`) ? t(`error.${error}`) : t("error.invalid")}
@@ -285,6 +294,26 @@ async function GalleryContent({
           </Block>
           <Button type="submit">{t("save")}</Button>
         </form>
+
+        <Block
+          id="design-block"
+          title={t("design")}
+          open={saved !== undefined || !!error}
+        >
+          <DesignEditor
+            galleryId={gallery.id}
+            title={gallery.title}
+            themes={design.themes}
+            initialThemeId={design.themeId}
+            initialConfig={design.config}
+            logoUrl={logo ?? undefined}
+            tiles={Array.from({ length: 8 }, (_, n) => ({
+              id: `placeholder-${n}`,
+            }))}
+            action={saveDesignAction}
+            removeLogoAction={removeLogoAction}
+          />
+        </Block>
 
         {gallery.watermarkEnabled && (
           <Block

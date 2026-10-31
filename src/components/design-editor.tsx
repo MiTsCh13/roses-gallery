@@ -56,7 +56,7 @@ export function DesignEditor({
   ) => setConfig((c) => ({ ...c, [key]: { ...c[key], ...value } }));
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[20rem_1fr]">
+    <div className="grid gap-8">
       <div className="space-y-8">
         <form action={action} className="space-y-5 text-sm">
           <input type="hidden" name="galleryId" value={galleryId} />

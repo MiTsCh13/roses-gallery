@@ -149,19 +149,21 @@ export async function saveDesignAction(formData: FormData) {
     );
   } catch (e) {
     if (e instanceof SyntaxError) {
-      redirect(`/dashboard/galleries/${galleryId}/design?error=invalid`);
+      redirect(`/dashboard/galleries/${galleryId}?error=invalid#design-block`);
     }
-    redirect(`/dashboard/galleries/${galleryId}/design?error=${errorCode(e)}`);
+    redirect(
+      `/dashboard/galleries/${galleryId}?error=${errorCode(e)}#design-block`,
+    );
   }
   revalidatePath(`/dashboard/galleries/${galleryId}`);
-  redirect(`/dashboard/galleries/${galleryId}/design?saved=1`);
+  redirect(`/dashboard/galleries/${galleryId}?saved=1#design-block`);
 }
 
 export async function removeLogoAction(formData: FormData) {
   const { account } = await requireAccount();
   const galleryId = field(formData, "galleryId") ?? "";
   await removeLogo({ db: db(), storage: getStorage(), accountId: account.id });
-  redirect(`/dashboard/galleries/${galleryId}/design?saved=1`);
+  redirect(`/dashboard/galleries/${galleryId}?saved=1#design-block`);
 }
 
 export async function sendDeliveryMailAction(formData: FormData) {

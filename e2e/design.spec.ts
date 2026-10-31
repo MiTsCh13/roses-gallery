@@ -19,8 +19,7 @@ test("switch theme and viewport in the design editor, then persist", async ({
   await page.getByLabel("Titel").fill("Design-Test");
   await page.getByRole("button", { name: "Galerie anlegen" }).click();
   await expect(page).toHaveURL(/\/dashboard\/galleries\/[0-9a-f-]{36}$/);
-  await page.getByRole("link", { name: "Design" }).click();
-  await expect(page).toHaveURL(/\/design$/);
+  await page.getByText("Design", { exact: true }).first().click();
 
   const view = page.getByTestId("gallery-view");
   await expect(view).toHaveAttribute("data-layout", "uniform");
@@ -54,12 +53,12 @@ test("switch theme and viewport in the design editor, then persist", async ({
 
   // the logo upload already redirected to ?saved=1, so wait for the save itself
   await Promise.all([
-    page.waitForResponse(
-      (r) => r.request().method() === "POST" && r.url().includes("/design"),
-    ),
+    page.waitForResponse((r) => r.request().method() === "POST"),
     page.getByRole("button", { name: "Design speichern" }).click(),
   ]);
-  await expect(page.getByText("Design gespeichert.")).toBeVisible();
+  await expect(
+    page.getByRole("status").filter({ hasText: "gespeichert" }).first(),
+  ).toBeVisible();
   await page.reload();
   await expect(page.getByTestId("gallery-view")).toHaveAttribute(
     "data-layout",
