@@ -654,6 +654,8 @@
     "addFromLibrary": "Aus Bibliothek hinzufügen",
     "addSelected": "{count} hinzufügen",
     "removeSelected": "{count} aus Galerie entfernen",
+    "moveEarlier": "Früher",
+    "moveLater": "Später",
     "pickerEmpty": "Keine weiteren Medien in der Bibliothek.",
     "mediaEmpty": "Diese Galerie enthält noch keine Fotos oder Videos.",
     "select": "{label} {n} auswählen",
