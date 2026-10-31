@@ -22,7 +22,7 @@
 | M8 | Zugriff, Downloads, Favoriten | ✅ fertig (Dashboard-Ansicht der Favoriten optional, nicht Teil des Kriteriums) |
 | M9 | Auslieferung & Statistik | ✅ fertig (Postmark live ungeprüft: nur Fake getestet) |
 | M10 | Härtung & Launch | ✅ live (Mitsch: Rechtstexte, Postmark, Stripe-Live offen) |
-| M11 | Überarbeitung Dashboard & Galerie-Editor | in Arbeit |
+| M11 | Überarbeitung Dashboard & Galerie-Editor | Schritte 1–4, 6–8 fertig; 5b offen |
 
 ## Nächste Schritte (M11, in dieser Reihenfolge; ein Schritt = ein PR)
 
@@ -36,7 +36,7 @@ Anlass: Rückmeldung von Mitsch nach dem ersten Live-Test (D-140). Reihenfolge s
 - [~] **5. Galerie-Editor zweispaltig** (5a erledigt: zweispaltiges Layout, ausklappbare Blöcke, Slug ausgeblendet (Link „Galerie ansehen“), Wasserzeichen-Block nur bei aktivem Wasserzeichen, Medienpanel rechts mit Bibliothek hinzufügen/entfernen über `gallery_media`; **offen 5b:** Design inline statt Unterseite, echte Live-Vorschau der Galerie, Upload per Drag & Drop in die Vorschau, Reihenfolge per Ziehen, Mehrfach-Löschen aus der Bibliothek; Sets-Abschnitt bleibt bis Schritt 7/8): links Einstellungen in ausklappbaren Blöcken (Allgemein, Zugang & Ablauf mit Hinweis „kein Datum = kein Ablauf“, Downloads, Wasserzeichen nur sichtbar wenn aktiv, Design inline statt Unterseite), rechts Live-Vorschau der Galerie mit allen Fotos/Videos; Medien per Drag & Drop in die Vorschau hochladen oder aus der Bibliothek hinzufügen; Mehrfachauswahl zum Entfernen/Löschen; Reihenfolge per Ziehen. Slug wird nicht angezeigt (wird weiter automatisch aus dem Titel erzeugt)
 - [x] **6. „An Kunden senden“ als Dialog:** Button „An Kunden senden“ im Editor-Kopf öffnet natives `<dialog>` (`components/dialog-button.tsx`) mit dem bisherigen Versandformular + Protokoll; E2E angepasst
 - [x] **7. Öffentliche Ansicht ohne Sets:** `loadPublicGallery` liest `gallery_media` (`items`: Fotos + Videos in Galerie-Reihenfolge), ein gemischtes Raster, Video-Kachel öffnet den Player in der Lightbox (`VideoShelf` entfällt), Download-Recht/ZIP/Favoriten/Statistik/Story/Wasserzeichen je Galerie auf `gallery_media`. ZIP ohne Set-Auswahl, Dateinamen `<slug>-<n>`, Foto-Nummern zählen nur Fotos der Galerie. Design-Vorschau mit Platzhalter-Kacheln. Rest: `sets`/`media.setId`/`zip_exports.setId`/Set-Download-Recht noch im Schema (Schritt 8)
-- [ ] **8. Aufräumen:** alte Set-Seiten/Routen, `seed-set`-Testroute (E2E über die echte UI), Texte, Doku
+- [x] **8. Aufräumen (D-145):** Set-Seite `/dashboard/sets/[setId]`, Sets-Block im Editor, Set-Aktionen, `seed-set`-Route, `PhotoUploader`/`VideoUploader`/`VideoPreview`/`SortableList` entfernt. Titelbild-Auswahl im Medienpanel („Als Titelbild“, ohne eigenen E2E-Test), Galerieliste zählt über `gallery_media`, Cover-Prüfung über `gallery_media`. E2E: Upload (mehrteilig, Fehlertyp, Video) in `library.spec`, Galerie-Flow über Bibliothek. **Offen (Folge-Migration):** Tabelle `sets`, `media.setId`, `zip_exports.setId`, `galleries`-Set-Libs (`createSet`, `reorderSets`, `reorderMedia`) und Upload-API-Parameter `setId` entfernen; Video-Original-Download/-Vorschau im Dashboard (API `/api/videos/{original,playback}` steht noch); 5b-Reste (Design inline, Live-Vorschau, Drag-&-Drop-Upload in die Vorschau, Reihenfolge per Ziehen, Mehrfach-Löschen)
 
 ## Nächste Schritte (M4, in dieser Reihenfolge)
 
@@ -117,6 +117,8 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+- 2026-10-31 (Routine): M11-7 öffentliche Ansicht ohne Sets (#78), M11-8 Aufräumen. Nächster Schritt: 5b und Folge-Migration (sets entfernen), siehe Schritt 8. Cloud: `service postgresql start`, `redis-server --daemonize yes`, Rolle `roses`/DBs, `.env.local` aus `.env.example`.
 
 - 2026-10-31 (Routine): M11-6 Versanddialog. Nächster Schritt: 5b (Design inline, Live-Vorschau, Drag & Drop, Reihenfolge) oder 7. Cloud: `service postgresql start`, `redis-server --daemonize yes`, Rolle `roses`/DBs, `.env.local` aus `.env.example`.
 

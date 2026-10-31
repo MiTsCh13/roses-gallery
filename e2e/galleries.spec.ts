@@ -18,7 +18,7 @@ async function signUp(page: Page, request: APIRequestContext, email: string) {
   await expect(page).toHaveURL(/\/dashboard/);
 }
 
-test("create a gallery, edit it and add photo and video sets", async ({
+test("create a gallery, edit it and add library media", async ({
   page,
   request,
 }, testInfo) => {
@@ -64,34 +64,38 @@ test("create a gallery, edit it and add photo and video sets", async ({
   expect(mail.subject).toBe("Deine Galerie „Anna & Jörg“ ist fertig");
   expect(mail.text).toMatch(/Schau mal: https?:\/\/\S+\/g\/anna-joerg/);
 
-  await page.getByRole("textbox", { name: "Titel des Sets" }).fill("Trauung");
-  await page.getByRole("button", { name: "Set hinzufügen" }).click();
-  await expect(page.getByTestId("set-list").locator("li")).toHaveCount(1);
-  await page.getByRole("textbox", { name: "Titel des Sets" }).fill("Film");
-  await page
-    .getByRole("combobox", { name: "Art des Sets" })
-    .selectOption("video");
-  await page.getByRole("button", { name: "Set hinzufügen" }).click();
-  await expect(page.getByTestId("set-list").locator("li")).toHaveText([
-    /Trauung.*Fotos/,
-    /Film.*Videos/,
-  ]);
-
-  // Reorder: move "Film" above "Trauung"; the order survives a reload.
-  const saved = page.waitForResponse(
-    (r) => r.request().method() === "POST" && r.url().includes("/galleries/"),
-  );
-  await page.getByRole("button", { name: "Nach oben: Film" }).click();
-  await saved;
-  await expect(page.getByTestId("set-list").locator("li")).toHaveText([
-    /Film/,
-    /Trauung/,
-  ]);
+  // Media come from the library: upload a video there, let the (fake) provider
+  // finish it, then add it to the gallery. (Photos need the worker to be ready.)
+  const galleryUrl = page.url();
+  await page.goto("/dashboard/library", { waitUntil: "networkidle" });
+  await page.getByTestId("file-input").setInputFiles({
+    name: "trauung.mp4",
+    mimeType: "video/mp4",
+    buffer: Buffer.alloc(2 * 1024 * 1024, 7),
+  });
+  await expect(
+    page.getByTestId("upload-list").locator('[data-state="done"]'),
+  ).toHaveCount(1);
+  const mediaId = await page
+    .getByTestId("media-grid")
+    .locator("li")
+    .first()
+    .getAttribute("data-id");
+  expect(
+    (
+      await page.request.post("/api/test/video-ready", { data: { mediaId } })
+    ).ok(),
+  ).toBe(true);
   await page.reload();
-  await expect(page.getByTestId("set-list").locator("li")).toHaveText([
-    /Film/,
-    /Trauung/,
-  ]);
+  await expect(
+    page.getByTestId("media-grid").locator("li").first(),
+  ).toHaveAttribute("data-status", "ready");
+
+  await page.goto(galleryUrl);
+  await page.getByRole("button", { name: "Aus Bibliothek hinzufügen" }).click();
+  await page.getByTestId("picker-grid").getByRole("checkbox").check();
+  await page.getByRole("button", { name: "1 hinzufügen" }).click();
+  await expect(page.getByTestId("gallery-media").locator("li")).toHaveCount(1);
 
   await page.getByRole("link", { name: "← Alle Galerien" }).click();
   await expect(page.getByTestId("gallery-list")).toContainText(

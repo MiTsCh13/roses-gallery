@@ -42,29 +42,44 @@ test("library: folders, upload into a folder, move and delete", async ({
 
   await page.getByTestId("file-input").setInputFiles([
     { name: "a.jpg", mimeType: "image/jpeg", buffer: Buffer.alloc(1024, 1) },
+    {
+      // > 8 MiB part size → multipart upload
+      name: "gross.jpg",
+      mimeType: "image/jpeg",
+      buffer: Buffer.alloc(9 * 1024 * 1024, 2),
+    },
+    {
+      name: "trauung.mp4",
+      mimeType: "video/mp4",
+      buffer: Buffer.alloc(2 * 1024 * 1024, 7),
+    },
     { name: "x.gif", mimeType: "image/gif", buffer: Buffer.alloc(10) },
   ]);
   const list = page.getByTestId("upload-list");
-  await expect(list.locator('[data-state="done"]')).toHaveCount(1);
+  await expect(list.locator('[data-state="done"]')).toHaveCount(3);
   await expect(list.locator('[data-state="error"]')).toContainText(
     "Dateityp wird nicht unterstützt",
   );
   // Without a worker the photo stays in "wird verarbeitet".
   const grid = page.getByTestId("media-grid");
-  await expect(grid.locator("li")).toHaveCount(1);
+  await expect(grid.locator("li")).toHaveCount(3);
 
   // Move to the root: it disappears from the folder, shows up in the root.
-  await grid.getByRole("checkbox").check();
+  for (const box of await grid.getByRole("checkbox").all()) await box.check();
   await page.getByLabel("Verschieben nach …").selectOption("root");
   await expect(page.getByText("Hier ist noch nichts.")).toBeVisible();
   await page
     .getByRole("link", { name: "Bibliothek", exact: true })
     .last()
     .click();
-  await expect(page.getByTestId("media-grid").locator("li")).toHaveCount(1);
+  await expect(page.getByTestId("media-grid").locator("li")).toHaveCount(3);
 
   // Delete it for good.
-  await page.getByTestId("media-grid").getByRole("checkbox").check();
+  for (const box of await page
+    .getByTestId("media-grid")
+    .getByRole("checkbox")
+    .all())
+    await box.check();
   await page
     .getByTestId("selection-bar")
     .getByRole("button", { name: "Löschen" })

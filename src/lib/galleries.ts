@@ -3,7 +3,7 @@ import { and, count, eq, max, sql } from "drizzle-orm";
 import { z } from "zod";
 
 import type { Db } from "@/db";
-import { accounts, galleries, media, sets } from "@/db/schema";
+import { accounts, galleries, galleryMedia, media, sets } from "@/db/schema";
 import { tenantDb } from "@/db/tenant";
 import { assertCanCreateGallery, type SubscriptionStatus } from "@/lib/plans";
 
@@ -143,12 +143,13 @@ export async function updateGallery(deps: Deps, input: unknown) {
     const [cover] = await deps.db
       .select({ id: media.id })
       .from(media)
-      .innerJoin(sets, eq(sets.id, media.setId))
+      .innerJoin(galleryMedia, eq(galleryMedia.mediaId, media.id))
       .where(
         and(
           eq(media.id, data.coverMediaId),
           eq(media.accountId, deps.accountId),
-          eq(sets.galleryId, galleryId),
+          eq(galleryMedia.galleryId, galleryId),
+          eq(media.type, "photo"),
         ),
       )
       .limit(1);
@@ -218,8 +219,8 @@ export async function galleryOverview(
       storageBytes: sql<number>`coalesce(sum(${media.sizeBytes}), 0)::float8`,
     })
     .from(galleries)
-    .leftJoin(sets, eq(sets.galleryId, galleries.id))
-    .leftJoin(media, eq(media.setId, sets.id))
+    .leftJoin(galleryMedia, eq(galleryMedia.galleryId, galleries.id))
+    .leftJoin(media, eq(media.id, galleryMedia.mediaId))
     .where(eq(galleries.accountId, deps.accountId))
     .groupBy(galleries.id)
     .orderBy(sql`${galleries.createdAt} desc`);
