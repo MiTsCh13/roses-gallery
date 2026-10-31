@@ -20,6 +20,7 @@ import { DOWNLOAD_POLICIES } from "@/lib/download-policy";
 import { readWatermarkConfig, WATERMARK_POSITIONS } from "@/lib/watermark";
 import { EVENT_TYPES, galleryStats } from "@/lib/events";
 import { requireAccount } from "@/lib/session";
+import { DialogButton } from "@/components/dialog-button";
 import { GalleryMediaPanel } from "@/components/gallery-media-panel";
 import { listAddableMedia, listGalleryMedia } from "@/lib/library";
 import { SortableList } from "@/components/sortable-list";
@@ -116,6 +117,62 @@ async function GalleryContent({
         >
           {t("view")}
         </Link>
+        <DialogButton
+          label={t("deliveryOpen")}
+          title={t("deliveryTitle")}
+          closeLabel={t("close")}
+        >
+          <p className="text-sm text-muted-foreground">{t("deliveryHint")}</p>
+          <form action={sendDeliveryMailAction} className="space-y-3">
+            <input type="hidden" name="galleryId" value={gallery.id} />
+            <label className="block space-y-1 text-sm">
+              <span>{t("deliveryRecipients")}</span>
+              <textarea
+                name="recipients"
+                required
+                rows={2}
+                maxLength={2000}
+                className="w-full rounded-md border bg-transparent px-3 py-2"
+              />
+            </label>
+            <label className="block space-y-1 text-sm">
+              <span>{t("deliverySubject")}</span>
+              <Input
+                name="subject"
+                required
+                maxLength={200}
+                defaultValue={DEFAULT_SUBJECT}
+              />
+            </label>
+            <label className="block space-y-1 text-sm">
+              <span>{t("deliveryBody")}</span>
+              <textarea
+                name="body"
+                required
+                rows={10}
+                maxLength={5000}
+                defaultValue={DEFAULT_BODY}
+                className="w-full rounded-md border bg-transparent px-3 py-2"
+              />
+            </label>
+            <Button type="submit">{t("deliverySend")}</Button>
+          </form>
+          <h3 className="text-sm font-medium">{t("deliveryLog")}</h3>
+          {deliveries.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              {t("deliveryLogEmpty")}
+            </p>
+          ) : (
+            <ul className="space-y-1 text-sm" data-testid="delivery-log">
+              {deliveries.map((d) => (
+                <li key={d.id}>
+                  {d.recipient} – {t(`deliveryStatus.${d.status}`)} (
+                  {d.createdAt.toLocaleString("de-DE")})
+                </li>
+              ))}
+            </ul>
+          )}
+        </DialogButton>
         <Link
           href={`/dashboard/galleries/${gallery.id}/design`}
           className="text-sm underline"
@@ -289,63 +346,6 @@ async function GalleryContent({
             </form>
           </Block>
         )}
-
-        <Block
-          id="delivery-title"
-          className="max-w-md space-y-3"
-          title={t("deliveryTitle")}
-        >
-          <p className="text-sm text-muted-foreground">{t("deliveryHint")}</p>
-          <form action={sendDeliveryMailAction} className="space-y-3">
-            <input type="hidden" name="galleryId" value={gallery.id} />
-            <label className="block space-y-1 text-sm">
-              <span>{t("deliveryRecipients")}</span>
-              <textarea
-                name="recipients"
-                required
-                rows={2}
-                maxLength={2000}
-                className="w-full rounded-md border bg-transparent px-3 py-2"
-              />
-            </label>
-            <label className="block space-y-1 text-sm">
-              <span>{t("deliverySubject")}</span>
-              <Input
-                name="subject"
-                required
-                maxLength={200}
-                defaultValue={DEFAULT_SUBJECT}
-              />
-            </label>
-            <label className="block space-y-1 text-sm">
-              <span>{t("deliveryBody")}</span>
-              <textarea
-                name="body"
-                required
-                rows={10}
-                maxLength={5000}
-                defaultValue={DEFAULT_BODY}
-                className="w-full rounded-md border bg-transparent px-3 py-2"
-              />
-            </label>
-            <Button type="submit">{t("deliverySend")}</Button>
-          </form>
-          <h3 className="text-sm font-medium">{t("deliveryLog")}</h3>
-          {deliveries.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              {t("deliveryLogEmpty")}
-            </p>
-          ) : (
-            <ul className="space-y-1 text-sm" data-testid="delivery-log">
-              {deliveries.map((d) => (
-                <li key={d.id}>
-                  {d.recipient} – {t(`deliveryStatus.${d.status}`)} (
-                  {d.createdAt.toLocaleString("de-DE")})
-                </li>
-              ))}
-            </ul>
-          )}
-        </Block>
 
         <Block
           id="password-title"

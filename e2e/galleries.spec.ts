@@ -51,6 +51,7 @@ test("create a gallery, edit it and add photo and video sets", async ({
 
   // Delivery mail: edited text, placeholders filled, logged.
   const client = `kunde+${testInfo.project.name}-${Date.now()}@example.com`;
+  await page.getByRole("button", { name: "An Kunden senden" }).click();
   await page.getByLabel(/^Empfänger/).fill(client);
   await page.locator("textarea[name=body]").fill("Schau mal: {link}");
   await page.getByRole("button", { name: "Mail senden" }).click();
