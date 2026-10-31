@@ -28,7 +28,7 @@
 
 Anlass: Rückmeldung von Mitsch nach dem ersten Live-Test (D-140). Reihenfolge so, dass jeder Schritt für sich lauffähig bleibt.
 
-- [ ] **1. Optik & Dashboard-Shell:** wärmeres Farbsystem (Rosé/Creme, Display-Schrift für Überschriften), `dashboard/layout.tsx` mit Kopfzeile/Navigation (Galerien, Bibliothek, Profil & Einstellungen, Abmelden), freundlichere Startseite, Login, Galerieliste als Karten. Nur Optik, keine Funktionsänderung
+- [x] **1. Optik & Dashboard-Shell:** wärmeres Farbsystem (Rosé/Creme, Display-Schrift für Überschriften), `dashboard/layout.tsx` mit Kopfzeile/Navigation (Galerien, Bibliothek, Profil & Einstellungen, Abmelden), freundlichere Startseite, Login, Galerieliste als Karten. Nur Optik, keine Funktionsänderung
 - [ ] **2. Profil & Einstellungen:** ein Bereich mit Reitern: Profil (Name, Studio, Kontaktdaten, Logo), Abo & Speicher (bisher `/dashboard/billing`), Sicherheit (2FA, **Passwort ändern/setzen** = neu, D-141), Wasserzeichen-Standard. Alte Routen leiten um
 - [ ] **3. Datenmodell Bibliothek:** Tabellen `folders` (verschachtelt) und `gallery_media` (Medium ↔ Galerie, Position); `media.setId` entfällt, `sets` werden migriert und entfernt (Sortierung: Set-Position, dann Medien-Position); Download-Recht nur noch je Galerie (D-142). Upload ohne Galerie möglich. Migration mit Datenübernahme + Test
 - [ ] **4. Bibliothek `/dashboard/library`:** Medienraster, Ordner anlegen/umbenennen/löschen, Upload per Drag & Drop (Foto und Video gemischt) in den aktuellen Ordner, Mehrfachauswahl (verschieben, löschen), Wiederholen-Button bei abgebrochenem Upload
@@ -116,6 +116,9 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-10-31 – M11 Schritt 1 (Optik)
+- Farbsystem Rosé/Creme, Display-Schrift Fraunces, Dashboard-Layout mit Navigation, Startseite/Login/Galerieliste überarbeitet. Nächster Schritt: M11-2 Profil & Einstellungen. Cloud: Postgres/Redis neu starten, Rolle `roses`/DBs anlegen.
 
 ### 2026-10-29 – M10 Rechtstexte
 - Impressum/Datenschutz/AGB als Entwurf (D-137, PR folgt im Log). Mitsch: D-117 erledigt (Live-Abnahme Original-URL/HLS beim nächsten Lauf prüfen), kein eigener Backup-Bucket, optionale Reste vorerst nicht. Cloud: Postgres/Redis neu starten (`service postgresql start`, `redis-server --daemonize yes`), Rolle `roses`/DBs `roses_gallery`, `roses_gallery_test` anlegen.

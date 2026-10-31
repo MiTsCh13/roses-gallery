@@ -6,7 +6,22 @@
   "HomePage": {
     "title": "Roses Gallery",
     "tagline": "Foto- und Video-Galerien für deine Hochzeitskunden – gebrandet, in 4K und DSGVO-konform.",
-    "cta": "Demnächst verfügbar"
+    "cta": "Demnächst verfügbar",
+    "eyebrow": "Für Hochzeitsfotografen und -videografen",
+    "features": [
+      {
+        "title": "Dein Branding",
+        "text": "Galerien in deinem Stil: Farben, Schriften, Logo und Cover."
+      },
+      {
+        "title": "Fotos und Filme",
+        "text": "Fotos und Videos bis 4K an einem Ort – schnell, auch am Handy."
+      },
+      {
+        "title": "Sicher geteilt",
+        "text": "Passwortschutz, Ablaufdatum und Downloads, wie du es willst."
+      }
+    ]
   },
   "Auth": {
     "mail": {
@@ -35,7 +50,14 @@
     "signOut": "Abmelden",
     "billing": "Abo & Speicher",
     "galleries": "Galerien",
-    "security": "Sicherheit (2FA)"
+    "security": "Sicherheit (2FA)",
+    "brand": "Roses Gallery",
+    "navLabel": "Hauptnavigation",
+    "welcome": "Willkommen zurück",
+    "welcomeText": "Was möchtest du heute tun?",
+    "galleriesText": "Galerien anlegen, gestalten und an Kunden senden.",
+    "billingText": "Tarif, Speicherplatz und Rechnungen.",
+    "securityText": "Zwei-Faktor-Anmeldung für dein Konto."
   },
   "TwoFactorLogin": {
     "title": "Zwei-Faktor-Code",
