@@ -4,7 +4,7 @@
 > und `docs/DECISIONS.md`. Log kurz halten (max. 10 Einträge, ältere löschen –
 > die Git-Historie bleibt).
 
-**Aktueller Meilenstein:** M10 – Härtung & Launch (Rest aus M4/M7: Live-Abnahme HLS/Original-URL, D-117)
+**Aktueller Meilenstein:** M11 – Überarbeitung Dashboard & Galerie-Editor (Wunsch Mitsch, D-140). M10 ist live (Rest: Rechtstexte, Postmark, Stripe-Live bei Mitsch). Danach Phase 2
 **Stand main:** M0–M3 und M5–M9 abgeschlossen (M2: Abnahme gegen echtes Stripe offen, D-006; M4: Original-URL live offen, D-117)
 
 ## Meilensteine
@@ -21,7 +21,21 @@
 | M7 | Galerie-Ansicht & Player | ✅ fertig bis auf Live-Abnahme HLS/Original (D-117) |
 | M8 | Zugriff, Downloads, Favoriten | ✅ fertig (Dashboard-Ansicht der Favoriten optional, nicht Teil des Kriteriums) |
 | M9 | Auslieferung & Statistik | ✅ fertig (Postmark live ungeprüft: nur Fake getestet) |
-| M10 | Härtung & Launch | in Arbeit |
+| M10 | Härtung & Launch | ✅ live (Mitsch: Rechtstexte, Postmark, Stripe-Live offen) |
+| M11 | Überarbeitung Dashboard & Galerie-Editor | in Arbeit |
+
+## Nächste Schritte (M11, in dieser Reihenfolge; ein Schritt = ein PR)
+
+Anlass: Rückmeldung von Mitsch nach dem ersten Live-Test (D-140). Reihenfolge so, dass jeder Schritt für sich lauffähig bleibt.
+
+- [ ] **1. Optik & Dashboard-Shell:** wärmeres Farbsystem (Rosé/Creme, Display-Schrift für Überschriften), `dashboard/layout.tsx` mit Kopfzeile/Navigation (Galerien, Bibliothek, Profil & Einstellungen, Abmelden), freundlichere Startseite, Login, Galerieliste als Karten. Nur Optik, keine Funktionsänderung
+- [ ] **2. Profil & Einstellungen:** ein Bereich mit Reitern: Profil (Name, Studio, Kontaktdaten, Logo), Abo & Speicher (bisher `/dashboard/billing`), Sicherheit (2FA, **Passwort ändern/setzen** = neu, D-141), Wasserzeichen-Standard. Alte Routen leiten um
+- [ ] **3. Datenmodell Bibliothek:** Tabellen `folders` (verschachtelt) und `gallery_media` (Medium ↔ Galerie, Position); `media.setId` entfällt, `sets` werden migriert und entfernt (Sortierung: Set-Position, dann Medien-Position); Download-Recht nur noch je Galerie (D-142). Upload ohne Galerie möglich. Migration mit Datenübernahme + Test
+- [ ] **4. Bibliothek `/dashboard/library`:** Medienraster, Ordner anlegen/umbenennen/löschen, Upload per Drag & Drop (Foto und Video gemischt) in den aktuellen Ordner, Mehrfachauswahl (verschieben, löschen), Wiederholen-Button bei abgebrochenem Upload
+- [ ] **5. Galerie-Editor zweispaltig:** links Einstellungen in ausklappbaren Blöcken (Allgemein, Zugang & Ablauf mit Hinweis „kein Datum = kein Ablauf“, Downloads, Wasserzeichen nur sichtbar wenn aktiv, Design inline statt Unterseite), rechts Live-Vorschau der Galerie mit allen Fotos/Videos; Medien per Drag & Drop in die Vorschau hochladen oder aus der Bibliothek hinzufügen; Mehrfachauswahl zum Entfernen/Löschen; Reihenfolge per Ziehen. Slug wird nicht angezeigt (wird weiter automatisch aus dem Titel erzeugt)
+- [ ] **6. „An Kunden senden“ als Dialog:** eigener Button im Editor-Kopf öffnet den Versanddialog (bisheriger Abschnitt)
+- [ ] **7. Öffentliche Ansicht ohne Sets:** ein gemischtes Raster aus Fotos und Videos (Video-Kachel mit Play-Symbol öffnet den Player in der Lightbox), Video-Regale entfallen; ZIP, Favoriten, Statistik auf `gallery_media` umgestellt
+- [ ] **8. Aufräumen:** alte Set-Seiten/Routen, `seed-set`-Testroute (E2E über die echte UI), Texte, Doku
 
 ## Nächste Schritte (M4, in dieser Reihenfolge)
 
