@@ -648,6 +648,8 @@
     }
   },
   "GalleryEditor": {
+    "makeCover": "Als Titelbild",
+    "isCover": "Titelbild",
     "mediaTitle": "Fotos & Videos ({count})",
     "addFromLibrary": "Aus Bibliothek hinzufügen",
     "addSelected": "{count} hinzufügen",

@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import { eq } from "drizzle-orm";
 import { connection } from "next/server";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -9,7 +8,6 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { db } from "@/db";
-import { sets } from "@/db/schema";
 import { tenantDb } from "@/db/tenant";
 import {
   DEFAULT_BODY,
@@ -23,10 +21,7 @@ import { requireAccount } from "@/lib/session";
 import { DialogButton } from "@/components/dialog-button";
 import { GalleryMediaPanel } from "@/components/gallery-media-panel";
 import { listAddableMedia, listGalleryMedia } from "@/lib/library";
-import { SortableList } from "@/components/sortable-list";
 import {
-  createSetAction,
-  reorderSetsAction,
   saveWatermarkAction,
   sendDeliveryMailAction,
   setGalleryPasswordAction,
@@ -87,8 +82,6 @@ async function GalleryContent({
   const tenant = tenantDb(db(), account.id);
   const gallery = await tenant.galleries.get(galleryId);
   if (!gallery) notFound();
-  const gallerySets = await tenant.sets.list(eq(sets.galleryId, gallery.id));
-  gallerySets.sort((a, b) => a.position - b.position);
 
   const [inGallery, addable] = await Promise.all([
     listGalleryMedia({ db: db(), accountId: account.id }, gallery.id),
@@ -385,53 +378,10 @@ async function GalleryContent({
             </form>
           )}
         </Block>
-
-        <Block
-          id="sets-title"
-          className="space-y-3"
-          title={t("sets", { count: gallerySets.length })}
-        >
-          <SortableList
-            testId="set-list"
-            items={gallerySets.map((s) => ({
-              id: s.id,
-              label: s.title,
-              detail: t(`setType.${s.type}`),
-              extra: (
-                <Link href={`/dashboard/sets/${s.id}`} className="underline">
-                  {t("open")}
-                </Link>
-              ),
-            }))}
-            onReorder={reorderSetsAction.bind(null, gallery.id)}
-            labels={{ up: t("moveUp"), down: t("moveDown"), handle: t("drag") }}
-          />
-          <form action={createSetAction} className="flex flex-wrap gap-2">
-            <input type="hidden" name="galleryId" value={gallery.id} />
-            <Input
-              name="title"
-              required
-              maxLength={200}
-              placeholder={t("setTitle")}
-              aria-label={t("setTitle")}
-              className="max-w-xs"
-            />
-            <select
-              name="type"
-              aria-label={t("setTypeLabel")}
-              className="h-9 rounded-md border bg-transparent px-3"
-            >
-              <option value="photo">{t("setType.photo")}</option>
-              <option value="video">{t("setType.video")}</option>
-            </select>
-            <Button type="submit" variant="outline">
-              {t("addSet")}
-            </Button>
-          </form>
-        </Block>
       </div>
       <GalleryMediaPanel
         galleryId={gallery.id}
+        coverMediaId={gallery.coverMediaId}
         inGallery={inGallery.map((m) => ({ id: m.id, type: m.type }))}
         addable={addable.map((m) => ({ id: m.id, type: m.type }))}
       />

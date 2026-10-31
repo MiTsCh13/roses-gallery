@@ -432,6 +432,7 @@ export function LibraryBrowser({
           {media.map((m, i) => (
             <li
               key={m.id}
+              data-id={m.id}
               data-status={m.status}
               data-selected={selected.has(m.id)}
               className={`relative overflow-hidden rounded-lg border bg-card ${selected.has(m.id) ? "ring-2 ring-primary" : ""}`}

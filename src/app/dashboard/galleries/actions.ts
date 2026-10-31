@@ -6,10 +6,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/db";
 import {
   createGallery,
-  createSet,
   GalleryError,
-  reorderMedia,
-  reorderSets,
   setGalleryCover,
   updateGallery,
 } from "@/lib/galleries";
@@ -18,7 +15,6 @@ import { DeliveryError, sendDeliveryMail } from "@/lib/delivery-mail";
 import { serverEnv } from "@/lib/env";
 import { getMailer } from "@/lib/mailer";
 import { getRateLimiter } from "@/lib/rate-limit";
-import { setSetDownloadPolicy } from "@/lib/downloads";
 import { setGalleryPassword } from "@/lib/gallery-access";
 import { getStorage } from "@/lib/storage";
 import { saveGalleryDesign } from "@/lib/gallery-design";
@@ -121,69 +117,18 @@ export async function setGalleryPasswordAction(formData: FormData) {
   redirect(`/dashboard/galleries/${galleryId}?saved=1`);
 }
 
-export async function setSetDownloadPolicyAction(formData: FormData) {
-  const { account } = await requireAccount();
-  const setId = field(formData, "setId") ?? "";
-  try {
-    await setSetDownloadPolicy(
-      { db: db(), accountId: account.id },
-      setId,
-      field(formData, "downloadPolicy"),
-    );
-  } catch (e) {
-    redirect(`/dashboard/sets/${setId}?error=${errorCode(e)}`);
-  }
-  revalidatePath(`/dashboard/sets/${setId}`);
-}
-
-export async function createSetAction(formData: FormData) {
-  const { account } = await requireAccount();
-  const galleryId = field(formData, "galleryId") ?? "";
-  try {
-    await createSet(
-      { db: db(), accountId: account.id },
-      {
-        galleryId,
-        title: field(formData, "title"),
-        type: field(formData, "type"),
-      },
-    );
-  } catch (e) {
-    redirect(`/dashboard/galleries/${galleryId}?error=${errorCode(e)}`);
-  }
-  redirect(`/dashboard/galleries/${galleryId}`);
-}
-
-export async function reorderSetsAction(
+export async function setGalleryCoverAction(
   galleryId: string,
-  orderedIds: string[],
+  mediaId: string | null,
 ) {
   const { account } = await requireAccount();
-  await reorderSets({ db: db(), accountId: account.id }, galleryId, orderedIds);
-  revalidatePath(`/dashboard/galleries/${galleryId}`);
-}
-
-export async function reorderMediaAction(setId: string, orderedIds: string[]) {
-  const { account } = await requireAccount();
-  await reorderMedia({ db: db(), accountId: account.id }, setId, orderedIds);
-  revalidatePath(`/dashboard/sets/${setId}`);
-}
-
-export async function setCoverAction(formData: FormData) {
-  const { account } = await requireAccount();
-  const galleryId = field(formData, "galleryId") ?? "";
-  const setId = field(formData, "setId") ?? "";
-  const mediaId = field(formData, "mediaId");
-  try {
-    await setGalleryCover(
-      { db: db(), accountId: account.id },
-      galleryId,
-      mediaId ? mediaId : null,
-    );
-  } catch (e) {
-    errorCode(e);
-  }
-  redirect(`/dashboard/sets/${setId}?cover=1`);
+  const gid = z.uuid().parse(galleryId);
+  await setGalleryCover(
+    { db: db(), accountId: account.id },
+    gid,
+    mediaId === null ? null : z.uuid().parse(mediaId),
+  );
+  revalidatePath(`/dashboard/galleries/${gid}`);
 }
 
 export async function saveDesignAction(formData: FormData) {

@@ -1,6 +1,6 @@
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 
-import { accounts, media } from "@/db/schema";
+import { accounts, galleryMedia, media } from "@/db/schema";
 import { tenantDb } from "@/db/tenant";
 import { createTestDb, resetDb } from "@/test/db";
 import {
@@ -17,6 +17,20 @@ import {
 import { PlanLimitError } from "./plans";
 
 const { db, close } = createTestDb();
+
+// puts a new media row (own account) into the gallery
+async function mediaIn(
+  accountId: string,
+  galleryId: string,
+  values: Partial<typeof media.$inferInsert> = {},
+) {
+  const [m] = await db
+    .insert(media)
+    .values({ accountId, type: "photo", ...values })
+    .returning();
+  await db.insert(galleryMedia).values({ accountId, galleryId, mediaId: m.id });
+  return m;
+}
 let a: { db: typeof db; accountId: string };
 let b: { db: typeof db; accountId: string };
 
@@ -112,24 +126,8 @@ describe("updateGallery", () => {
   it("only accepts a cover from the gallery's own media", async () => {
     const g1 = await createGallery(a, { title: "G1" });
     const g2 = await createGallery(a, { title: "G2" });
-    const s1 = await createSet(a, {
-      galleryId: g1.id,
-      title: "S",
-      type: "photo",
-    });
-    const s2 = await createSet(a, {
-      galleryId: g2.id,
-      title: "S",
-      type: "photo",
-    });
-    const [m1] = await db
-      .insert(media)
-      .values({ accountId: a.accountId, setId: s1.id, type: "photo" })
-      .returning();
-    const [m2] = await db
-      .insert(media)
-      .values({ accountId: a.accountId, setId: s2.id, type: "photo" })
-      .returning();
+    const m1 = await mediaIn(a.accountId, g1.id);
+    const m2 = await mediaIn(a.accountId, g2.id);
     const base = { galleryId: g1.id, title: "G1", status: "draft" as const };
     await expect(
       updateGallery(a, { ...base, coverMediaId: m2.id }),
@@ -171,15 +169,8 @@ describe("galleryOverview", () => {
     const g = await createGallery(a, { title: "G" });
     await createGallery(a, { title: "Leer" });
     await createGallery(b, { title: "Fremd" });
-    const s = await createSet(a, {
-      galleryId: g.id,
-      title: "S",
-      type: "photo",
-    });
-    await db.insert(media).values([
-      { accountId: a.accountId, setId: s.id, type: "photo", sizeBytes: 1000 },
-      { accountId: a.accountId, setId: s.id, type: "photo", sizeBytes: 500 },
-    ]);
+    await mediaIn(a.accountId, g.id, { sizeBytes: 1000 });
+    await mediaIn(a.accountId, g.id, { sizeBytes: 500 });
     const rows = await galleryOverview(a);
     expect(rows).toHaveLength(2);
     const full = rows.find((r) => r.id === g.id)!;
@@ -257,15 +248,7 @@ describe("ordering and cover", () => {
       title: "G",
       expiresAt: "2027-01-01",
     });
-    const s = await createSet(a, {
-      galleryId: g.id,
-      title: "S",
-      type: "photo",
-    });
-    const [m] = await db
-      .insert(media)
-      .values({ accountId: a.accountId, setId: s.id, type: "photo" })
-      .returning();
+    const m = await mediaIn(a.accountId, g.id);
     const withCover = await setGalleryCover(a, g.id, m.id);
     expect(withCover.coverMediaId).toBe(m.id);
     expect(withCover.expiresAt?.toISOString().slice(0, 10)).toBe("2027-01-01");

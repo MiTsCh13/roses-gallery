@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import {
   addGalleryMediaAction,
   removeGalleryMediaAction,
+  setGalleryCoverAction,
 } from "@/app/dashboard/galleries/actions";
 import { Button } from "@/components/ui/button";
 
@@ -17,7 +18,9 @@ function Grid({
   onToggle,
   testId,
   label,
+  coverId,
 }: {
+  coverId?: string | null;
   items: Item[];
   selected: Set<string>;
   onToggle: (id: string) => void;
@@ -46,6 +49,11 @@ function Grid({
                 ▶<span className="sr-only">{t("video")}</span>
               </span>
             )}
+            {coverId === m.id && (
+              <span className="absolute right-1.5 bottom-1.5 rounded bg-background/90 px-1.5 py-0.5 text-xs">
+                {t("isCover")}
+              </span>
+            )}
             <input
               type="checkbox"
               checked={selected.has(m.id)}
@@ -62,10 +70,12 @@ function Grid({
 
 export function GalleryMediaPanel({
   galleryId,
+  coverMediaId,
   inGallery,
   addable,
 }: {
   galleryId: string;
+  coverMediaId: string | null;
   inGallery: Item[];
   addable: Item[];
 }) {
@@ -74,6 +84,11 @@ export function GalleryMediaPanel({
   const [chosen, setChosen] = useState<Set<string>>(new Set());
   const [marked, setMarked] = useState<Set<string>>(new Set());
   const [pending, start] = useTransition();
+  // the cover can be any single marked photo
+  const coverCandidate =
+    marked.size === 1
+      ? inGallery.find((m) => marked.has(m.id) && m.type === "photo")
+      : undefined;
 
   const toggle =
     (set: Set<string>, update: (s: Set<string>) => void) => (id: string) => {
@@ -95,6 +110,21 @@ export function GalleryMediaPanel({
           aria-expanded={picking}
         >
           {t("addFromLibrary")}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          disabled={!coverCandidate || pending}
+          onClick={() =>
+            start(async () => {
+              if (coverCandidate) {
+                await setGalleryCoverAction(galleryId, coverCandidate.id);
+              }
+              setMarked(new Set());
+            })
+          }
+        >
+          {t("makeCover")}
         </Button>
         <Button
           type="button"
@@ -151,6 +181,7 @@ export function GalleryMediaPanel({
           onToggle={toggle(marked, setMarked)}
           testId="gallery-media"
           label={t("gallery")}
+          coverId={coverMediaId}
         />
       )}
     </section>
