@@ -4,6 +4,7 @@ import { z } from "zod";
 import type { Db } from "@/db";
 import { accounts, media } from "@/db/schema";
 import { tenantDb } from "@/db/tenant";
+import { addToGallery } from "@/lib/library";
 import { assertCanUpload, type SubscriptionStatus } from "@/lib/plans";
 import type { VideoProvider } from "@/lib/video/types";
 
@@ -78,6 +79,7 @@ export async function startVideoUpload(deps: Deps, input: unknown) {
     position: (top ?? -1) + 1,
     processingStatus: "pending",
   });
+  await addToGallery(deps, set.galleryId, row.id);
   const tus = await deps.video.createTusUpload(videoId, TUS_TTL_SECONDS);
   return { mediaId: row.id, tus };
 }

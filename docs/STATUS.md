@@ -31,7 +31,7 @@ Anlass: Rückmeldung von Mitsch nach dem ersten Live-Test (D-140). Reihenfolge s
 - [x] **1. Optik & Dashboard-Shell:** wärmeres Farbsystem (Rosé/Creme, Display-Schrift für Überschriften), `dashboard/layout.tsx` mit Kopfzeile/Navigation (Galerien, Bibliothek, Profil & Einstellungen, Abmelden), freundlichere Startseite, Login, Galerieliste als Karten. Nur Optik, keine Funktionsänderung
 - [x] **2a. Profil & Einstellungen:** `/dashboard/settings` mit Reitern Profil (Studioname, Ansprechpartner, Telefon, Webseite, Instagram in `branding.contact`, Logo), Abo & Speicher (`/settings/billing`), Sicherheit (`/settings/security`); alte Routen `/dashboard/billing` und `/security` entfallen (kein Redirect, Wunsch Mitsch)
 - [x] **2b. Passwort (D-141):** `users.password_hash` (Migration 0013), `lib/account-password.ts`, Passwort setzen/ändern im Profil, Login mit E-Mail + Passwort (Session-Zeile + Cookie selbst angelegt, 2FA greift weiter über `requireAccount`, Rate-Limit 10/10 min je E-Mail). Offen daraus: Wasserzeichen-Standard ins Profil (mit Schritt 5/Galerie-Editor), „Passwort vergessen“ = Anmeldelink
-- [ ] **3. Datenmodell Bibliothek:** Tabellen `folders` (verschachtelt) und `gallery_media` (Medium ↔ Galerie, Position); `media.setId` entfällt, `sets` werden migriert und entfernt (Sortierung: Set-Position, dann Medien-Position); Download-Recht nur noch je Galerie (D-142). Upload ohne Galerie möglich. Migration mit Datenübernahme + Test
+- [x] **3. Datenmodell Bibliothek (D-143: additiv):** `folders`, `gallery_media`, `media.folderId`, `media.setId` nullable, Migration 0014 mit Datenübernahme, `lib/library.ts` (+ Test); Uploads in ein Set schreiben zusätzlich `gallery_media`. `sets`/`media.setId` bleiben bis Schritt 7/8 bestehen (öffentliche Ansicht, ZIP, Favoriten, Statistik lesen noch über Sets). Ursprünglich geplant: Tabellen `folders` (verschachtelt) und `gallery_media` (Medium ↔ Galerie, Position); `media.setId` entfällt, `sets` werden migriert und entfernt (Sortierung: Set-Position, dann Medien-Position); Download-Recht nur noch je Galerie (D-142). Upload ohne Galerie möglich. Migration mit Datenübernahme + Test
 - [ ] **4. Bibliothek `/dashboard/library`:** Medienraster, Ordner anlegen/umbenennen/löschen, Upload per Drag & Drop (Foto und Video gemischt) in den aktuellen Ordner, Mehrfachauswahl (verschieben, löschen), Wiederholen-Button bei abgebrochenem Upload
 - [ ] **5. Galerie-Editor zweispaltig:** links Einstellungen in ausklappbaren Blöcken (Allgemein, Zugang & Ablauf mit Hinweis „kein Datum = kein Ablauf“, Downloads, Wasserzeichen nur sichtbar wenn aktiv, Design inline statt Unterseite), rechts Live-Vorschau der Galerie mit allen Fotos/Videos; Medien per Drag & Drop in die Vorschau hochladen oder aus der Bibliothek hinzufügen; Mehrfachauswahl zum Entfernen/Löschen; Reihenfolge per Ziehen. Slug wird nicht angezeigt (wird weiter automatisch aus dem Titel erzeugt)
 - [ ] **6. „An Kunden senden“ als Dialog:** eigener Button im Editor-Kopf öffnet den Versanddialog (bisheriger Abschnitt)
@@ -118,6 +118,9 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 
 ## Log
 
+### 2026-10-31 – M11 Schritt 3 (Datenmodell Bibliothek)
+- Additive Migration (D-143), Bibliotheks-Lib mit Mandantentests. Nächster Schritt: 4 Bibliothek-UI. Cloud: Postgres/Redis neu starten, Rolle `roses`/DBs anlegen.
+
 ### 2026-10-31 – M11 Schritt 2b (Passwort)
 - Optionales Passwort (scrypt) im Profil, Login-Formular „Mit Passwort anmelden“, Unit- und E2E-Test. Nächster Schritt: 3 Datenmodell Bibliothek (große Migration, eigener PR). Cloud: Postgres/Redis neu starten, Rolle `roses`/DBs anlegen.
 
@@ -144,76 +147,3 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 
 ### 2026-10-29 – M10 Rechtsseiten
 - Platzhalter-Seiten online-bereit. Offen für Launch: echte Texte (Anwalt). Nächster Schritt: 2FA (TOTP, Entscheidung optional vs. Pflicht in DECISIONS), dann Login-Rate-Limits, axe-Test. Cloud: Postgres/Redis neu starten, Rolle/DBs anlegen.
-
-### 2026-10-29 – M10 Sentry
-- Fehlerberichte ohne SDK (D-130). Nächster Schritt: 2FA (TOTP) / Rate-Limits Login. Cloud: Postgres/Redis neu starten, Rolle/DBs anlegen.
-
-### 2026-10-29 – M10 Lückenliste + CSP
-- `docs/NFR-LUECKEN.md`, CSP (D-129). Nächster Schritt: Sentry-Interface. Cloud: Postgres/Redis neu starten, Rolle/DBs anlegen.
-
-### 2026-10-29 – M9 abgeschlossen
-- Kriterium erfüllt, M10 aufgeschlüsselt. Nächster Schritt: Lückenliste NFR + Security-Header.
-
-### 2026-10-29 – M9 Auslieferungs-Mail
-- F-DASH-03 fertig (D-128). Nächster Schritt: Fertig-Kriterium M9 prüfen (Mail kommt an = Fake/Postmark-Test, Aufrufe gezählt), dann M10 aufschlüsseln. Cloud: Postgres/Redis neu starten, Rolle/DBs anlegen.
-
-### 2026-10-28 – M9 Statistik
-- Events + Dashboard-Statistik (D-127). Nächster Schritt: Auslieferungs-Mail (F-DASH-03). Cloud: Postgres/Redis neu starten, Rolle/DBs anlegen.
-
-### 2026-10-28 – M8 Teilen, M8 fertig
-- Link-/Story-Teilen (D-126), M8-Kriterium erfüllt, M9 aufgeschlüsselt. Nächster Schritt: Event-Erfassung. Cloud: Postgres/Redis neu starten, Rolle/DBs anlegen.
-
-### 2026-10-28 – M8 Favoriten
-- F-INT-01 fertig (D-125). Nächster Schritt: Dashboard-Ansicht der Favoriten, dann Teilen/Instagram-Story (F-INT-02). Cloud: Postgres/Redis neu starten, Rolle/DBs anlegen.
-
-### 2026-10-28 – M8 Wasserzeichen
-- F-SEC-03 fertig (D-124). Cloud: Postgres/Redis neu starten, Rolle/DBs anlegen. Nächster Schritt: Favoriten (mehrere Listen ohne Konto, Magic Link, Export), dann Teilen/Instagram-Story.
-
-### 2026-10-28 – M8 ZIP-Download
-- ZIP per Mail fertig (D-123). Cloud: Postgres/Redis neu starten, Rolle `roses` + DBs anlegen. Nächster Schritt: Wasserzeichen auf Web-Größen (F-SEC-03), dann Favoriten.
-
-### 2026-10-28 – M8 Download-Rechte
-- Einzel-Download + Rechte fertig. Cloud: nach Resume Postgres/Redis neu starten (`pg_ctlcluster 16 main start`, `redis-server --daemonize yes`). Nächster Schritt: ZIP-Download als Worker-Job mit Mail-Link.
-
-### 2026-10-28 – M8 Passwortschutz
-- F-SEC-01 fertig (siehe M8-Liste, D-122). Cloud: Postgres/Redis neu starten und Rolle/DBs anlegen wie unten. Nächster Schritt: Download-Rechte je Galerie/Set (F-SEC-02).
-
-### 2026-10-28 – M7 LCP
-- Lighthouse-Skript + Cover-`srcset`, LCP 3,1 s → 0,9 s. M7 damit funktional fertig. Nächster Schritt: M8 in `UMSETZUNGSPLAN.md` aufschlüsseln. Cloud: Postgres `pg_ctlcluster 16 main start`, Rolle/DBs neu anlegen, `redis-server --daemonize yes`; Lighthouse per `npm i lighthouse` außerhalb des Repos.
-
-### 2026-10-28 – M7 Cast
-- Cast-Button via Remote Playback API (D-121). Nächster Schritt: Lighthouse-LCP (<2,5 s) prüfen = letztes M7-Kriterium; Chromium ist vorinstalliert. Cloud: Rolle/DBs wie oben neu anlegen.
-
-### 2026-10-28 – M7 HLS-Player
-- `HlsPlayer` + `signHlsUrl`, Fallback Embed ohne CDN-Key. Nächster Schritt: AirPlay/Chromecast (Cast SDK, Feature-Detection), dann Lighthouse-LCP. Live-Prüfung HLS hängt an D-117.
-
-### 2026-10-28 – M7 Video-Reihen
-- `loadPublicGallery` liefert signierte Video-URLs, `VideoShelf` + Hybrid-Ansicht, Tests. Cloud: Rolle `roses` + DBs wieder anlegen (siehe oben). Nächster Schritt: HLS-Player (hls.js) mit Qualitätswahl/Fortsetzen; Thumbnails für Videos klären.
-
-### 2026-10-28 – M7 Lightbox
-- Lightbox + Fotos/Cover auf `/g/[slug]` verdrahtet. Cloud: Rolle `roses` (superuser) und DBs `roses`, `roses_gallery`, `roses_gallery_test` neu anlegen, falls leer. Nächster Schritt: Video-Reihen (F-VID-01).
-
-### 2026-10-28 – M7 Foto-Raster
-- `loadPublicGallery` liefert Fotos/Cover mit signierten Varianten, `GalleryGrid` mit `srcset`/lazy. Nächster Schritt: Lightbox.
-
-### 2026-10-28 – M7 öffentliche Route
-- `/g/[slug]`, globale Slugs (Migration 0007), Tests + E2E. Cloud: Postgres per `pg_ctlcluster 16 main start`, Rolle/DBs `roses`, `roses_gallery(_test)` anlegen, `redis-server --daemonize yes`. Nächster Schritt: Foto-Raster mit signierten Varianten.
-
-### 2026-10-28 – M6 abgeschlossen
-- Fertig-Kriterium erfüllt, M7 aufgeschlüsselt.
-
-### 2026-10-28 – M6 Logo
-- Logo-Upload, Test-Route `/api/test/storage` erkennt Fake-Storage per Duck-Typing (Bundles mit eigenen Klassenkopien). Hinweis E2E lokal: alte `next start`-Prozesse auf Port 3100 beenden, sonst wird ein veralteter Build wiederverwendet. Nächster Schritt: Fertig-Kriterium M6 prüfen, M7 aufschlüsseln.
-
-### 2026-10-28 – M6 Ansicht-Komponenten
-- `GalleryView` mit 3 Cover-Stilen und 3 Raster-Layouts, Unit-Tests (SSR-Markup). Nächster Schritt: Editor-Seite `/design`.
-
-### 2026-10-28 – M6 Themes
-- `lib/themes.ts`, Migration 0005 (System-Themes), Tests. Nächster Schritt: Ansichts-Komponenten.
-
-### 2026-10-28 – M5 abgeschlossen
-- Fertig-Kriterium (Galerie mit Sets anlegen, sortieren, veröffentlichen) per E2E erfüllt. M6 aufgeschlüsselt.
-
-### 2026-10-28 – M5 Sortierung & Cover
-- `SortableList` (native DnD + Buttons), Server Actions, Unit-Tests (Reihenfolge, Mandantentrennung, Cover), E2E für Set-Reihenfolge inkl. Reload. Gesamt-E2E lokal 22/22.
-

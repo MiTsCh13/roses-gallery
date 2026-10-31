@@ -101,8 +101,8 @@ async function selectFiles(
     }
     if (!key) continue;
     const folder = safeName(row.setTitle);
-    const n = (counters.get(row.media.setId) ?? 0) + 1;
-    counters.set(row.media.setId, n);
+    const n = (counters.get(row.media.setId!) ?? 0) + 1;
+    counters.set(row.media.setId!, n);
     files.push({
       key,
       bytes,
