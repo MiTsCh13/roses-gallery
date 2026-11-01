@@ -22,7 +22,7 @@ test("public gallery is only visible once published", async ({
   await expect(page).toHaveURL(/\/dashboard\/galleries\/[0-9a-f-]{36}$/);
   const slug = (
     (await page
-      .getByRole("link", { name: "Galerie ansehen" })
+      .getByRole("link", { name: "Vorschau im neuen Tab" })
       .getAttribute("href")) ?? ""
   ).replace("/g/", "");
 
@@ -72,7 +72,7 @@ test("password-protected gallery asks for the password and stays open with the c
   await expect(page).toHaveURL(/\/dashboard\/galleries\/[0-9a-f-]{36}$/);
   const slug = (
     (await page
-      .getByRole("link", { name: "Galerie ansehen" })
+      .getByRole("link", { name: "Vorschau im neuen Tab" })
       .getAttribute("href")) ?? ""
   ).replace("/g/", "");
   await page
