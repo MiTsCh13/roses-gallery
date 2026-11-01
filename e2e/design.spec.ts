@@ -27,6 +27,14 @@ test("switch theme and viewport in the design editor, then persist", async ({
   await expect(view).toHaveAttribute("data-layout", "rows");
   await expect(view).toHaveAttribute("data-cover", "minimal");
 
+  // the preview follows the title field before anything is saved
+  await page
+    .locator("input[name=title][form=gallery-form]")
+    .fill("Neuer Titel");
+  await expect(
+    view.getByRole("heading", { name: "Neuer Titel" }),
+  ).toBeVisible();
+
   await page.getByRole("button", { name: "Mobil" }).click();
   await expect(page.getByTestId("design-preview")).toHaveAttribute(
     "data-viewport",
@@ -54,7 +62,7 @@ test("switch theme and viewport in the design editor, then persist", async ({
   // the logo upload already redirected to ?saved=1, so wait for the save itself
   await Promise.all([
     page.waitForResponse((r) => r.request().method() === "POST"),
-    page.getByRole("button", { name: "Design speichern" }).click(),
+    page.getByRole("button", { name: "Speichern", exact: true }).click(),
   ]);
   await expect(
     page.getByRole("status").filter({ hasText: "gespeichert" }).first(),
