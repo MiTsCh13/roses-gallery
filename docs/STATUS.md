@@ -4,7 +4,7 @@
 > und `docs/DECISIONS.md`. Log kurz halten (max. 10 Einträge, ältere löschen –
 > die Git-Historie bleibt).
 
-**Aktueller Meilenstein:** M11 – Überarbeitung Dashboard & Galerie-Editor (Wunsch Mitsch, D-140). M10 ist live (Rest: Rechtstexte, Postmark, Stripe-Live bei Mitsch). Danach Phase 2
+**Aktueller Meilenstein:** keiner offen – M11 abgeschlossen (D-147). Phase 2 (alles Priorität S) wartet auf Freigabe durch Mitsch. M10-Rest bei Mitsch: Rechtstexte, Postmark, Stripe-Live
 **Stand main:** M0–M3 und M5–M9 abgeschlossen (M2: Abnahme gegen echtes Stripe offen, D-006; M4: Original-URL live offen, D-117)
 
 ## Meilensteine
@@ -22,9 +22,16 @@
 | M8 | Zugriff, Downloads, Favoriten | ✅ fertig (Dashboard-Ansicht der Favoriten optional, nicht Teil des Kriteriums) |
 | M9 | Auslieferung & Statistik | ✅ fertig (Postmark live ungeprüft: nur Fake getestet) |
 | M10 | Härtung & Launch | ✅ live (Mitsch: Rechtstexte, Postmark, Stripe-Live offen) |
-| M11 | Überarbeitung Dashboard & Galerie-Editor | Schritte 1–8 + Folge-Migration fertig; Fertig-Kriterium prüfen |
+| M11 | Überarbeitung Dashboard & Galerie-Editor | ✅ fertig (Schritte 1–8 + Migration 0015; optionale Reste unten) |
 
-## Nächste Schritte (M11, in dieser Reihenfolge; ein Schritt = ein PR)
+## Optionale Reste aus M11 (niedrige Priorität, nicht Teil des Abschlusses)
+
+- [ ] Wasserzeichen-Standard ins Profil; „Passwort vergessen“ (derzeit = Anmeldelink)
+- [ ] Video-Original-Download/-Vorschau in der Bibliothek (D-145)
+- [ ] E2E-Test für „Als Titelbild“ im Medienpanel
+- [ ] Dashboard-Ansicht der Favoritenlisten je Galerie (CSV)
+
+## Nächste Schritte (M11, erledigt; ein Schritt = ein PR)
 
 Anlass: Rückmeldung von Mitsch nach dem ersten Live-Test (D-140). Reihenfolge so, dass jeder Schritt für sich lauffähig bleibt.
 
@@ -106,6 +113,8 @@ Anlass: Rückmeldung von Mitsch nach dem ersten Live-Test (D-140). Reihenfolge s
 
 ## Entscheidungsbedarf
 
+D-147: Phase 2 (P2-1 Premiere/Countdown usw.) besteht nur aus Anforderungen mit Priorität S. Freigabe und Reihenfolge durch Mitsch nötig; bis dahin nur optionale M11-Reste.
+
 D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (blockiert nur die Live-Abnahme des Original-Downloads, nicht M5).
 
 ## Umgebung (Cloud-Sessions)
@@ -117,6 +126,8 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+- 2026-11-01 (Routine 4): M11 abgeschlossen (main grün: pnpm check, 329 Tests). Phase 2 nicht begonnen (D-147). Cloud: `service postgresql start`, `redis-server --daemonize yes`, Rolle `roses`/DBs, `.env.local` aus `.env.example`.
 
 - 2026-11-01 (Routine 3): M11 Folge-Migration 0015 (`sets` entfernt, D-146), Tests ohne Sets-Fixtures (`linkAccountMedia`). Nächster Schritt: M11-Fertig-Kriterium gegen UMSETZUNGSPLAN prüfen, Video-Original-Download in die Bibliothek (optional). Cloud: `service postgresql start`, `redis-server --daemonize yes`, Rolle `roses`/DBs, `.env.local` aus `.env.example`.
 
