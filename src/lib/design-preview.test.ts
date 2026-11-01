@@ -15,7 +15,22 @@ describe("previewTiles", () => {
       { id: "b", type: "video" },
     ]);
     expect(tiles[0].src).toBe("/api/library/thumb/a");
-    expect(tiles[1]).toEqual({ id: "b" });
+    expect(tiles[1]).toEqual({ id: "b", aspect: undefined });
+  });
+
+  it("keeps real formats and skips photos that are still processing", () => {
+    const tiles = previewTiles([
+      {
+        id: "a",
+        type: "photo",
+        width: 3000,
+        height: 2000,
+        processingStatus: "ready",
+      },
+      { id: "b", type: "photo", processingStatus: "processing" },
+    ]);
+    expect(tiles[0].aspect).toBeCloseTo(1.5);
+    expect(tiles[1].src).toBeUndefined();
   });
 
   it("caps the number of tiles", () => {

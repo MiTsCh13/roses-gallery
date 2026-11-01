@@ -15,6 +15,7 @@ import { DOWNLOAD_POLICIES } from "@/lib/download-policy";
 import { readWatermarkConfig, WATERMARK_POSITIONS } from "@/lib/watermark";
 import { EVENT_TYPES, galleryStats } from "@/lib/events";
 import { requireAccount } from "@/lib/session";
+import { AutoRefresh } from "@/components/auto-refresh";
 import { CopyLinkButton } from "@/components/gallery-editor/copy-link-button";
 import { DesignFields } from "@/components/gallery-editor/design-fields";
 import { EditorState } from "@/components/gallery-editor/editor-state";
@@ -129,6 +130,12 @@ async function GalleryContent({
       initialConfig={design.config}
       themes={design.themes}
     >
+      <AutoRefresh
+        active={inGallery.some(
+          (m) =>
+            m.processingStatus !== "ready" && m.processingStatus !== "failed",
+        )}
+      />
       <form id={FORM} action={updateGalleryAction}>
         <input type="hidden" name="galleryId" value={gallery.id} />
         <input type="hidden" name="slug" value={gallery.slug} />
@@ -439,7 +446,11 @@ async function GalleryContent({
           <GalleryMediaPanel
             galleryId={gallery.id}
             coverMediaId={gallery.coverMediaId}
-            inGallery={inGallery.map((m) => ({ id: m.id, type: m.type }))}
+            inGallery={inGallery.map((m) => ({
+              id: m.id,
+              type: m.type,
+              ready: m.processingStatus === "ready",
+            }))}
             addable={addable.map((m) => ({ id: m.id, type: m.type }))}
           />
         </div>

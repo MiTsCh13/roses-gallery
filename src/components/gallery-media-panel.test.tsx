@@ -103,6 +103,49 @@ describe("GalleryMediaPanel delete", () => {
 });
 
 describe("Upload in die Galerie", () => {
+  it("zeigt einen Fortschrittsbalken während des Uploads", async () => {
+    let report: (loaded: number) => void = () => {};
+    let finish: (v: { mediaId: string }) => void = () => {};
+    upVideo.mockImplementationOnce(
+      (_f: File, o: { onProgress: (n: number) => void }) => {
+        report = o.onProgress;
+        return new Promise((r) => (finish = r));
+      },
+    );
+    setup();
+    const file = new File([new Uint8Array(1000)], "film.mp4", {
+      type: "video/mp4",
+    });
+    fireEvent.change(screen.getByTestId("gallery-file-input"), {
+      target: { files: [file] },
+    });
+    const bar = (await screen.findByRole("progressbar")) as HTMLProgressElement;
+    expect(bar.value).toBe(0);
+    report(250);
+    await screen.findByText("25 %");
+    expect(bar.value).toBe(250);
+    finish({ mediaId: "11111111-1111-4111-8111-111111111111" });
+    await screen.findByText("Hinzugefügt");
+    expect(screen.queryByRole("progressbar")).toBeNull();
+  });
+
+  it("zeigt noch nicht verarbeitete Fotos als Platzhalter", () => {
+    render(
+      <NextIntlClientProvider locale="de" messages={messages}>
+        <GalleryMediaPanel
+          galleryId="g1"
+          coverMediaId={null}
+          inGallery={[{ id: "n", type: "photo", ready: false }]}
+          addable={[]}
+        />
+      </NextIntlClientProvider>,
+    );
+    expect(screen.getByTestId("media-processing").textContent).toContain(
+      "verarbeitet",
+    );
+    expect(screen.queryByRole("img")).toBeNull();
+  });
+
   it("lädt per Datei-Auswahl hoch und fügt das Medium der Galerie hinzu", async () => {
     setup();
     const file = new File(["x"], "film.mp4", { type: "video/mp4" });

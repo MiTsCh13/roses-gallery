@@ -127,6 +127,8 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 
 ## Log
 
+- 2026-11-01 (Mitsch-Rückmeldungen 2): Upload-Fortschrittsbalken im Editor, „Wird verarbeitet“ statt weißer Kacheln, Galerie im echten Seitenverhältnis (D-150).
+
 - 2026-11-01 (Mitsch-Rückmeldungen): PR #87 Galerie-Ansicht (Video-Favoriten, Filter, Poster, ZIP direkt/Original, Teilen) und Editor-PR (Reihenfolge, ein Speichern, Link kopieren, Live-Vorschau, Mail-Entwurf), D-148/D-149. Cloud: `service postgresql start`, `redis-server --daemonize yes`, Rolle `roses`/DBs, `.env.local` aus `.env.example`. Offen: Video-Poster live prüfen (braucht CDN-Hostname + Token-Key, D-148).
 
 - 2026-11-01 (Routine 4): M11 abgeschlossen (main grün: pnpm check, 329 Tests). Phase 2 nicht begonnen (D-147). Cloud: `service postgresql start`, `redis-server --daemonize yes`, Rolle `roses`/DBs, `.env.local` aus `.env.example`.
@@ -144,8 +146,6 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 - 2026-10-31 (Routine): M11-5b-1 Reihenfolge der Galeriemedien per Ziehen/Buttons. Nächster Schritt: Rest 5b (Design inline, Live-Vorschau, Drag & Drop Upload), Folge-Migration `sets` entfernen. Cloud: `service postgresql start`, `redis-server --daemonize yes`, Rolle `roses`/DBs, `.env.local` aus `.env.example`.
 
 - 2026-10-31 (Routine): M11-7 öffentliche Ansicht ohne Sets (#78), M11-8 Aufräumen. Nächster Schritt: 5b und Folge-Migration (sets entfernen), siehe Schritt 8. Cloud: `service postgresql start`, `redis-server --daemonize yes`, Rolle `roses`/DBs, `.env.local` aus `.env.example`.
-
-- 2026-10-31 (Routine): M11-6 Versanddialog. Nächster Schritt: 5b (Design inline, Live-Vorschau, Drag & Drop, Reihenfolge) oder 7. Cloud: `service postgresql start`, `redis-server --daemonize yes`, Rolle `roses`/DBs, `.env.local` aus `.env.example`.
 
 - `/dashboard/library`: Ordner (anlegen/umbenennen/löschen), Foto+Video-Upload per Drag & Drop in den Ordner, Wiederholen, Mehrfachauswahl (verschieben/löschen), Nav-Eintrag. Unit- und E2E-Test. Nächster Schritt: 5 Galerie-Editor zweispaltig (groß, ggf. in 5a/5b teilen). Cloud: Postgres/Redis neu starten, Rolle `roses`/DBs anlegen.
 

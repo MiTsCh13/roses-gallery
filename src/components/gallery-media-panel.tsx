@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { browserTransport, uploadPhoto } from "@/lib/upload-client";
 import { uploadVideoFile } from "@/lib/video-upload-client";
 
-type Item = { id: string; type: "photo" | "video" };
+type Item = { id: string; type: "photo" | "video"; ready?: boolean };
 
 function Grid({
   items,
@@ -57,7 +57,14 @@ function Grid({
           className={dragId === m.id ? "opacity-50" : undefined}
         >
           <label className="relative block aspect-square cursor-pointer overflow-hidden rounded-md bg-muted">
-            {m.type === "photo" ? (
+            {m.type === "photo" && m.ready === false ? (
+              <span
+                data-testid="media-processing"
+                className="flex size-full animate-pulse items-center justify-center p-1 text-center text-xs text-muted-foreground"
+              >
+                {t("processing")}
+              </span>
+            ) : m.type === "photo" ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={`/api/library/thumb/${m.id}`}
@@ -105,7 +112,13 @@ export function GalleryMediaPanel({
   const fileInput = useRef<HTMLInputElement>(null);
   const [dropping, setDropping] = useState(false);
   const [uploads, setUploads] = useState<
-    { id: number; name: string; state: "uploading" | "done" | "error" }[]
+    {
+      id: number;
+      name: string;
+      state: "uploading" | "done" | "error";
+      loaded: number;
+      total: number;
+    }[]
   >([]);
   const nextUpload = useRef(0);
   const [picking, setPicking] = useState(false);
@@ -139,12 +152,16 @@ export function GalleryMediaPanel({
     const jobs = files.map((file) => ({ id: nextUpload.current++, file }));
     const mark = (id: number, state: "uploading" | "done" | "error") =>
       setUploads((all) => all.map((u) => (u.id === id ? { ...u, state } : u)));
+    const progress = (id: number, loaded: number) =>
+      setUploads((all) => all.map((u) => (u.id === id ? { ...u, loaded } : u)));
     setUploads((all) => [
       ...all,
       ...jobs.map((j) => ({
         id: j.id,
         name: j.file.name,
         state: "uploading" as const,
+        loaded: 0,
+        total: j.file.size,
       })),
     ]);
     const queue = [...jobs];
@@ -152,10 +169,12 @@ export function GalleryMediaPanel({
       for (let j = queue.shift(); j; j = queue.shift()) {
         try {
           const { mediaId } = j.file.type.startsWith("video/")
-            ? await uploadVideoFile(j.file)
+            ? await uploadVideoFile(j.file, {
+                onProgress: (loaded) => progress(j.id, loaded),
+              })
             : await uploadPhoto(j.file, browserTransport, {
                 signal: new AbortController().signal,
-                onProgress: () => {},
+                onProgress: (loaded) => progress(j.id, loaded),
               });
           await addGalleryMediaAction(galleryId, [mediaId]);
           mark(j.id, "done");
@@ -304,11 +323,23 @@ export function GalleryMediaPanel({
       {uploads.length > 0 && (
         <ul className="space-y-1 text-sm" data-testid="gallery-uploads">
           {uploads.map((u) => (
-            <li key={u.id} data-state={u.state} className="flex gap-2">
-              <span className="truncate">{u.name}</span>
-              <span className="text-muted-foreground">
-                {t(`upload.${u.state}`)}
-              </span>
+            <li key={u.id} data-state={u.state} className="space-y-1">
+              <div className="flex gap-2">
+                <span className="truncate">{u.name}</span>
+                <span className="ml-auto shrink-0 text-muted-foreground">
+                  {u.state === "uploading"
+                    ? `${Math.min(100, Math.round((u.loaded / Math.max(1, u.total)) * 100))} %`
+                    : t(`upload.${u.state}`)}
+                </span>
+              </div>
+              {u.state === "uploading" && (
+                <progress
+                  className="h-2 w-full"
+                  max={u.total}
+                  value={u.loaded}
+                  aria-label={u.name}
+                />
+              )}
             </li>
           ))}
         </ul>

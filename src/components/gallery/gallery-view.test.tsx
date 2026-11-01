@@ -107,4 +107,24 @@ describe("GalleryView", () => {
     // the player only loads after the visitor opens the tile
     expect(html).not.toContain("https://v.test/e/1");
   });
+
+  it("keeps the real format of each tile in every layout", () => {
+    const tiles = [
+      { id: "a", src: "/a.webp", aspect: 1.5 },
+      { id: "b", src: "/b.webp", aspect: 0.75 },
+      { id: "c", src: "/c.webp" },
+    ];
+    for (const layout of ["masonry", "uniform", "rows"] as const) {
+      const config = {
+        ...SYSTEM_THEMES[0].config,
+        grid: { ...SYSTEM_THEMES[0].config.grid, layout },
+      };
+      const html = renderToStaticMarkup(
+        <GalleryView config={config} title="T" tiles={tiles} />,
+      );
+      expect(html).toContain("aspect-ratio:1.5");
+      expect(html).toContain("aspect-ratio:0.75");
+      expect(html).not.toContain("aspect-square");
+    }
+  });
 });
