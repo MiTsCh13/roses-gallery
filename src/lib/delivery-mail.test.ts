@@ -6,6 +6,7 @@ import { createTestDb, resetDb } from "@/test/db";
 import {
   DEFAULT_BODY,
   DEFAULT_SUBJECT,
+  deliveryDraft,
   DeliveryError,
   fillTemplate,
   listDeliveries,
@@ -81,6 +82,31 @@ describe("helpers", () => {
   });
 });
 
+describe("deliveryDraft", () => {
+  const base = {
+    title: "Anna & Ben",
+    link: "https://roses.example/g/anna-ben",
+    creator: "Foto Rose",
+  };
+
+  it("fills in title, link and photographer, without placeholders", () => {
+    const d = deliveryDraft({ ...base, hasPassword: false });
+    expect(d.subject).toBe("Eure Galerie „Anna & Ben“ ist da ✨");
+    expect(d.body).toContain("Galerie „Anna & Ben“ fertig");
+    expect(d.body).toContain("https://roses.example/g/anna-ben");
+    expect(d.body.endsWith("Foto Rose")).toBe(true);
+    expect(d.body).not.toContain("{");
+    expect(d.body).not.toMatch(/\n{3,}/);
+    expect(d.body).not.toContain("passwortgeschützt");
+  });
+
+  it("mentions the password only for protected galleries", () => {
+    const d = deliveryDraft({ ...base, hasPassword: true });
+    expect(d.body).toContain("passwortgeschützt");
+    expect(d.body).toContain("teilt Euch Foto Rose separat mit");
+  });
+});
+
 describe("sendDeliveryMail", () => {
   it("sends text and HTML with the gallery link, logs and registers clients", async () => {
     const g = await gallery();
@@ -88,7 +114,7 @@ describe("sendDeliveryMail", () => {
     expect(result).toEqual({ sent: 2, failed: 0 });
 
     const mail = mailer.lastTo("anna@example.com")!;
-    expect(mail.subject).toBe("Deine Galerie „Anna & Ben“ ist fertig");
+    expect(mail.subject).toBe("Eure Galerie „Anna & Ben“ ist da ✨");
     expect(mail.text).toContain("https://roses.example/g/anna-ben");
     expect(mail.text).toContain("Foto Rose");
     expect(mail.text).not.toContain("{");

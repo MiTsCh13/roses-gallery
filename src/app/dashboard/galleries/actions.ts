@@ -80,7 +80,22 @@ export async function updateGalleryAction(formData: FormData) {
         watermarkEnabled: field(formData, "watermarkEnabled") === "on",
       },
     );
+    // the design controls belong to the same form: one Save for everything
+    const config = field(formData, "config");
+    if (config !== undefined) {
+      await saveGalleryDesign(
+        { db: db(), accountId: account.id },
+        {
+          galleryId,
+          themeId: field(formData, "themeId"),
+          config: JSON.parse(config),
+        },
+      );
+    }
   } catch (e) {
+    if (e instanceof SyntaxError) {
+      redirect(`/dashboard/galleries/${galleryId}?error=invalid`);
+    }
     redirect(`/dashboard/galleries/${galleryId}?error=${errorCode(e)}`);
   }
   revalidatePath("/dashboard/galleries");

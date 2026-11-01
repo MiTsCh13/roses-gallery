@@ -34,7 +34,7 @@ test("public gallery has no WCAG 2.1 AA violations", async ({
   await expect(page).toHaveURL(/\/dashboard\/galleries\/[0-9a-f-]{36}$/);
   const slug = (
     (await page
-      .getByRole("link", { name: "Galerie ansehen" })
+      .getByRole("link", { name: "Vorschau im neuen Tab" })
       .getAttribute("href")) ?? ""
   ).replace("/g/", "");
   await page

@@ -37,21 +37,42 @@ test("create a gallery, edit it and add library media", async ({
 
   await expect(page).toHaveURL(/\/dashboard\/galleries\/[0-9a-f-]{36}$/);
   await expect(
-    page.getByRole("heading", { name: "Anna & Jörg" }),
+    page.getByRole("heading", { name: "Anna & Jörg", level: 1 }).first(),
   ).toBeVisible();
+  // the gallery itself is the live preview; a link opens the public page
+  await expect(page.getByTestId("gallery-view")).toBeVisible();
   await expect(
-    page.getByRole("link", { name: "Galerie ansehen" }),
+    page.getByRole("link", { name: "Vorschau im neuen Tab" }),
   ).toHaveAttribute("href", /^\/g\/anna-joerg(-\d+)?$/);
+  await expect(
+    page.getByRole("button", { name: "Link kopieren" }),
+  ).toBeVisible();
 
   await page
     .getByRole("combobox", { name: "Status" })
     .selectOption("published");
+  // sections in the agreed order
+  await expect(page.locator("main details > summary")).toHaveText([
+    "Allgemein",
+    "Design",
+    "Passwortschutz",
+    "Zugang & Ablauf",
+    "Downloads",
+    "Statistik",
+  ]);
   await page.getByRole("button", { name: "Speichern" }).click();
   await expect(page.getByRole("status")).toHaveText("Gespeichert.");
 
   // Delivery mail: edited text, placeholders filled, logged.
   const client = `kunde+${testInfo.project.name}-${Date.now()}@example.com`;
   await page.getByRole("button", { name: "An Kunden senden" }).click();
+  // the draft is already personalised for this gallery
+  await expect(page.locator("input[name=subject]")).toHaveValue(
+    "Eure Galerie „Anna & Jörg“ ist da ✨",
+  );
+  await expect(page.locator("textarea[name=body]")).toHaveValue(
+    /Galerie „Anna & Jörg“ fertig[\s\S]*\/g\/anna-joerg/,
+  );
   await page.getByLabel(/^Empfänger/).fill(client);
   await page.locator("textarea[name=body]").fill("Schau mal: {link}");
   await page.getByRole("button", { name: "Mail senden" }).click();
@@ -61,7 +82,7 @@ test("create a gallery, edit it and add library media", async ({
     `/api/test/mailbox?to=${encodeURIComponent(client)}`,
   );
   const mail = await mailRes.json();
-  expect(mail.subject).toBe("Deine Galerie „Anna & Jörg“ ist fertig");
+  expect(mail.subject).toBe("Eure Galerie „Anna & Jörg“ ist da ✨");
   expect(mail.text).toMatch(/Schau mal: https?:\/\/\S+\/g\/anna-joerg/);
 
   // Media come from the library: upload a video there, let the (fake) provider

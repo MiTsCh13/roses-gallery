@@ -308,7 +308,10 @@
     "blockGeneral": "Allgemein",
     "blockAccess": "Zugang & Ablauf",
     "expiresHint": "Kein Datum = kein Ablauf.",
-    "view": "Galerie ansehen ↗"
+    "view": "Galerie ansehen ↗",
+    "copyLink": "Link kopieren",
+    "linkCopied": "Link kopiert ✓",
+    "linkCopyFailed": "Kopieren nicht möglich"
   },
   "Design": {
     "title": "Design",
@@ -354,6 +357,7 @@
     "desktop": "Desktop",
     "mobile": "Mobil",
     "previewSubtitle": "Vorschau",
+    "openPreview": "Vorschau im neuen Tab ↗",
     "error": {
       "invalid": "Ungültiges Design.",
       "not_found": "Galerie oder Theme nicht gefunden.",
