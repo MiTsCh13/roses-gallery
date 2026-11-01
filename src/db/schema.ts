@@ -167,6 +167,8 @@ export const galleries = pgTable(
       .references(() => accounts.id, { onDelete: "cascade" }),
     slug: text("slug").notNull(),
     title: text("title").notNull(),
+    // short info line shown under the title; null = none
+    description: text("description"),
     eventDate: timestamp("event_date", { withTimezone: true, mode: "date" }),
     status: galleryStatus("status").notNull().default("draft"),
     themeId: uuid("theme_id").references(() => themes.id, {

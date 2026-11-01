@@ -20,7 +20,10 @@ import { CopyLinkButton } from "@/components/gallery-editor/copy-link-button";
 import { DesignFields } from "@/components/gallery-editor/design-fields";
 import { EditorState } from "@/components/gallery-editor/editor-state";
 import { LivePreview } from "@/components/gallery-editor/live-preview";
-import { TitleField } from "@/components/gallery-editor/title-field";
+import {
+  DescriptionField,
+  TitleField,
+} from "@/components/gallery-editor/title-field";
 import { logoUrl } from "@/lib/branding";
 import { galleryDesign } from "@/lib/gallery-design";
 import { getStorage } from "@/lib/storage";
@@ -126,6 +129,7 @@ async function GalleryContent({
   return (
     <EditorState
       initialTitle={gallery.title}
+      initialDescription={gallery.description ?? ""}
       initialThemeId={design.themeId}
       initialConfig={design.config}
       themes={design.themes}
@@ -237,6 +241,13 @@ async function GalleryContent({
             <label className="block space-y-1 text-sm">
               <span>{t("fieldTitle")}</span>
               <TitleField form={FORM} />
+            </label>
+            <label className="block space-y-1 text-sm">
+              <span>{t("fieldDescription")}</span>
+              <DescriptionField form={FORM} label={t("fieldDescription")} />
+              <span className="block text-xs text-muted-foreground">
+                {t("descriptionHint")}
+              </span>
             </label>
             <label className="block space-y-1 text-sm">
               <span>{t("fieldEventDate")}</span>

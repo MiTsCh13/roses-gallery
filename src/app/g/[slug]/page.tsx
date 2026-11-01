@@ -144,6 +144,7 @@ async function GalleryContent({
         <GalleryView
           config={gallery.config}
           title={gallery.title}
+          subtitle={gallery.description ?? undefined}
           logoUrl={gallery.logoUrl ?? undefined}
           coverUrl={gallery.coverUrl ?? undefined}
           coverSrcSet={gallery.coverSrcSet ?? undefined}

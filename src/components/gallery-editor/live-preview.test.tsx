@@ -22,6 +22,7 @@ function setup() {
     <NextIntlClientProvider locale="de" messages={messages}>
       <EditorState
         initialTitle="Anna & Ben"
+        initialDescription="Hochzeit am See"
         initialThemeId="t0"
         initialConfig={themes[0].config}
         themes={themes}
@@ -48,6 +49,7 @@ describe("live preview", () => {
     const themes = setup();
     const view = screen.getByTestId("gallery-view");
     expect(view.textContent).toContain("Anna & Ben");
+    expect(view.textContent).toContain("Hochzeit am See");
     fireEvent.change(screen.getByRole("textbox"), {
       target: { value: "Lena & Tom" },
     });

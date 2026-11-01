@@ -309,6 +309,8 @@
     "blockAccess": "Zugang & Ablauf",
     "expiresHint": "Kein Datum = kein Ablauf.",
     "view": "Galerie ansehen ↗",
+    "fieldDescription": "Info",
+    "descriptionHint": "Kurzer Text unter dem Titel in der Galerie (optional).",
     "copyLink": "Link kopieren",
     "linkCopied": "Link kopiert ✓",
     "linkCopyFailed": "Kopieren nicht möglich"

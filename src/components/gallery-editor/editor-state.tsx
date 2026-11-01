@@ -15,6 +15,8 @@ export type ThemeOption = { id: string; name: string; config: ThemeConfig };
 type State = {
   title: string;
   setTitle: (title: string) => void;
+  description: string;
+  setDescription: (description: string) => void;
   themeId: string;
   config: ThemeConfig;
   themes: ThemeOption[];
@@ -37,18 +39,21 @@ export function useEditorState() {
  */
 export function EditorState({
   initialTitle,
+  initialDescription,
   initialThemeId,
   initialConfig,
   themes,
   children,
 }: {
   initialTitle: string;
+  initialDescription: string;
   initialThemeId: string;
   initialConfig: ThemeConfig;
   themes: ThemeOption[];
   children: ReactNode;
 }) {
   const [title, setTitle] = useState(initialTitle);
+  const [description, setDescription] = useState(initialDescription);
   const [themeId, setThemeId] = useState(initialThemeId);
   const [config, setConfigState] = useState(initialConfig);
 
@@ -56,6 +61,8 @@ export function EditorState({
     () => ({
       title,
       setTitle,
+      description,
+      setDescription,
       themeId,
       config,
       themes,
@@ -67,7 +74,7 @@ export function EditorState({
       },
       setConfig: (update) => setConfigState(update),
     }),
-    [title, themeId, config, themes],
+    [title, description, themeId, config, themes],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
