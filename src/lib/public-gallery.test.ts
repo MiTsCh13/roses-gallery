@@ -239,6 +239,21 @@ describe("loadPublicGallery", () => {
     expect(v.durationS).toBe(90);
     expect(v.playUrl).toContain("/api/test/player/v-ready?");
     expect(v.hlsUrl).toBeUndefined();
+    expect(v.posterUrl).toBeUndefined();
+    // a provider with posters exposes the signed URL
+    class PosterVideo extends FakeVideoProvider {
+      signThumbnailUrl(id = "") {
+        return `https://cdn.test/${id}/thumbnail.jpg?token=t`;
+      }
+    }
+    const withPoster = await loadOpen(
+      { db, storage, video: new PosterVideo() },
+      "anna-ben",
+    );
+    const pv = withPoster!.items[0];
+    expect(pv.kind === "video" && pv.posterUrl).toBe(
+      "https://cdn.test/v-ready/thumbnail.jpg?token=t",
+    );
     // without a provider no video is exposed
     const none = await loadOpen({ db, storage }, "anna-ben");
     expect(none?.items.map((i) => i.kind)).toEqual(["photo"]);

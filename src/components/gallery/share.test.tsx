@@ -4,7 +4,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import messages from "../../../messages/de.json";
-import { ShareLinkButton, StoryShareButton } from "./share";
+import { ShareLinkButton, PhotoShareButton } from "./share";
 
 const wrap = (ui: React.ReactNode) =>
   render(
@@ -43,31 +43,42 @@ describe("ShareLinkButton", () => {
   });
 });
 
-describe("StoryShareButton", () => {
+describe("PhotoShareButton", () => {
   const stubFetch = (ok: boolean) =>
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({
         ok,
-        blob: async () => new Blob(["x"], { type: "image/jpeg" }),
+        blob: async () => new Blob(["x"], { type: "image/webp" }),
       }),
     );
 
-  it("shares the image as a file when the browser can", async () => {
+  it("shares the photo as a file when the browser can", async () => {
     stubFetch(true);
     const share = vi.fn().mockResolvedValue(undefined);
     Object.assign(navigator, { share, canShare: () => true });
-    wrap(<StoryShareButton url="/api/g/a/story/1" fileName="a.jpg" />);
-    fireEvent.click(screen.getByRole("button", { name: "Als Story teilen" }));
+    wrap(<PhotoShareButton url="/api/g/a/download/1" fileName="a.webp" />);
+    fireEvent.click(screen.getByRole("button", { name: "Teilen" }));
     await vi.waitFor(() => expect(share).toHaveBeenCalled());
     const file = share.mock.calls[0][0].files[0] as File;
-    expect([file.name, file.type]).toEqual(["a.jpg", "image/jpeg"]);
+    expect([file.name, file.type]).toEqual(["a.webp", "image/webp"]);
   });
 
-  it("reports a failed render", async () => {
+  it("falls back to the gallery link where files cannot be shared", async () => {
+    stubFetch(true);
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.assign(navigator, { clipboard: { writeText } });
+    wrap(<PhotoShareButton url="/api/g/a/download/1" fileName="a.webp" />);
+    fireEvent.click(screen.getByRole("button", { name: "Teilen" }));
+    await screen.findByText("Link kopiert.");
+    expect(writeText).toHaveBeenCalled();
+  });
+
+  it("reports a failed download", async () => {
     stubFetch(false);
-    wrap(<StoryShareButton url="/api/g/a/story/1" fileName="a.jpg" />);
-    fireEvent.click(screen.getByRole("button", { name: "Als Story teilen" }));
-    await screen.findByText("Das Bild konnte nicht erstellt werden.");
+    Object.assign(navigator, { canShare: () => true });
+    wrap(<PhotoShareButton url="/api/g/a/download/1" fileName="a.webp" />);
+    fireEvent.click(screen.getByRole("button", { name: "Teilen" }));
+    await screen.findByText("Das Foto konnte nicht geteilt werden.");
   });
 });

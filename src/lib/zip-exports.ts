@@ -20,7 +20,8 @@ export const ZIP_URL_TTL_SECONDS = 60;
 export const zipRequestSchema = z.object({
   slug: z.string().min(1).max(200),
   size: z.enum(["web", "original"]),
-  email: z.email().max(254),
+  /** Omitted for a direct download in the browser (no mail is sent). */
+  email: z.email().max(254).optional(),
 });
 export type ZipRequest = z.infer<typeof zipRequestSchema>;
 
@@ -139,7 +140,7 @@ export async function requestZipExport(
       accountId: gallery.accountId,
       galleryId: gallery.id,
       size: req.size,
-      email: req.email.trim().toLowerCase(),
+      email: req.email?.trim().toLowerCase() ?? "",
       expiresAt: new Date(now.getTime() + ZIP_LINK_TTL_MS),
     })
     .returning({ id: zipExports.id });
@@ -225,6 +226,8 @@ export async function buildZipExport(
       );
   }
 
+  // direct downloads (no address) are fetched by the visitor's browser
+  if (!row.email) return { status: "ready" as const };
   const link = `${baseUrl.replace(/\/$/, "")}/api/g/${encodeURIComponent(gallery.slug)}/zip/${row.id}`;
   const until = row.expiresAt.toLocaleDateString("de-DE");
   await mailer.send({
@@ -233,6 +236,28 @@ export async function buildZipExport(
     text: `Dein ZIP-Download für „${gallery.title}“ ist bereit:\n\n${link}\n\nDer Link ist bis zum ${until} gültig.`,
   });
   return { status: "ready" as const };
+}
+
+export type ZipStatus = "pending" | "ready" | "failed" | "gone";
+
+/** Build progress of an export, for the browser polling a direct download. */
+export async function getZipStatus(
+  deps: { db: Db; now?: Date },
+  input: { slug: string; exportId: string },
+): Promise<ZipStatus> {
+  if (!z.uuid().safeParse(input.exportId).success) return "gone";
+  const [row] = await deps.db
+    .select({ status: zipExports.status, expiresAt: zipExports.expiresAt })
+    .from(zipExports)
+    .innerJoin(galleries, eq(galleries.id, zipExports.galleryId))
+    .where(
+      and(eq(zipExports.id, input.exportId), eq(galleries.slug, input.slug)),
+    )
+    .limit(1);
+  if (!row || row.expiresAt <= (deps.now ?? new Date())) return "gone";
+  return row.status === "ready" || row.status === "failed"
+    ? row.status
+    : "pending";
 }
 
 export type ZipDownloadResult = { ok: true; url: string } | { ok: false };

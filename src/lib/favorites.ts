@@ -228,7 +228,7 @@ export async function deleteList(
     );
 }
 
-/** Adds the photo to the list, or removes it if it is already there. */
+/** Adds the photo or video to the list, or removes it if it is already there. */
 export async function toggleFavorite(
   deps: Deps,
   gallery: Gallery,
@@ -251,11 +251,10 @@ export async function toggleFavorite(
         eq(media.id, input.mediaId),
         eq(media.accountId, gallery.accountId),
         eq(galleryMedia.galleryId, gallery.id),
-        eq(media.type, "photo"),
       ),
     )
     .limit(1);
-  if (!photo) throw new FavoritesError("not_found", "Photo not found.");
+  if (!photo) throw new FavoritesError("not_found", "Media not found.");
 
   const where = and(
     eq(favorites.listId, list.id),
@@ -370,25 +369,36 @@ export async function sendListToCreator(
 
   // photo numbers follow the gallery order, matching what the visitor sees
   const all = await deps.db
-    .select({ id: media.id })
+    .select({ id: media.id, type: media.type })
     .from(galleryMedia)
     .innerJoin(media, eq(media.id, galleryMedia.mediaId))
     .where(
       and(
         eq(galleryMedia.accountId, gallery.accountId),
         eq(galleryMedia.galleryId, gallery.id),
-        eq(media.type, "photo"),
         eq(media.processingStatus, "ready"),
       ),
     )
     .orderBy(asc(galleryMedia.position), asc(media.createdAt));
-  const numberOf = new Map(all.map((p, i) => [p.id, i + 1]));
-  const nums = rows.map((r) => numberOf.get(r.m.id) ?? 0).sort((x, y) => x - y);
-  const lines = [`Fotos: ${nums.join(", ")}`];
+  // photos and videos are numbered separately, as the visitor sees them
+  const numberOf = new Map<string, number>();
+  const counters = { photo: 0, video: 0 };
+  for (const item of all) numberOf.set(item.id, ++counters[item.type]);
+  const numbers = (type: "photo" | "video") =>
+    rows
+      .filter((r) => r.m.type === type)
+      .map((r) => numberOf.get(r.m.id) ?? 0)
+      .sort((x, y) => x - y);
+  const photoNums = numbers("photo");
+  const videoNums = numbers("video");
+  const lines = [
+    ...(photoNums.length ? [`Fotos: ${photoNums.join(", ")}`] : []),
+    ...(videoNums.length ? [`Videos: ${videoNums.join(", ")}`] : []),
+  ];
   const who = visitor.email ?? "ein Gast";
   const mail = {
     subject: `Favoritenliste „${list.name}“ – ${gallery.title}`,
-    text: `${who} hat die Liste „${list.name}“ (${rows.length} Fotos) aus der Galerie „${gallery.title}“ gesendet:\n\n${lines.join("\n")}\n\nGalerie: ${deps.baseUrl}/g/${encodeURIComponent(gallery.slug)}`,
+    text: `${who} hat die Liste „${list.name}“ (${rows.length} Medien) aus der Galerie „${gallery.title}“ gesendet:\n\n${lines.join("\n")}\n\nGalerie: ${deps.baseUrl}/g/${encodeURIComponent(gallery.slug)}`,
   };
   for (const address of to) await deps.mailer.send({ ...mail, to: address });
   return { count: rows.length };
