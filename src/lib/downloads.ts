@@ -3,9 +3,7 @@ import { z } from "zod";
 
 import type { Db } from "@/db";
 import { galleries, galleryMedia, media } from "@/db/schema";
-import { tenantDb } from "@/db/tenant";
-import { allows, downloadPolicySchema } from "@/lib/download-policy";
-import { GalleryError } from "@/lib/galleries";
+import { allows } from "@/lib/download-policy";
 import { recordEvent } from "@/lib/events";
 import { ensureWatermarked } from "@/lib/watermark";
 import { verifyAccessToken } from "@/lib/gallery-access";
@@ -13,23 +11,6 @@ import type { PhotoVariants } from "@/lib/photos";
 import type { Storage } from "@/lib/storage/types";
 
 export const DOWNLOAD_URL_TTL_SECONDS = 60;
-
-/** Sets a set's policy; `null` = inherit from the gallery. */
-export async function setSetDownloadPolicy(
-  deps: { db: Db; accountId: string },
-  setId: string,
-  policy: unknown,
-) {
-  z.uuid().parse(setId);
-  const value =
-    policy === "inherit" || policy === null
-      ? null
-      : downloadPolicySchema.parse(policy);
-  const row = await tenantDb(deps.db, deps.accountId).sets.update(setId, {
-    downloadPolicy: value,
-  });
-  if (!row) throw new GalleryError("not_found", "Set not found.");
-}
 
 export type DownloadResult =
   { ok: true; url: string } | { ok: false; reason: "not_found" | "forbidden" };

@@ -26,7 +26,6 @@ export type UploadTransport = {
 };
 
 export type UploadOptions = {
-  setId?: string;
   folderId?: string;
   signal: AbortSignal;
   onProgress: (loaded: number, total: number) => void;
@@ -49,7 +48,6 @@ export async function uploadPhoto(
   file: File,
   transport: UploadTransport,
   {
-    setId,
     folderId,
     signal,
     onProgress,
@@ -61,7 +59,6 @@ export async function uploadPhoto(
 
   const start = (await transport
     .post("start", {
-      setId,
       folderId,
       contentType: file.type,
       sizeBytes: file.size,

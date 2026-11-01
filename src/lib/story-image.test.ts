@@ -5,9 +5,9 @@ import path from "node:path";
 import sharp from "sharp";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 
-import { accounts, galleries, media, sets } from "@/db/schema";
+import { accounts, galleries, media } from "@/db/schema";
 import { FakeStorage } from "@/lib/storage/fake";
-import { createTestDb, resetDb, linkSetMedia } from "@/test/db";
+import { createTestDb, resetDb, linkAccountMedia } from "@/test/db";
 import { renderStory, resolveStoryImage } from "./story-image";
 
 const { db, close } = createTestDb();
@@ -26,7 +26,6 @@ const photo = (w: number, h: number) =>
 
 async function setup(
   galleryValues: Partial<typeof galleries.$inferInsert> = {},
-  setPolicy: "none" | "web" | "original" | null = null,
 ) {
   const [g] = await db
     .insert(galleries)
@@ -38,20 +37,10 @@ async function setup(
       ...galleryValues,
     })
     .returning();
-  const [set] = await db
-    .insert(sets)
-    .values({
-      accountId,
-      galleryId: g.id,
-      title: "T",
-      downloadPolicy: setPolicy,
-    })
-    .returning();
   const [m] = await db
     .insert(media)
     .values({
       accountId,
-      setId: set.id,
       type: "photo",
       processingStatus: "ready",
       variants: {
@@ -65,7 +54,7 @@ async function setup(
     })
     .returning();
   await storage.put(`${accountId}/m/r1-1200.webp`, await photo(1200, 800));
-  await linkSetMedia(db);
+  await linkAccountMedia(db, g.id);
   return m;
 }
 

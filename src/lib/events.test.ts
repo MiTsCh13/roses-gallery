@@ -4,9 +4,9 @@ import path from "node:path";
 
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 
-import { accounts, events, galleries, media, sets } from "@/db/schema";
+import { accounts, events, galleries, media } from "@/db/schema";
 import { FakeStorage } from "@/lib/storage/fake";
-import { createTestDb, resetDb, linkSetMedia } from "@/test/db";
+import { createTestDb, resetDb, linkAccountMedia } from "@/test/db";
 import { resolvePhotoDownload } from "./downloads";
 import {
   cleanupOldEvents,
@@ -38,15 +38,10 @@ beforeEach(async () => {
       status: "published",
     })
     .returning();
-  const [set] = await db
-    .insert(sets)
-    .values({ accountId: a.id, galleryId: gallery.id, title: "T" })
-    .returning();
   const [p] = await db
     .insert(media)
     .values({
       accountId: a.id,
-      setId: set.id,
       type: "photo",
       processingStatus: "ready",
       variants: {
@@ -58,12 +53,11 @@ beforeEach(async () => {
     .insert(media)
     .values({
       accountId: a.id,
-      setId: set.id,
       type: "video",
       processingStatus: "ready",
     })
     .returning();
-  await linkSetMedia(db);
+  await linkAccountMedia(db, gallery.id);
   photoId = p.id;
   videoId = v.id;
 });

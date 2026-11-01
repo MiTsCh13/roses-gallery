@@ -29,7 +29,6 @@ export const downloadPolicy = pgEnum("download_policy", [
   "web",
   "original",
 ]);
-export const setType = pgEnum("set_type", ["photo", "video"]);
 export const mediaType = pgEnum("media_type", ["photo", "video"]);
 export const processingStatus = pgEnum("processing_status", [
   "pending",
@@ -196,28 +195,6 @@ export const galleries = pgTable(
   ],
 );
 
-export const sets = pgTable(
-  "sets",
-  {
-    id: id(),
-    accountId: uuid("account_id")
-      .notNull()
-      .references(() => accounts.id, { onDelete: "cascade" }),
-    galleryId: uuid("gallery_id")
-      .notNull()
-      .references(() => galleries.id, { onDelete: "cascade" }),
-    title: text("title").notNull(),
-    type: setType("type").notNull().default("photo"),
-    position: integer("position").notNull().default(0),
-    downloadPolicy: downloadPolicy("download_policy"),
-    createdAt: createdAt(),
-  },
-  (t) => [
-    index("sets_account_idx").on(t.accountId),
-    index("sets_gallery_idx").on(t.galleryId, t.position),
-  ],
-);
-
 // Library folders (D-142); nested via parentId, optional for media.
 export const folders = pgTable(
   "folders",
@@ -242,9 +219,6 @@ export const media = pgTable(
     accountId: uuid("account_id")
       .notNull()
       .references(() => accounts.id, { onDelete: "cascade" }),
-    // Legacy (D-142): sets are being replaced by the library; removed in M11-8.
-    // Null for media uploaded straight into the library.
-    setId: uuid("set_id").references(() => sets.id, { onDelete: "cascade" }),
     folderId: uuid("folder_id").references(() => folders.id, {
       onDelete: "set null",
     }),
@@ -267,10 +241,7 @@ export const media = pgTable(
       .default("pending"),
     createdAt: createdAt(),
   },
-  (t) => [
-    index("media_account_idx").on(t.accountId),
-    index("media_set_idx").on(t.setId, t.position),
-  ],
+  (t) => [index("media_account_idx").on(t.accountId)],
 );
 
 // Assigns library media to galleries (D-142): a medium may sit in several
@@ -312,8 +283,6 @@ export const zipExports = pgTable(
     galleryId: uuid("gallery_id")
       .notNull()
       .references(() => galleries.id, { onDelete: "cascade" }),
-    // null = all downloadable sets of the gallery
-    setId: uuid("set_id").references(() => sets.id, { onDelete: "cascade" }),
     size: text("size").notNull().$type<"web" | "original">(),
     email: text("email").notNull(),
     status: zipStatus("status").notNull().default("pending"),

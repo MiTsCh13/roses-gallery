@@ -33,7 +33,7 @@ let dir: string;
 let storage: FakeStorage;
 let accountId: string;
 let otherId: string;
-let setId: string;
+let folderId: string;
 
 const deps = () => ({ db, storage, accountId });
 
@@ -45,13 +45,8 @@ beforeEach(async () => {
     .insert(accounts)
     .values([{ name: "A" }, { name: "B" }])
     .returning();
-  const gallery = await tenantDb(db, accountId).galleries.create({
-    slug: "g",
-    title: "G",
-  });
-  ({ id: setId } = await tenantDb(db, accountId).sets.create({
-    galleryId: gallery.id,
-    title: "S",
+  ({ id: folderId } = await tenantDb(db, accountId).folders.create({
+    name: "F",
   }));
 });
 afterEach(() => rm(dir, { recursive: true, force: true }));
@@ -59,7 +54,7 @@ afterAll(() => close());
 
 async function uploadAll(body: Buffer) {
   const start = await startUpload(deps(), {
-    setId,
+    folderId,
     contentType: "image/jpeg",
     sizeBytes: body.length,
   });
@@ -68,7 +63,7 @@ async function uploadAll(body: Buffer) {
 }
 
 describe("library uploads", () => {
-  it("creates a photo without a set in the given folder", async () => {
+  it("creates a photo in the given folder", async () => {
     const t = tenantDb(db, accountId);
     const folder = await t.folders.create({ name: "F" });
     const start = await startUpload(deps(), {
@@ -77,7 +72,6 @@ describe("library uploads", () => {
       sizeBytes: 10,
     });
     const row = await t.media.get(start.mediaId);
-    expect(row?.setId).toBeNull();
     expect(row?.folderId).toBe(folder.id);
   });
 
@@ -136,18 +130,22 @@ describe("uploads", () => {
 
   it("rejects invalid input", async () => {
     await expect(
-      startUpload(deps(), { setId, contentType: "text/html", sizeBytes: 1 }),
+      startUpload(deps(), { folderId, contentType: "text/html", sizeBytes: 1 }),
     ).rejects.toBeInstanceOf(ZodError);
     await expect(
-      startUpload(deps(), { setId, contentType: "image/jpeg", sizeBytes: 0 }),
+      startUpload(deps(), {
+        folderId,
+        contentType: "image/jpeg",
+        sizeBytes: 0,
+      }),
     ).rejects.toBeInstanceOf(ZodError);
   });
 
-  it("does not use another account's set or media", async () => {
+  it("does not use another account's folder or media", async () => {
     await expect(
       startUpload(
         { db, storage, accountId: otherId },
-        { setId, contentType: "image/jpeg", sizeBytes: 10 },
+        { folderId, contentType: "image/jpeg", sizeBytes: 10 },
       ),
     ).rejects.toMatchObject({ code: "not_found" });
 
@@ -166,13 +164,17 @@ describe("uploads", () => {
       .set({ storageUsedBytes: 2 * 1024 ** 3 - 5 })
       .where(eq(accounts.id, accountId));
     await expect(
-      startUpload(deps(), { setId, contentType: "image/jpeg", sizeBytes: 10 }),
+      startUpload(deps(), {
+        folderId,
+        contentType: "image/jpeg",
+        sizeBytes: 10,
+      }),
     ).rejects.toBeInstanceOf(PlanLimitError);
   });
 
   it("re-checks the real size on completion and cleans up", async () => {
     const start = await startUpload(deps(), {
-      setId,
+      folderId,
       contentType: "image/jpeg",
       sizeBytes: 3,
     });

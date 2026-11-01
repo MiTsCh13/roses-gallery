@@ -5,8 +5,8 @@ import path from "node:path";
 
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 
-import { accounts, galleries, media, sets, zipExports } from "@/db/schema";
-import { createTestDb, resetDb, linkSetMedia } from "@/test/db";
+import { accounts, galleries, media, zipExports } from "@/db/schema";
+import { createTestDb, resetDb, linkAccountMedia } from "@/test/db";
 import { FakeMailer } from "@/lib/mailer";
 import { FakeStorage } from "@/lib/storage/fake";
 import {
@@ -41,7 +41,6 @@ const ask = (
 
 async function setup(
   galleryValues: Partial<typeof galleries.$inferInsert> = {},
-  setPolicy: "none" | "web" | "original" | null = null,
 ) {
   const [g] = await db
     .insert(galleries)
@@ -54,22 +53,12 @@ async function setup(
       ...galleryValues,
     })
     .returning();
-  const [set] = await db
-    .insert(sets)
-    .values({
-      accountId,
-      galleryId: g.id,
-      title: "Trauung / Kirche",
-      downloadPolicy: setPolicy,
-    })
-    .returning();
   const keys: string[] = [];
   for (let i = 1; i <= 2; i++) {
     const [m] = await db
       .insert(media)
       .values({
         accountId,
-        setId: set.id,
         type: "photo",
         processingStatus: "ready",
         position: i,
@@ -92,8 +81,8 @@ async function setup(
     );
     keys.push(m.id);
   }
-  await linkSetMedia(db);
-  return { g, set, keys };
+  await linkAccountMedia(db, g.id);
+  return { g, keys };
 }
 
 beforeEach(async () => {
