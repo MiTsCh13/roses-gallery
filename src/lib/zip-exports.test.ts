@@ -11,6 +11,7 @@ import { FakeMailer } from "@/lib/mailer";
 import { FakeStorage } from "@/lib/storage/fake";
 import {
   buildZipExport,
+  getZipStatus,
   cleanupExpiredZips,
   requestZipExport,
   resolveZipDownload,
@@ -191,6 +192,31 @@ describe("buildZipExport", () => {
     expect(done.status).toBe("ready");
     expect((await storage.head(done.storageKey!))?.size).toBeGreaterThan(0);
     expect(row.size).toBe("original");
+  });
+
+  it("builds a direct download without an address and sends no mail", async () => {
+    await setup();
+    await ask("anna-ben", { email: undefined });
+    const [row] = await db.select().from(zipExports);
+    expect(row.email).toBe("");
+    expect(
+      await getZipStatus({ db }, { slug: "anna-ben", exportId: row.id }),
+    ).toBe("pending");
+    const { result, mailer } = await build();
+    expect(result.status).toBe("ready");
+    expect(mailer.outbox).toHaveLength(0);
+    expect(
+      await getZipStatus({ db }, { slug: "anna-ben", exportId: row.id }),
+    ).toBe("ready");
+    expect(
+      await getZipStatus({ db }, { slug: "other", exportId: row.id }),
+    ).toBe("gone");
+    expect(
+      await resolveZipDownload(
+        { db, storage },
+        { slug: "anna-ben", exportId: row.id },
+      ),
+    ).toMatchObject({ ok: true });
   });
 
   it("does not rebuild on retry but sends the mail again", async () => {

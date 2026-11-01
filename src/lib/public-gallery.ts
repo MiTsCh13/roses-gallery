@@ -65,6 +65,8 @@ export type PublicVideo = {
   playUrl: string;
   /** Signed HLS playlist for the own player; absent → embed iframe. */
   hlsUrl?: string;
+  /** Signed poster image; absent → placeholder tile. */
+  posterUrl?: string;
 };
 export type PublicItem = PublicPhoto | PublicVideo;
 
@@ -172,6 +174,9 @@ export async function loadPublicGallery(
         ),
         hlsUrl:
           deps.video.signHlsUrl(m.bunnyVideoId, VIDEO_URL_TTL_SECONDS) ??
+          undefined,
+        posterUrl:
+          deps.video.signThumbnailUrl(m.bunnyVideoId, VIDEO_URL_TTL_SECONDS) ??
           undefined,
       });
       continue;

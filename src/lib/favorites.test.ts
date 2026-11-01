@@ -235,4 +235,39 @@ describe("export to the creator", () => {
     expect(mail.text).toContain("Fotos: 1, 3");
     expect(mail.text).toContain("https://roses.test/g/anna-ben");
   });
+
+  it("accepts videos as favorites and lists them separately", async () => {
+    const [video] = await db
+      .insert(media)
+      .values({
+        accountId,
+        type: "video",
+        processingStatus: "ready",
+        position: 9,
+      })
+      .returning();
+    await linkAccountMedia(db, gallery.id);
+    const v = await createGuest({ db }, gallery);
+    const list = await createList({ db }, gallery, v.id, "Album");
+    expect(
+      await toggleFavorite({ db }, gallery, v.id, {
+        listId: list.id,
+        mediaId: video.id,
+      }),
+    ).toEqual({ favorite: true });
+    await toggleFavorite({ db }, gallery, v.id, {
+      listId: list.id,
+      mediaId: photoIds[1],
+    });
+    const mailer = new FakeMailer();
+    await sendListToCreator(
+      { db, mailer, baseUrl: "https://roses.test" },
+      gallery,
+      v.id,
+      list.id,
+    );
+    const text = mailer.lastTo("foto@example.com")!.text;
+    expect(text).toContain("Fotos: 2");
+    expect(text).toContain("Videos: 1");
+  });
 });

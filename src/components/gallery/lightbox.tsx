@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { recordPlayAction } from "@/app/g/[slug]/favorites-actions";
 import { FavoriteButton, useFavorites } from "./favorites";
 import { HlsPlayer } from "./hls-player";
-import { StoryShareButton } from "./share";
+import { PhotoShareButton } from "./share";
 import type { GalleryViewTile } from "./gallery-grid";
 
 const SWIPE_MIN_PX = 50;
@@ -128,9 +128,7 @@ export function Lightbox({
       >
         ×
       </button>
-      {!photo.video && (
-        <FavoriteButton mediaId={photo.id} className="absolute top-4 left-4" />
-      )}
+      <FavoriteButton mediaId={photo.id} className="absolute top-4 left-4" />
       {count > 1 && (
         <>
           <button
@@ -165,10 +163,10 @@ export function Lightbox({
           )}
         </div>
       )}
-      {photo.story && (
-        <StoryShareButton
-          url={photo.story}
-          fileName={`${photo.id}-story.jpg`}
+      {photo.downloads?.web && (
+        <PhotoShareButton
+          url={photo.downloads.web}
+          fileName={`${photo.id}.webp`}
           className="absolute right-4 bottom-4 text-sm text-white"
         />
       )}

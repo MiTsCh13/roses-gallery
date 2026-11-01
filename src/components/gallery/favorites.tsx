@@ -33,6 +33,9 @@ type Ctx = {
   pending: boolean;
   message: string | null;
   slug: string;
+  /** Grid shows only the favorites of the active list. */
+  onlyFavorites: boolean;
+  setOnlyFavorites: (on: boolean) => void;
 };
 
 const FavoritesContext = createContext<Ctx | null>(null);
@@ -54,6 +57,7 @@ export function FavoritesProvider({
   const [state, setState] = useState(initial);
   const [active, setActiveId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [onlyFavorites, setOnlyFavorites] = useState(false);
   const [pending, start] = useTransition();
 
   // the chosen list, else the first one
@@ -93,8 +97,10 @@ export function FavoritesProvider({
       pending,
       message,
       slug,
+      onlyFavorites,
+      setOnlyFavorites,
     };
-  }, [state, activeListId, toggle, run, pending, message, slug]);
+  }, [state, activeListId, toggle, run, pending, message, slug, onlyFavorites]);
 
   return (
     <FavoritesContext.Provider value={value}>
@@ -132,6 +138,48 @@ function FavoriteButtonInner({
     >
       {on ? "♥" : "♡"}
     </button>
+  );
+}
+
+/** Toggle above the grid: show only the favorites. Absent outside a public gallery. */
+export function FavoritesFilter() {
+  return useFavorites() ? <FavoritesFilterInner /> : null;
+}
+
+/** Hint when the filter is on and nothing matches. */
+export function FavoritesFilterEmpty() {
+  return useFavorites()?.onlyFavorites ? <FavoritesFilterEmptyInner /> : null;
+}
+
+function FavoritesFilterEmptyInner() {
+  const t = useTranslations("PublicGallery");
+  return (
+    <p className="py-10 text-center text-sm" role="status">
+      {t("favoritesFilterEmpty")}
+    </p>
+  );
+}
+
+function FavoritesFilterInner() {
+  const fav = useFavorites()!;
+  const t = useTranslations("PublicGallery");
+  return (
+    <div className="mb-4 flex justify-end">
+      <button
+        type="button"
+        aria-pressed={fav.onlyFavorites}
+        data-testid="favorites-filter"
+        onClick={() => fav.setOnlyFavorites(!fav.onlyFavorites)}
+        className="rounded-full border px-4 py-1.5 text-sm"
+        style={{
+          borderColor: "var(--g-accent)",
+          background: fav.onlyFavorites ? "var(--g-accent)" : "transparent",
+          color: fav.onlyFavorites ? "var(--g-bg)" : "var(--g-text)",
+        }}
+      >
+        {fav.onlyFavorites ? "♥" : "♡"} {t("favoritesFilter")}
+      </button>
+    </div>
   );
 }
 

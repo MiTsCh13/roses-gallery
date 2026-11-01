@@ -3,7 +3,12 @@
 import { useState } from "react";
 
 import type { GRID_LAYOUTS } from "@/lib/themes";
-import { FavoriteButton } from "./favorites";
+import {
+  FavoriteButton,
+  FavoritesFilter,
+  FavoritesFilterEmpty,
+  useFavorites,
+} from "./favorites";
 import { Lightbox } from "./lightbox";
 
 export function formatDuration(totalSeconds: number) {
@@ -18,6 +23,8 @@ export type GalleryViewVideo = {
   title: string;
   playUrl?: string;
   hlsUrl?: string;
+  /** Poster frame; the gradient placeholder is shown without or if it fails. */
+  posterUrl?: string;
   durationS?: number | null;
 };
 
@@ -28,22 +35,27 @@ export type GalleryViewTile = {
   alt?: string;
   /** Download links permitted for this photo (F-SEC-02). */
   downloads?: { web?: string; original?: string };
-  /** Story image URL (F-INT-02); only set when web downloads are allowed. */
-  story?: string;
   /** Set for video tiles: a play tile that opens the player in the lightbox. */
   video?: GalleryViewVideo;
 };
 
 export function GalleryGrid({
   layout,
-  tiles,
+  tiles: allTiles,
 }: {
   layout: (typeof GRID_LAYOUTS)[number];
   tiles: GalleryViewTile[];
 }) {
+  const fav = useFavorites();
   const [open, setOpen] = useState<number | null>(null);
+  const [brokenPosters, setBrokenPosters] = useState<Set<string>>(new Set());
+  const filtering = fav?.onlyFavorites === true;
+  const shown = filtering
+    ? allTiles.filter((x) => fav!.isFavorite(x.id))
+    : allTiles;
   // photos and videos open in the lightbox; placeholders stay inert
-  const photos = tiles.filter((t) => t.src || t.video);
+  const photos = shown.filter((x) => x.src || x.video);
+  const tiles = shown;
 
   const tile = (t: GalleryViewTile, className: string) => {
     const index = photos.indexOf(t);
@@ -70,11 +82,26 @@ export function GalleryGrid({
             }}
             aria-label={t.video.title}
           >
-            <span className="text-4xl" aria-hidden>
+            {t.video.posterUrl && !brokenPosters.has(t.id) && (
+              // eslint-disable-next-line @next/next/no-img-element -- signed, short-lived URLs bypass next/image
+              <img
+                src={t.video.posterUrl}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                data-testid="video-poster"
+                onError={() => setBrokenPosters((s) => new Set(s).add(t.id))}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+            )}
+            <span
+              className="relative rounded-full bg-black/50 px-4 py-2 text-3xl text-white"
+              aria-hidden
+            >
               ▶
             </span>
             {t.video.durationS != null && (
-              <span className="text-xs">
+              <span className="relative rounded bg-black/50 px-1 text-xs text-white">
                 {formatDuration(t.video.durationS)}
               </span>
             )}
@@ -99,7 +126,7 @@ export function GalleryGrid({
             />
           </button>
         )}
-        {t.src && !t.video && (
+        {(t.src || t.video) && (
           <FavoriteButton
             mediaId={t.id}
             className="absolute right-2 bottom-2 px-2 py-1 text-base"
@@ -145,6 +172,8 @@ export function GalleryGrid({
 
   return (
     <>
+      <FavoritesFilter />
+      {filtering && shown.length === 0 && <FavoritesFilterEmpty />}
       {grid}
       {open !== null && (
         <Lightbox

@@ -47,6 +47,47 @@ afterEach(() => {
 });
 
 describe("favorites UI", () => {
+  it("filters the grid to favorites, videos included", () => {
+    const withVideo = [
+      ...tiles,
+      {
+        id: "v",
+        video: { title: "Video 1", posterUrl: "https://x.test/p.jpg" },
+      },
+    ];
+    render(
+      <NextIntlClientProvider locale="de" messages={messages}>
+        <FavoritesProvider
+          slug="anna-ben"
+          initial={{
+            hasEmail: false,
+            lists: [{ id: "l1", name: "Favoriten", mediaIds: ["a", "v"] }],
+          }}
+        >
+          <GalleryGrid
+            layout={SYSTEM_THEMES[0].config.grid.layout}
+            tiles={withVideo}
+          />
+        </FavoritesProvider>
+      </NextIntlClientProvider>,
+    );
+    expect(screen.getAllByTestId("gallery-tile")).toHaveLength(3);
+    expect(screen.getByTestId("video-poster")).toBeTruthy();
+    // the video tile has a heart as well
+    expect(screen.getAllByTestId("favorite-button")).toHaveLength(3);
+    fireEvent.click(screen.getByTestId("favorites-filter"));
+    expect(screen.getAllByTestId("gallery-tile")).toHaveLength(2);
+    fireEvent.click(screen.getByTestId("favorites-filter"));
+    expect(screen.getAllByTestId("gallery-tile")).toHaveLength(3);
+  });
+
+  it("shows a hint when the filter matches nothing", () => {
+    renderAll({ hasEmail: false, lists: [] });
+    fireEvent.click(screen.getByTestId("favorites-filter"));
+    expect(screen.queryAllByTestId("gallery-tile")).toHaveLength(0);
+    expect(screen.getByRole("status").textContent).toContain("Noch keine");
+  });
+
   it("marks favorites and toggles through the server action", async () => {
     actions.toggleFavoriteAction.mockResolvedValue({
       state: {

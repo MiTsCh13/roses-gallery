@@ -49,29 +49,21 @@ export async function unlockGalleryAction(formData: FormData) {
   redirect(`/g/${encodeURIComponent(slug)}`);
 }
 
-/** ZIP download by mail (F-SEC-02): queues the build, the link follows by mail. */
-export async function requestZipAction(formData: FormData) {
-  const slug = String(formData.get("slug") ?? "");
-  const back: (code: string) => never = (code) =>
-    redirect(`/g/${encodeURIComponent(slug)}?zip=${code}`);
-  const parsed = zipRequestSchema.safeParse({
-    slug,
-    size: formData.get("size"),
-    email: String(formData.get("email") ?? "").trim(),
-  });
-  if (!parsed.success) back("invalid");
+async function createZip(slug: string, size: unknown, email?: string) {
+  const parsed = zipRequestSchema.safeParse({ slug, size, email });
+  if (!parsed.success) return { ok: false as const, reason: "invalid" };
   const env = serverEnv();
   const limit = await getRateLimiter(env.REDIS_URL).hit(
     `zip:${await visitorId()}`,
     5,
     60 * 60,
   );
-  if (!limit.allowed) back("rate_limited");
+  if (!limit.allowed) return { ok: false as const, reason: "rate_limited" };
 
   zipQueue ??= createQueue(env.REDIS_URL);
   const queue = zipQueue;
   const jar = await cookies();
-  const result = await requestZipExport(
+  return requestZipExport(
     {
       db: db(),
       enqueue: async (payload) => {
@@ -82,5 +74,25 @@ export async function requestZipAction(formData: FormData) {
     },
     parsed.data,
   );
-  back(result.ok ? "sent" : result.reason);
+}
+
+/** ZIP download by mail (F-SEC-02): queues the build, the link follows by mail. */
+export async function requestZipAction(formData: FormData) {
+  const slug = String(formData.get("slug") ?? "");
+  const result = await createZip(
+    slug,
+    formData.get("size"),
+    String(formData.get("email") ?? "").trim(),
+  );
+  redirect(
+    `/g/${encodeURIComponent(slug)}?zip=${result.ok ? "sent" : result.reason}`,
+  );
+}
+
+/** Direct ZIP download: queues the build; the browser polls and then downloads. */
+export async function startZipAction(
+  slug: string,
+  size: string,
+): Promise<{ ok: true; exportId: string } | { ok: false; reason: string }> {
+  return createZip(String(slug), size);
 }
