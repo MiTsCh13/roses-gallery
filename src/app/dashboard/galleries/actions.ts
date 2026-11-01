@@ -53,7 +53,6 @@ export async function createGalleryAction(formData: FormData) {
       {
         title: field(formData, "title"),
         slug: field(formData, "slug"),
-        description: field(formData, "description"),
         eventDate: field(formData, "eventDate"),
         expiresAt: field(formData, "expiresAt"),
       },
@@ -74,6 +73,7 @@ export async function updateGalleryAction(formData: FormData) {
         galleryId,
         title: field(formData, "title"),
         slug: field(formData, "slug"),
+        description: field(formData, "description"),
         eventDate: field(formData, "eventDate"),
         expiresAt: field(formData, "expiresAt"),
         status: field(formData, "status"),
