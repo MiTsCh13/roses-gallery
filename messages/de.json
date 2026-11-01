@@ -648,6 +648,13 @@
     }
   },
   "GalleryEditor": {
+    "uploadFiles": "Dateien hochladen",
+    "dropHint": "Fotos und Videos hierher ziehen, um sie hochzuladen und der Galerie hinzuzufügen.",
+    "upload": {
+      "uploading": "Lädt hoch …",
+      "done": "Hinzugefügt",
+      "error": "Fehlgeschlagen"
+    },
     "makeCover": "Als Titelbild",
     "isCover": "Titelbild",
     "mediaTitle": "Fotos & Videos ({count})",

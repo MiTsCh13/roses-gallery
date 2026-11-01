@@ -1,6 +1,7 @@
 "use client";
 
-import { useOptimistic, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { useOptimistic, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 
 import {
@@ -11,6 +12,8 @@ import {
   setGalleryCoverAction,
 } from "@/app/dashboard/galleries/actions";
 import { Button } from "@/components/ui/button";
+import { browserTransport, uploadPhoto } from "@/lib/upload-client";
+import { uploadVideoFile } from "@/lib/video-upload-client";
 
 type Item = { id: string; type: "photo" | "video" };
 
@@ -98,6 +101,13 @@ export function GalleryMediaPanel({
   addable: Item[];
 }) {
   const t = useTranslations("GalleryEditor");
+  const router = useRouter();
+  const fileInput = useRef<HTMLInputElement>(null);
+  const [dropping, setDropping] = useState(false);
+  const [uploads, setUploads] = useState<
+    { id: number; name: string; state: "uploading" | "done" | "error" }[]
+  >([]);
+  const nextUpload = useRef(0);
   const [picking, setPicking] = useState(false);
   const [chosen, setChosen] = useState<Set<string>>(new Set());
   const [marked, setMarked] = useState<Set<string>>(new Set());
@@ -125,6 +135,42 @@ export function GalleryMediaPanel({
     next.splice(to, 0, next.splice(from, 1)[0]);
     persist(next);
   };
+  const uploadFiles = async (files: File[]) => {
+    const jobs = files.map((file) => ({ id: nextUpload.current++, file }));
+    const mark = (id: number, state: "uploading" | "done" | "error") =>
+      setUploads((all) => all.map((u) => (u.id === id ? { ...u, state } : u)));
+    setUploads((all) => [
+      ...all,
+      ...jobs.map((j) => ({
+        id: j.id,
+        name: j.file.name,
+        state: "uploading" as const,
+      })),
+    ]);
+    const queue = [...jobs];
+    const worker = async () => {
+      for (let j = queue.shift(); j; j = queue.shift()) {
+        try {
+          const { mediaId } = j.file.type.startsWith("video/")
+            ? await uploadVideoFile(j.file)
+            : await uploadPhoto(j.file, browserTransport, {
+                signal: new AbortController().signal,
+                onProgress: () => {},
+              });
+          await addGalleryMediaAction(galleryId, [mediaId]);
+          mark(j.id, "done");
+          router.refresh();
+        } catch {
+          mark(j.id, "error");
+        }
+      }
+    };
+    await Promise.all(Array.from({ length: 3 }, worker));
+  };
+  const pickFiles = (list: FileList | null) => {
+    if (list?.length) void uploadFiles(Array.from(list));
+    if (fileInput.current) fileInput.current.value = "";
+  };
   const single = marked.size === 1 ? [...marked][0] : null;
   const shift = (delta: number) => {
     if (!single) return;
@@ -146,7 +192,24 @@ export function GalleryMediaPanel({
     };
 
   return (
-    <section aria-labelledby="media-title" className="space-y-4">
+    <section
+      aria-labelledby="media-title"
+      data-testid="media-dropzone"
+      className={`space-y-4 rounded-lg ${dropping ? "outline-2 outline-primary outline-dashed" : ""}`}
+      onDragOver={(e) => {
+        if (e.dataTransfer?.types?.includes("Files")) {
+          e.preventDefault();
+          setDropping(true);
+        }
+      }}
+      onDragLeave={() => setDropping(false)}
+      onDrop={(e) => {
+        if (!e.dataTransfer?.files?.length) return;
+        e.preventDefault();
+        setDropping(false);
+        pickFiles(e.dataTransfer.files);
+      }}
+    >
       <div className="flex flex-wrap items-center gap-2">
         <h2 id="media-title" className="mr-auto text-lg font-medium">
           {t("mediaTitle", { count: inGallery.length })}
@@ -159,6 +222,23 @@ export function GalleryMediaPanel({
         >
           {t("addFromLibrary")}
         </Button>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => fileInput.current?.click()}
+        >
+          {t("uploadFiles")}
+        </Button>
+        <input
+          ref={fileInput}
+          type="file"
+          multiple
+          accept="image/jpeg,image/png,image/webp,image/tiff,video/*"
+          className="sr-only"
+          aria-label={t("uploadFiles")}
+          data-testid="gallery-file-input"
+          onChange={(e) => pickFiles(e.target.files)}
+        />
         <Button
           type="button"
           variant="outline"
@@ -219,6 +299,20 @@ export function GalleryMediaPanel({
           {t("deleteSelected", { count: marked.size })}
         </Button>
       </div>
+
+      <p className="text-xs text-muted-foreground">{t("dropHint")}</p>
+      {uploads.length > 0 && (
+        <ul className="space-y-1 text-sm" data-testid="gallery-uploads">
+          {uploads.map((u) => (
+            <li key={u.id} data-state={u.state} className="flex gap-2">
+              <span className="truncate">{u.name}</span>
+              <span className="text-muted-foreground">
+                {t(`upload.${u.state}`)}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
 
       {picking && (
         <div className="space-y-3 rounded-lg border p-3" data-testid="picker">

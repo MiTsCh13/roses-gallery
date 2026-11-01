@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { Upload } from "tus-js-client";
 
 import {
   createFolderAction,
@@ -21,7 +20,7 @@ import {
   uploadPhoto,
   type UploadErrorCode,
 } from "@/lib/upload-client";
-import type { TusUpload } from "@/lib/video/types";
+import { uploadVideoFile } from "@/lib/video-upload-client";
 
 type Folder = { id: string; name: string };
 type Item = {
@@ -41,17 +40,6 @@ type Job = {
 };
 
 const CONCURRENCY = 3;
-
-async function postVideo(action: string, body: unknown) {
-  const response = await fetch(`/api/videos/${action}`, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.error ?? "failed");
-  return data;
-}
 
 export function LibraryBrowser({
   folderId,
@@ -92,34 +80,15 @@ export function LibraryBrowser({
       }
     });
 
-  async function uploadVideo(job: Job) {
-    const { file } = job;
-    const { mediaId, tus } = (await postVideo("start", {
-      folderId: folderId ?? undefined,
-      title: file.name.replace(/\.[^.]+$/, "") || file.name,
-      sizeBytes: file.size,
-    })) as { mediaId: string; tus: TusUpload };
-    await new Promise<void>((resolve, reject) => {
-      const up = new Upload(file, {
-        endpoint: tus.endpoint,
-        headers: tus.headers,
-        retryDelays: [0, 3000, 5000, 10000, 20000],
-        chunkSize: 64 * 1024 * 1024,
-        metadata: { filetype: file.type, title: file.name },
-        onProgress: (loaded) => patch(job.id, { loaded }),
-        onError: reject,
-        onSuccess: () => resolve(),
-      });
-      patch(job.id, { stopTus: () => void up.abort(true) });
-      up.start();
-    });
-    await postVideo("refresh", { mediaId });
-  }
-
   async function runJob(job: Job) {
     patch(job.id, { state: "uploading", error: undefined, loaded: 0 });
     try {
-      if (job.file.type.startsWith("video/")) await uploadVideo(job);
+      if (job.file.type.startsWith("video/"))
+        await uploadVideoFile(job.file, {
+          folderId: folderId ?? undefined,
+          onProgress: (loaded) => patch(job.id, { loaded }),
+          onStop: (stopTus) => patch(job.id, { stopTus }),
+        });
       else
         await uploadPhoto(job.file, browserTransport, {
           folderId: folderId ?? undefined,

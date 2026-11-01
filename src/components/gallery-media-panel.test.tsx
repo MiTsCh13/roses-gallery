@@ -1,14 +1,29 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import messages from "../../messages/de.json";
 
 const del = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+const add = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+const upVideo = vi.hoisted(() =>
+  vi
+    .fn()
+    .mockResolvedValue({ mediaId: "11111111-1111-4111-8111-111111111111" }),
+);
+const refresh = vi.hoisted(() => vi.fn());
+vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh }) }));
+vi.mock("@/lib/video-upload-client", () => ({ uploadVideoFile: upVideo }));
 const reorder = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 vi.mock("@/app/dashboard/galleries/actions", () => ({
-  addGalleryMediaAction: vi.fn(),
+  addGalleryMediaAction: add,
   deleteGalleryMediaAction: del,
   removeGalleryMediaAction: vi.fn(),
   setGalleryCoverAction: vi.fn(),
@@ -84,5 +99,32 @@ describe("GalleryMediaPanel delete", () => {
     fireEvent.click(btn);
     await vi.waitFor(() => expect(del).toHaveBeenCalledWith("g1", ["b"]));
     confirm.mockRestore();
+  });
+});
+
+describe("Upload in die Galerie", () => {
+  it("lädt per Datei-Auswahl hoch und fügt das Medium der Galerie hinzu", async () => {
+    setup();
+    const file = new File(["x"], "film.mp4", { type: "video/mp4" });
+    fireEvent.change(screen.getByTestId("gallery-file-input"), {
+      target: { files: [file] },
+    });
+    await waitFor(() =>
+      expect(add).toHaveBeenCalledWith("g1", [
+        "11111111-1111-4111-8111-111111111111",
+      ]),
+    );
+    await screen.findByText("Hinzugefügt");
+    expect(refresh).toHaveBeenCalled();
+  });
+
+  it("zeigt einen Fehler, wenn der Upload scheitert", async () => {
+    upVideo.mockRejectedValueOnce(new Error("failed"));
+    setup();
+    const file = new File(["x"], "film.mp4", { type: "video/mp4" });
+    fireEvent.drop(screen.getByTestId("media-dropzone"), {
+      dataTransfer: { files: [file], types: ["Files"] },
+    });
+    await screen.findByText("Fehlgeschlagen");
   });
 });

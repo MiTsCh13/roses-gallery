@@ -97,6 +97,17 @@ test("create a gallery, edit it and add library media", async ({
   await page.getByRole("button", { name: "1 hinzufügen" }).click();
   await expect(page.getByTestId("gallery-media").locator("li")).toHaveCount(1);
 
+  // Upload straight into the gallery adds the medium to it as well.
+  await page.getByTestId("gallery-file-input").setInputFiles({
+    name: "feier.mp4",
+    mimeType: "video/mp4",
+    buffer: Buffer.alloc(1024 * 1024, 5),
+  });
+  await expect(
+    page.getByTestId("gallery-uploads").locator('[data-state="done"]'),
+  ).toHaveCount(1);
+  await expect(page.getByTestId("gallery-media").locator("li")).toHaveCount(2);
+
   await page.getByRole("link", { name: "← Alle Galerien" }).click();
   await expect(page.getByTestId("gallery-list")).toContainText(
     "Veröffentlicht",
