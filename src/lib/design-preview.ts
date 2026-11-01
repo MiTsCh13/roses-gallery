@@ -20,6 +20,12 @@ export function previewTiles(
   }
   return media.slice(0, MAX_TILES).map((m) => {
     const aspect = m.width && m.height ? m.width / m.height : undefined;
+    if (m.type === "video")
+      return {
+        id: m.id,
+        aspect,
+        video: { title: "", posterUrl: `/api/library/thumb/${m.id}` },
+      };
     // photos still being processed have no thumbnail yet: inert placeholder
     return m.type === "photo" &&
       m.processingStatus !== "processing" &&

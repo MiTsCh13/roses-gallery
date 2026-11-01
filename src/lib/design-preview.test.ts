@@ -15,7 +15,10 @@ describe("previewTiles", () => {
       { id: "b", type: "video" },
     ]);
     expect(tiles[0].src).toBe("/api/library/thumb/a");
-    expect(tiles[1]).toEqual({ id: "b", aspect: undefined });
+    expect(tiles[1]).toMatchObject({
+      id: "b",
+      video: { posterUrl: "/api/library/thumb/b" },
+    });
   });
 
   it("keeps real formats and skips photos that are still processing", () => {

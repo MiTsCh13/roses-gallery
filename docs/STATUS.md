@@ -127,6 +127,8 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 
 ## Log
 
+- 2026-11-01 (Fix): Video-Poster auch in Galerie-Editor (Medienpanel, Live-Vorschau) und Bibliothek: `/api/library/thumb/<id>` liefert für Videos den signierten CDN-Poster (404 → Platzhalter bleibt).
+
 - 2026-11-01 (Fix): Info-Text wurde nicht gespeichert (Feld fehlte in `updateGalleryAction`, stattdessen irrtümlich in `createGalleryAction`); E2E `gallery-info` deckt Speichern + öffentliche Anzeige ab.
 
 - 2026-11-01 (Mitsch-Rückmeldungen 3): Info-Zeile unter dem Galerie-Titel (D-151, Migration 0016).
@@ -144,8 +146,6 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 - 2026-11-01 (Routine): M11-5b-4 Upload per Drag & Drop/Button direkt im Galerie-Editor (Unit + E2E). Nächster Schritt: Live-Vorschau rechts, Folge-Migration `sets` entfernen (eigener PR). Cloud: `service postgresql start`, `redis-server --daemonize yes`, Rolle `roses`/DBs, `.env.local` aus `.env.example`.
 
 - 2026-10-31 (Routine): M11-5b-3 Mehrfach-Löschen aus der Bibliothek im Editor (`deleteGalleryMediaAction`, Bestätigung, Unit-Test). Nächster Schritt: Live-Vorschau + Drag & Drop Upload, Folge-Migration `sets` entfernen (~25 Testdateien betroffen, eigener PR). Cloud: `service postgresql start`, `redis-server --daemonize yes`, Rolle `roses`/DBs, `.env.local` aus `.env.example`.
-
-- 2026-10-31 (Routine): M11-5b-2 Design inline im Editor. Nächster Schritt: Rest 5b (große Live-Vorschau rechts, Drag & Drop Upload, Mehrfach-Löschen Bibliothek), Folge-Migration `sets` entfernen. Cloud: `service postgresql start`, `redis-server --daemonize yes`, Rolle `roses`/DBs, `.env.local` aus `.env.example`.
 
 - `/dashboard/library`: Ordner (anlegen/umbenennen/löschen), Foto+Video-Upload per Drag & Drop in den Ordner, Wiederholen, Mehrfachauswahl (verschieben/löschen), Nav-Eintrag. Unit- und E2E-Test. Nächster Schritt: 5 Galerie-Editor zweispaltig (groß, ggf. in 5a/5b teilen). Cloud: Postgres/Redis neu starten, Rolle `roses`/DBs anlegen.
 

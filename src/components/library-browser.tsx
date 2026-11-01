@@ -406,7 +406,7 @@ export function LibraryBrowser({
               data-selected={selected.has(m.id)}
               className={`relative overflow-hidden rounded-lg border bg-card ${selected.has(m.id) ? "ring-2 ring-primary" : ""}`}
             >
-              <div className="flex aspect-square items-center justify-center bg-muted text-3xl">
+              <div className="relative flex aspect-square items-center justify-center bg-muted text-3xl">
                 {m.type === "photo" && m.status === "ready" ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -417,6 +417,17 @@ export function LibraryBrowser({
                   />
                 ) : (
                   <span aria-hidden>{m.type === "video" ? "🎬" : "🖼"}</span>
+                )}
+                {m.type === "video" && m.status === "ready" && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={`/api/library/thumb/${m.id}`}
+                    alt=""
+                    loading="lazy"
+                    data-testid="video-poster"
+                    onError={(e) => (e.currentTarget.style.display = "none")}
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
                 )}
               </div>
               <div className="flex items-center justify-between gap-2 p-2 text-xs text-muted-foreground">

@@ -73,8 +73,21 @@ function Grid({
                 className="size-full object-cover"
               />
             ) : (
-              <span className="flex size-full items-center justify-center text-2xl">
-                ▶<span className="sr-only">{t("video")}</span>
+              <span className="relative flex size-full items-center justify-center text-2xl">
+                {/* poster frame; hidden again if the CDN has none */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={`/api/library/thumb/${m.id}`}
+                  alt=""
+                  loading="lazy"
+                  data-testid="video-poster"
+                  onError={(e) => (e.currentTarget.style.display = "none")}
+                  className="absolute inset-0 size-full object-cover"
+                />
+                <span className="relative rounded-full bg-black/50 px-2 text-white">
+                  ▶
+                </span>
+                <span className="sr-only">{t("video")}</span>
               </span>
             )}
             {coverId === m.id && (
