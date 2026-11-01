@@ -60,6 +60,8 @@ export const updateGallerySchema = z.object({
   ...fields,
   status: z.enum(["draft", "published", "expired", "archived"]),
   coverMediaId: z.uuid().nullable().optional(),
+  /** Undefined = unchanged, empty = remove. */
+  description: z.string().trim().max(300).optional(),
   downloadPolicy: downloadPolicySchema.optional(),
   watermarkEnabled: z.boolean().optional(),
 });
@@ -154,6 +156,9 @@ export async function updateGallery(deps: Deps, input: unknown) {
     const row = await t.galleries.update(galleryId, {
       title: data.title,
       ...(data.slug ? { slug: data.slug } : {}),
+      ...(data.description !== undefined
+        ? { description: data.description || null }
+        : {}),
       eventDate: data.eventDate,
       expiresAt: data.expiresAt,
       ...(expiryMoved ? { expiryReminderSentAt: null } : {}),

@@ -111,6 +111,23 @@ describe("updateGallery", () => {
     expect(u).toMatchObject({ title: "Neu", slug: "neu", status: "published" });
   });
 
+  it("stores the info text, keeps it on other updates and clears it", async () => {
+    const g = await createGallery(a, { title: "Alt" });
+    const base = { galleryId: g.id, title: "Alt", status: "draft" };
+    expect(
+      (await updateGallery(a, { ...base, description: "  Am See  " }))
+        .description,
+    ).toBe("Am See");
+    // an update without the field (e.g. setting the cover) leaves it alone
+    expect((await updateGallery(a, base)).description).toBe("Am See");
+    expect(
+      (await updateGallery(a, { ...base, description: "" })).description,
+    ).toBeNull();
+    await expect(
+      updateGallery(a, { ...base, description: "x".repeat(301) }),
+    ).rejects.toThrow();
+  });
+
   it("cannot touch another account's gallery", async () => {
     const g = await createGallery(a, { title: "Meine" });
     await expect(

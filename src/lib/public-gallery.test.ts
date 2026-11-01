@@ -260,6 +260,14 @@ describe("loadPublicGallery", () => {
   });
 });
 
+describe("loadPublicGallery description", () => {
+  it("exposes the info text under the title", async () => {
+    await gallery({ description: "Hochzeit am See" });
+    const r = await loadOpen({ db, storage }, "anna-ben");
+    expect(r?.description).toBe("Hochzeit am See");
+  });
+});
+
 describe("loadPublicGallery with a password", () => {
   const SECRET = "test-secret-with-enough-length";
 

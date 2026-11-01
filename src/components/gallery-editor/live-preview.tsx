@@ -24,7 +24,7 @@ export function LivePreview({
   openHref: string;
 }) {
   const t = useTranslations("Design");
-  const { title, config } = useEditorState();
+  const { title, description, config } = useEditorState();
   const [viewport, setViewport] = useState<"desktop" | "mobile">("desktop");
   return (
     <section aria-label={t("preview")} className="min-w-0 space-y-3">
@@ -61,6 +61,7 @@ export function LivePreview({
           <GalleryView
             config={config}
             title={title}
+            subtitle={description || undefined}
             logoUrl={logoUrl}
             coverUrl={coverUrl}
             tiles={tiles}

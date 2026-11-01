@@ -35,6 +35,10 @@ test("switch theme and viewport in the design editor, then persist", async ({
     view.getByRole("heading", { name: "Neuer Titel" }),
   ).toBeVisible();
 
+  // the info line shows up under the title
+  await page.getByLabel("Info").fill("Hochzeit am See");
+  await expect(view.getByText("Hochzeit am See")).toBeVisible();
+
   await page.getByRole("button", { name: "Mobil" }).click();
   await expect(page.getByTestId("design-preview")).toHaveAttribute(
     "data-viewport",

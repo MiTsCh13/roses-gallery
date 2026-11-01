@@ -38,6 +38,7 @@ export type PublicGallery = {
   slug: string;
   accountId: string;
   title: string;
+  description: string | null;
   eventDate: Date | null;
   config: ThemeConfig;
   logoUrl: string | null;
@@ -231,6 +232,7 @@ export async function loadPublicGallery(
     slug: gallery.slug,
     accountId,
     title: gallery.title,
+    description: gallery.description,
     eventDate: gallery.eventDate,
     config,
     logoUrl,

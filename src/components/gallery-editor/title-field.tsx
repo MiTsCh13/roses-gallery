@@ -16,3 +16,24 @@ export function TitleField({ form }: { form: string }) {
     />
   );
 }
+
+/** Short info line shown under the title in the gallery. */
+export function DescriptionField({
+  form,
+  label,
+}: {
+  form: string;
+  label: string;
+}) {
+  const { description, setDescription } = useEditorState();
+  return (
+    <Input
+      name="description"
+      form={form}
+      value={description}
+      onChange={(e) => setDescription(e.target.value)}
+      maxLength={300}
+      aria-label={label}
+    />
+  );
+}
