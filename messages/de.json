@@ -339,7 +339,7 @@
     "gap": "Abstand",
     "layoutOption": {
       "masonry": "Mauerwerk",
-      "uniform": "Gleichmäßig",
+      "uniform": "Zeilenbündig",
       "rows": "Reihen"
     },
     "gapOption": {
@@ -665,6 +665,7 @@
       "done": "Hinzugefügt",
       "error": "Fehlgeschlagen"
     },
+    "processing": "Wird verarbeitet …",
     "makeCover": "Als Titelbild",
     "isCover": "Titelbild",
     "mediaTitle": "Fotos & Videos ({count})",

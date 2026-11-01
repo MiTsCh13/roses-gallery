@@ -112,6 +112,8 @@ async function GalleryContent({
     item.kind === "video"
       ? {
           id: item.id,
+          aspect:
+            item.width && item.height ? item.width / item.height : undefined,
           video: {
             title: t("videoTitle", { n: ++videoNo }),
             playUrl: item.playUrl,
@@ -122,6 +124,8 @@ async function GalleryContent({
         }
       : {
           id: item.id,
+          aspect:
+            item.width && item.height ? item.width / item.height : undefined,
           src: item.src,
           srcSet: item.srcSet,
           alt: t("photoAlt", { n: ++photoNo }),

@@ -61,6 +61,8 @@ export type PublicVideo = {
   kind: "video";
   id: string;
   durationS: number | null;
+  width: number | null;
+  height: number | null;
   /** Signed, short-lived embed URL; only loaded once the visitor presses play. */
   playUrl: string;
   /** Signed HLS playlist for the own player; absent → embed iframe. */
@@ -168,6 +170,8 @@ export async function loadPublicGallery(
         kind: "video",
         id: m.id,
         durationS: m.durationS,
+        width: m.width,
+        height: m.height,
         playUrl: deps.video.signPlaybackUrl(
           m.bunnyVideoId,
           VIDEO_URL_TTL_SECONDS,
