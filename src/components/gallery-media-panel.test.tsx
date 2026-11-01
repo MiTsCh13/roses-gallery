@@ -129,6 +129,23 @@ describe("Upload in die Galerie", () => {
     expect(screen.queryByRole("progressbar")).toBeNull();
   });
 
+  it("zeigt das Video-Poster und blendet es bei Fehlern aus", () => {
+    render(
+      <NextIntlClientProvider locale="de" messages={messages}>
+        <GalleryMediaPanel
+          galleryId="g1"
+          coverMediaId={null}
+          inGallery={[{ id: "v1", type: "video", ready: true }]}
+          addable={[]}
+        />
+      </NextIntlClientProvider>,
+    );
+    const poster = screen.getByTestId("video-poster") as HTMLImageElement;
+    expect(poster.getAttribute("src")).toBe("/api/library/thumb/v1");
+    fireEvent.error(poster);
+    expect(poster.style.display).toBe("none");
+  });
+
   it("zeigt noch nicht verarbeitete Fotos als Platzhalter", () => {
     render(
       <NextIntlClientProvider locale="de" messages={messages}>

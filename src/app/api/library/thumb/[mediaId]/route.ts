@@ -5,8 +5,9 @@ import { auth } from "@/auth";
 import { db } from "@/db";
 import { tenantDb } from "@/db/tenant";
 import { getStorage } from "@/lib/storage";
+import { getVideoProvider } from "@/lib/video";
 
-// Dashboard thumbnail of an own photo: 302 to a short-lived signed URL.
+// Dashboard thumbnail of an own photo or video poster: 302 to a short-lived signed URL.
 export async function GET(
   req: Request,
   ctx: { params: Promise<{ mediaId: string }> },
@@ -18,6 +19,17 @@ export async function GET(
     return new NextResponse(null, { status: 404 });
 
   const row = await tenantDb(db(), accountId).media.get(mediaId);
+  if (row?.type === "video") {
+    // poster frame from the video CDN (needs BUNNY_STREAM_CDN_HOSTNAME + token key)
+    const poster = row.bunnyVideoId
+      ? getVideoProvider().signThumbnailUrl(row.bunnyVideoId, 300)
+      : null;
+    if (!poster) return new NextResponse(null, { status: 404 });
+    return new NextResponse(null, {
+      status: 302,
+      headers: { Location: poster, "Cache-Control": "private, max-age=120" },
+    });
+  }
   const variants = row?.variants as
     Record<string, { key?: string }> | undefined;
   // `?size=large` serves the largest variant (cover preview), else the thumbnail
