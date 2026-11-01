@@ -1,10 +1,9 @@
-import { and, eq, isNull, max, sql } from "drizzle-orm";
+import { and, eq, max, sql } from "drizzle-orm";
 import { z } from "zod";
 
 import type { Db } from "@/db";
 import { accounts, media } from "@/db/schema";
 import { tenantDb } from "@/db/tenant";
-import { addToGallery } from "@/lib/library";
 import { assertCanUpload, type SubscriptionStatus } from "@/lib/plans";
 import type { VideoProvider } from "@/lib/video/types";
 
@@ -24,8 +23,6 @@ export class VideoError extends Error {
 }
 
 export const startVideoSchema = z.object({
-  // Without a set the video goes straight into the library (optionally a folder).
-  setId: z.uuid().optional(),
   folderId: z.uuid().optional(),
   title: z.string().trim().min(1).max(200),
   sizeBytes: z.number().int().positive().max(MAX_VIDEO_BYTES),
@@ -62,10 +59,6 @@ export async function startVideoUpload(deps: Deps, input: unknown) {
   assertCanUpload(await loadAccount(deps), data.sizeBytes);
 
   const t = tenantDb(deps.db, deps.accountId);
-  const set = data.setId ? await t.sets.get(data.setId) : undefined;
-  if (data.setId && (!set || set.type !== "video")) {
-    throw new VideoError("not_found", "Video set not found.");
-  }
   if (data.folderId && !(await t.folders.get(data.folderId))) {
     throw new VideoError("not_found", "Folder not found.");
   }
@@ -73,24 +66,17 @@ export async function startVideoUpload(deps: Deps, input: unknown) {
   const [{ top }] = await deps.db
     .select({ top: max(media.position) })
     .from(media)
-    .where(
-      and(
-        eq(media.accountId, deps.accountId),
-        set ? eq(media.setId, set.id) : isNull(media.setId),
-      ),
-    );
+    .where(eq(media.accountId, deps.accountId));
 
   const { videoId } = await deps.video.createVideo(data.title);
   const row = await t.media.create({
-    setId: set?.id ?? null,
-    folderId: set ? null : (data.folderId ?? null),
+    folderId: data.folderId ?? null,
     type: "video",
     bunnyVideoId: videoId,
     sizeBytes: data.sizeBytes,
     position: (top ?? -1) + 1,
     processingStatus: "pending",
   });
-  if (set) await addToGallery(deps, set.galleryId, row.id);
   const tus = await deps.video.createTusUpload(videoId, TUS_TTL_SECONDS);
   return { mediaId: row.id, tus };
 }

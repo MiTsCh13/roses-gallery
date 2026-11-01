@@ -1,10 +1,9 @@
-import { and, eq, isNull, max, sql } from "drizzle-orm";
+import { and, eq, max, sql } from "drizzle-orm";
 import { z } from "zod";
 
 import type { Db } from "@/db";
 import { accounts, media } from "@/db/schema";
 import { tenantDb } from "@/db/tenant";
-import { addToGallery } from "@/lib/library";
 import { assertCanUpload, type SubscriptionStatus } from "@/lib/plans";
 import {
   MAX_PHOTO_BYTES,
@@ -27,8 +26,6 @@ export class UploadError extends Error {
 }
 
 export const startUploadSchema = z.object({
-  // Without a set the photo goes straight into the library (optionally a folder).
-  setId: z.uuid().optional(),
   folderId: z.uuid().optional(),
   contentType: z.enum(PHOTO_CONTENT_TYPES),
   sizeBytes: z.number().int().positive().max(MAX_PHOTO_BYTES),
@@ -94,10 +91,6 @@ export async function startUpload(deps: Deps, input: unknown) {
   assertCanUpload(account, data.sizeBytes);
 
   const t = tenantDb(deps.db, deps.accountId);
-  const set = data.setId ? await t.sets.get(data.setId) : undefined;
-  if (data.setId && (!set || set.type !== "photo")) {
-    throw new UploadError("not_found", "Photo set not found.");
-  }
   if (data.folderId && !(await t.folders.get(data.folderId))) {
     throw new UploadError("not_found", "Folder not found.");
   }
@@ -105,23 +98,16 @@ export async function startUpload(deps: Deps, input: unknown) {
   const [{ top }] = await deps.db
     .select({ top: max(media.position) })
     .from(media)
-    .where(
-      and(
-        eq(media.accountId, deps.accountId),
-        set ? eq(media.setId, set.id) : isNull(media.setId),
-      ),
-    );
+    .where(eq(media.accountId, deps.accountId));
 
   const row = await t.media.create({
-    setId: set?.id ?? null,
-    folderId: set ? null : (data.folderId ?? null),
+    folderId: data.folderId ?? null,
     type: "photo",
     sizeBytes: data.sizeBytes,
     position: (top ?? -1) + 1,
     revision: 1,
     processingStatus: "pending",
   });
-  if (set) await addToGallery(deps, set.galleryId, row.id);
   const key = originalKey(deps.accountId, row.id, row.revision);
   await t.media.update(row.id, { originalKey: key });
 

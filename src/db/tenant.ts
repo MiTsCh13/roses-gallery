@@ -9,7 +9,6 @@ import {
   folders,
   galleries,
   media,
-  sets,
   themes,
   visitors,
 } from "./schema";
@@ -81,7 +80,6 @@ export function tenantDb(db: Db, accountId: string) {
   return {
     accountId,
     galleries: scoped(db, galleries, accountId),
-    sets: scoped(db, sets, accountId),
     folders: scoped(db, folders, accountId),
     media: scoped(db, media, accountId),
     visitors: scoped(db, visitors, accountId),

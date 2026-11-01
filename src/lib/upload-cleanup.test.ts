@@ -16,7 +16,6 @@ const { db, close } = createTestDb();
 let dir: string;
 let storage: FakeStorage;
 let accountId: string;
-let setId: string;
 
 beforeEach(async () => {
   await resetDb(db);
@@ -26,16 +25,12 @@ beforeEach(async () => {
     .insert(accounts)
     .values([{ name: "A" }])
     .returning();
-  const t = tenantDb(db, accountId);
-  const gallery = await t.galleries.create({ slug: "g", title: "G" });
-  ({ id: setId } = await t.sets.create({ galleryId: gallery.id, title: "S" }));
 });
 afterEach(() => rm(dir, { recursive: true, force: true }));
 afterAll(() => close());
 
 async function seed(body: Buffer | null) {
   const row = await tenantDb(db, accountId).media.create({
-    setId,
     type: "photo",
     sizeBytes: body?.length ?? 1000,
     processingStatus: "pending",

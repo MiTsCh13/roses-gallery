@@ -6,9 +6,9 @@ import { eq } from "drizzle-orm";
 import sharp from "sharp";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 
-import { accounts, galleries, media, sets, zipExports } from "@/db/schema";
+import { accounts, galleries, media, zipExports } from "@/db/schema";
 import { FakeStorage } from "@/lib/storage/fake";
-import { createTestDb, resetDb, linkSetMedia } from "@/test/db";
+import { createTestDb, resetDb, linkAccountMedia } from "@/test/db";
 import { FakeMailer } from "@/lib/mailer";
 import { buildZipExport } from "./zip-exports";
 import { resolvePhotoDownload } from "./downloads";
@@ -71,15 +71,10 @@ async function setup(enabled = true) {
       coverMediaId: null,
     })
     .returning();
-  const [set] = await db
-    .insert(sets)
-    .values({ accountId, galleryId: g.id, title: "T" })
-    .returning();
   const [photo] = await db
     .insert(media)
     .values({
       accountId,
-      setId: set.id,
       type: "photo",
       processingStatus: "ready",
       originalKey: `${accountId}/m/original-1`,
@@ -105,7 +100,7 @@ async function setup(enabled = true) {
   await storage.put(`${accountId}/m/r1-400.webp`, img);
   await storage.put(`${accountId}/m/r1-1200.webp`, img);
   await storage.put(`${accountId}/m/original-1`, img);
-  await linkSetMedia(db);
+  await linkAccountMedia(db, g.id);
   return { g, photo };
 }
 

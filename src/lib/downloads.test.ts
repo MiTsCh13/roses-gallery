@@ -4,11 +4,11 @@ import path from "node:path";
 
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 
-import { accounts, galleries, media, sets } from "@/db/schema";
-import { createTestDb, resetDb, linkSetMedia } from "@/test/db";
+import { accounts, galleries, media } from "@/db/schema";
+import { createTestDb, resetDb, linkAccountMedia } from "@/test/db";
 import { FakeStorage } from "@/lib/storage/fake";
 import { allows, effectivePolicy } from "./download-policy";
-import { resolvePhotoDownload, setSetDownloadPolicy } from "./downloads";
+import { resolvePhotoDownload } from "./downloads";
 import { createAccessToken, hashPassword } from "./gallery-access";
 import { loadPublicGallery } from "./public-gallery";
 
@@ -19,11 +19,9 @@ const storage = new FakeStorage(
 );
 const SECRET = "test-secret-with-enough-length";
 let accountId: string;
-let otherId: string;
 
 async function setup(
   galleryValues: Partial<typeof galleries.$inferInsert> = {},
-  setPolicy: "none" | "web" | "original" | null = null,
 ) {
   const [g] = await db
     .insert(galleries)
@@ -35,20 +33,10 @@ async function setup(
       ...galleryValues,
     })
     .returning();
-  const [set] = await db
-    .insert(sets)
-    .values({
-      accountId,
-      galleryId: g.id,
-      title: "Trauung",
-      downloadPolicy: setPolicy,
-    })
-    .returning();
   const [photo] = await db
     .insert(media)
     .values({
       accountId,
-      setId: set.id,
       type: "photo",
       processingStatus: "ready",
       originalKey: `${accountId}/m/original-1`,
@@ -68,18 +56,14 @@ async function setup(
       },
     })
     .returning();
-  await linkSetMedia(db);
-  return { g, set, photo };
+  await linkAccountMedia(db, g.id);
+  return { g, photo };
 }
 
 beforeEach(async () => {
   await resetDb(db);
-  const [a, b] = await db
-    .insert(accounts)
-    .values([{ name: "A" }, { name: "B" }])
-    .returning();
+  const [a] = await db.insert(accounts).values({ name: "A" }).returning();
   accountId = a.id;
-  otherId = b.id;
 });
 afterAll(close);
 
@@ -191,22 +175,6 @@ describe("resolvePhotoDownload", () => {
     expect(await ask("anna-ben", photo.id, "web")).toMatchObject({
       reason: "not_found",
     });
-  });
-});
-
-describe("setSetDownloadPolicy", () => {
-  it("sets, inherits and stays tenant-scoped", async () => {
-    const { set } = await setup();
-    await setSetDownloadPolicy({ db, accountId }, set.id, "original");
-    expect((await db.select().from(sets))[0].downloadPolicy).toBe("original");
-    await setSetDownloadPolicy({ db, accountId }, set.id, "inherit");
-    expect((await db.select().from(sets))[0].downloadPolicy).toBeNull();
-    await expect(
-      setSetDownloadPolicy({ db, accountId: otherId }, set.id, "none"),
-    ).rejects.toMatchObject({ code: "not_found" });
-    await expect(
-      setSetDownloadPolicy({ db, accountId }, set.id, "bogus"),
-    ).rejects.toThrow();
   });
 });
 

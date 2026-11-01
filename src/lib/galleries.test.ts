@@ -5,11 +5,8 @@ import { tenantDb } from "@/db/tenant";
 import { createTestDb, resetDb } from "@/test/db";
 import {
   createGallery,
-  createSet,
   galleryOverview,
   GalleryError,
-  reorderMedia,
-  reorderSets,
   setGalleryCover,
   slugify,
   updateGallery,
@@ -139,31 +136,6 @@ describe("updateGallery", () => {
   });
 });
 
-describe("createSet", () => {
-  it("appends with increasing position and supports hybrid galleries", async () => {
-    const g = await createGallery(a, { title: "Hybrid" });
-    const s1 = await createSet(a, {
-      galleryId: g.id,
-      title: "Fotos",
-      type: "photo",
-    });
-    const s2 = await createSet(a, {
-      galleryId: g.id,
-      title: "Film",
-      type: "video",
-    });
-    expect([s1.position, s2.position]).toEqual([0, 1]);
-    expect(s2.type).toBe("video");
-  });
-
-  it("rejects a foreign gallery", async () => {
-    const g = await createGallery(a, { title: "G" });
-    await expect(
-      createSet(b, { galleryId: g.id, title: "S", type: "photo" }),
-    ).rejects.toMatchObject({ code: "not_found" });
-  });
-});
-
 describe("galleryOverview", () => {
   it("aggregates media count and storage per gallery, per account", async () => {
     const g = await createGallery(a, { title: "G" });
@@ -183,66 +155,6 @@ describe("galleryOverview", () => {
 });
 
 describe("ordering and cover", () => {
-  it("reorders sets and rejects incomplete or foreign lists", async () => {
-    const g = await createGallery(a, { title: "G" });
-    const ids: string[] = [];
-    for (const title of ["A", "B", "C"])
-      ids.push(
-        (await createSet(a, { galleryId: g.id, title, type: "photo" })).id,
-      );
-
-    await reorderSets(a, g.id, [ids[2], ids[0], ids[1]]);
-    const rows = await tenantDb(db, a.accountId).sets.list();
-    expect(
-      rows.sort((x, y) => x.position - y.position).map((r) => r.title),
-    ).toEqual(["C", "A", "B"]);
-
-    await expect(reorderSets(a, g.id, [ids[0], ids[1]])).rejects.toMatchObject({
-      code: "invalid_state",
-    });
-    await expect(
-      reorderSets(a, g.id, [ids[0], ids[0], ids[1]]),
-    ).rejects.toMatchObject({ code: "invalid_state" });
-    await expect(reorderSets(b, g.id, ids)).rejects.toMatchObject({
-      code: "not_found",
-    });
-  });
-
-  it("reorders media within a set only", async () => {
-    const g = await createGallery(a, { title: "G" });
-    const s1 = await createSet(a, {
-      galleryId: g.id,
-      title: "S1",
-      type: "photo",
-    });
-    const s2 = await createSet(a, {
-      galleryId: g.id,
-      title: "S2",
-      type: "photo",
-    });
-    const add = (setId: string) =>
-      db
-        .insert(media)
-        .values({ accountId: a.accountId, setId, type: "photo" })
-        .returning();
-    const [m1] = await add(s1.id);
-    const [m2] = await add(s1.id);
-    const [other] = await add(s2.id);
-
-    await reorderMedia(a, s1.id, [m2.id, m1.id]);
-    const t = tenantDb(db, a.accountId);
-    expect((await t.media.get(m2.id))?.position).toBe(0);
-    expect((await t.media.get(m1.id))?.position).toBe(1);
-    await expect(
-      reorderMedia(a, s1.id, [m2.id, other.id]),
-    ).rejects.toMatchObject({
-      code: "invalid_state",
-    });
-    await expect(reorderMedia(b, s1.id, [m1.id, m2.id])).rejects.toMatchObject({
-      code: "not_found",
-    });
-  });
-
   it("sets and clears the cover without touching other fields", async () => {
     const g = await createGallery(a, {
       title: "G",

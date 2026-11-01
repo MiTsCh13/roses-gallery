@@ -5,7 +5,7 @@ import { afterAll, beforeEach, describe, expect, it } from "vitest";
 
 import { eq } from "drizzle-orm";
 
-import { accounts, folders, galleries, media, sets } from "@/db/schema";
+import { accounts, folders, galleries, media } from "@/db/schema";
 import { FakeStorage } from "@/lib/storage/fake";
 import { FakeVideoProvider } from "@/lib/video/fake";
 import { createTestDb, resetDb } from "@/test/db";
@@ -161,46 +161,6 @@ describe("addable media", () => {
     await addToGallery(a, galleryA, inside);
     const ids = (await listAddableMedia(a, galleryA)).map((m) => m.id);
     expect(ids).toEqual([free]);
-  });
-});
-
-describe("migration 0014 data takeover", () => {
-  it("is covered by the SQL window function: set order, then media order", async () => {
-    // Re-run the backfill statement against fresh data.
-    const [s1, s2] = await db
-      .insert(sets)
-      .values([
-        {
-          accountId: a.accountId,
-          galleryId: galleryA,
-          title: "S1",
-          position: 1,
-        },
-        {
-          accountId: a.accountId,
-          galleryId: galleryA,
-          title: "S2",
-          position: 0,
-        },
-      ])
-      .returning();
-    const [m1, m2, m3] = await db
-      .insert(media)
-      .values([
-        { accountId: a.accountId, setId: s1.id, type: "photo", position: 0 },
-        { accountId: a.accountId, setId: s1.id, type: "photo", position: 1 },
-        { accountId: a.accountId, setId: s2.id, type: "photo", position: 0 },
-      ])
-      .returning();
-    const fs = await import("node:fs");
-    const sql = fs.readFileSync(
-      "drizzle/0014_breezy_living_tribunal.sql",
-      "utf8",
-    );
-    const insert = sql.slice(sql.indexOf("INSERT INTO"));
-    await db.execute(insert as unknown as import("drizzle-orm").SQL);
-    const list = await listGalleryMedia(a, galleryA);
-    expect(list.map((m) => m.id)).toEqual([m3.id, m1.id, m2.id]);
   });
 });
 

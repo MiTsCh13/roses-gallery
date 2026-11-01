@@ -1,8 +1,8 @@
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 
-import { accounts, galleries, media, sets, users, visitors } from "@/db/schema";
+import { accounts, galleries, media, users, visitors } from "@/db/schema";
 import { FakeMailer } from "@/lib/mailer";
-import { createTestDb, resetDb, linkSetMedia } from "@/test/db";
+import { createTestDb, resetDb, linkAccountMedia } from "@/test/db";
 import {
   createGuest,
   createList,
@@ -29,17 +29,12 @@ async function makeGallery(acc: string, slug: string) {
     .insert(galleries)
     .values({ accountId: acc, slug, title: "Anna & Ben", status: "published" })
     .returning();
-  const [set] = await db
-    .insert(sets)
-    .values({ accountId: acc, galleryId: g.id, title: "Trauung" })
-    .returning();
   const ids: string[] = [];
   for (let i = 1; i <= 3; i++) {
     const [m] = await db
       .insert(media)
       .values({
         accountId: acc,
-        setId: set.id,
         type: "photo",
         processingStatus: "ready",
         position: i,
@@ -47,7 +42,7 @@ async function makeGallery(acc: string, slug: string) {
       .returning();
     ids.push(m.id);
   }
-  await linkSetMedia(db);
+  await linkAccountMedia(db, g.id);
   return { g, ids };
 }
 

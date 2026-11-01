@@ -1,9 +1,9 @@
 import { downloadPolicySchema } from "@/lib/download-policy";
-import { and, count, eq, max, sql } from "drizzle-orm";
+import { and, count, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 
 import type { Db } from "@/db";
-import { accounts, galleries, galleryMedia, media, sets } from "@/db/schema";
+import { accounts, galleries, galleryMedia, media } from "@/db/schema";
 import { tenantDb } from "@/db/tenant";
 import { assertCanCreateGallery, type SubscriptionStatus } from "@/lib/plans";
 
@@ -62,12 +62,6 @@ export const updateGallerySchema = z.object({
   coverMediaId: z.uuid().nullable().optional(),
   downloadPolicy: downloadPolicySchema.optional(),
   watermarkEnabled: z.boolean().optional(),
-});
-
-export const createSetSchema = z.object({
-  galleryId: z.uuid(),
-  title: z.string().trim().min(1).max(200),
-  type: z.enum(["photo", "video"]),
 });
 
 type Deps = { db: Db; accountId: string };
@@ -180,29 +174,6 @@ export async function updateGallery(deps: Deps, input: unknown) {
   }
 }
 
-/** Appends a set at the end of the gallery's set order. */
-export async function createSet(deps: Deps, input: unknown) {
-  const data = createSetSchema.parse(input);
-  const t = tenantDb(deps.db, deps.accountId);
-  if (!(await t.galleries.get(data.galleryId)))
-    throw new GalleryError("not_found", "Gallery not found.");
-  const [{ top }] = await deps.db
-    .select({ top: max(sets.position) })
-    .from(sets)
-    .where(
-      and(
-        eq(sets.accountId, deps.accountId),
-        eq(sets.galleryId, data.galleryId),
-      ),
-    );
-  return t.sets.create({
-    galleryId: data.galleryId,
-    title: data.title,
-    type: data.type,
-    position: (top ?? -1) + 1,
-  });
-}
-
 export type GalleryOverviewRow = typeof galleries.$inferSelect & {
   mediaCount: number;
   storageBytes: number;
@@ -229,66 +200,6 @@ export async function galleryOverview(
     mediaCount: r.mediaCount,
     storageBytes: r.storageBytes,
   }));
-}
-
-const orderSchema = z.object({
-  parentId: z.uuid(),
-  orderedIds: z.array(z.uuid()).max(5000),
-});
-
-/** Rewrites `position` for a parent's children; the list must name every child exactly once. */
-async function applyOrder(
-  deps: Deps,
-  table: typeof sets | typeof media,
-  parentColumn: typeof sets.galleryId | typeof media.setId,
-  input: unknown,
-) {
-  const { parentId, orderedIds } = orderSchema.parse(input);
-  await deps.db.transaction(async (tx) => {
-    const current = await tx
-      .select({ id: table.id })
-      .from(table)
-      .where(
-        and(eq(table.accountId, deps.accountId), eq(parentColumn, parentId)),
-      );
-    const known = new Set(current.map((r) => r.id));
-    if (
-      orderedIds.length !== known.size ||
-      new Set(orderedIds).size !== known.size ||
-      !orderedIds.every((id) => known.has(id))
-    ) {
-      throw new GalleryError("invalid_state", "Order does not match items.");
-    }
-    for (const [position, id] of orderedIds.entries()) {
-      await tx
-        .update(table)
-        .set({ position })
-        .where(and(eq(table.id, id), eq(table.accountId, deps.accountId)));
-    }
-  });
-}
-
-export async function reorderSets(
-  deps: Deps,
-  galleryId: string,
-  orderedIds: string[],
-) {
-  if (!(await tenantDb(deps.db, deps.accountId).galleries.get(galleryId)))
-    throw new GalleryError("not_found", "Gallery not found.");
-  await applyOrder(deps, sets, sets.galleryId, {
-    parentId: galleryId,
-    orderedIds,
-  });
-}
-
-export async function reorderMedia(
-  deps: Deps,
-  setId: string,
-  orderedIds: string[],
-) {
-  if (!(await tenantDb(deps.db, deps.accountId).sets.get(setId)))
-    throw new GalleryError("not_found", "Set not found.");
-  await applyOrder(deps, media, media.setId, { parentId: setId, orderedIds });
 }
 
 /** Sets (or, with null, clears) the cover; the media must belong to the gallery. */
