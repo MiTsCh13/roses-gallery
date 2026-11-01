@@ -23,6 +23,7 @@ import { logoUrl } from "@/lib/branding";
 import { galleryDesign } from "@/lib/gallery-design";
 import { getStorage } from "@/lib/storage";
 import { DialogButton } from "@/components/dialog-button";
+import { previewTiles } from "@/lib/design-preview";
 import { GalleryMediaPanel } from "@/components/gallery-media-panel";
 import { listAddableMedia, listGalleryMedia } from "@/lib/library";
 import {
@@ -307,9 +308,7 @@ async function GalleryContent({
             initialThemeId={design.themeId}
             initialConfig={design.config}
             logoUrl={logo ?? undefined}
-            tiles={Array.from({ length: 8 }, (_, n) => ({
-              id: `placeholder-${n}`,
-            }))}
+            tiles={previewTiles(inGallery)}
             action={saveDesignAction}
             removeLogoAction={removeLogoAction}
           />
