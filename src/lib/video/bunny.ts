@@ -113,6 +113,15 @@ export class BunnyVideoProvider implements VideoProvider {
    * Only offered with a dedicated pull-zone key (D-117); without it the embed is used.
    */
   signHlsUrl(videoId: string, ttlSeconds: number) {
+    return this.signCdnFile(videoId, "playlist.m3u8", ttlSeconds);
+  }
+
+  /** Poster frame; lives in the same token-protected directory as the playlist. */
+  signThumbnailUrl(videoId: string, ttlSeconds: number) {
+    return this.signCdnFile(videoId, "thumbnail.jpg", ttlSeconds);
+  }
+
+  private signCdnFile(videoId: string, file: string, ttlSeconds: number) {
     const host = this.config.cdnHostname;
     if (!host || !this.config.cdnTokenKey) return null;
     const expires = Math.floor(Date.now() / 1000) + ttlSeconds;
@@ -127,7 +136,7 @@ export class BunnyVideoProvider implements VideoProvider {
       expires: String(expires),
       token_path: tokenPath,
     });
-    return `https://${host}${tokenPath}playlist.m3u8?${query}`;
+    return `https://${host}${tokenPath}${file}?${query}`;
   }
 
   signOriginalUrl(videoId: string, ttlSeconds: number) {

@@ -98,6 +98,26 @@ describe("BunnyVideoProvider", () => {
     );
   });
 
+  it("signs the poster image in the same token directory", () => {
+    const provider = new BunnyVideoProvider({
+      libraryId: "123",
+      apiKey: "api-key",
+      tokenKey: "token-key",
+      cdnHostname: "vz-test.b-cdn.net",
+      cdnTokenKey: "cdn-key",
+    });
+    const url = new URL(provider.signThumbnailUrl("vid", 60)!);
+    expect(url.pathname).toBe("/vid/thumbnail.jpg");
+    expect(url.searchParams.get("token_path")).toBe("/vid/");
+    expect(
+      new BunnyVideoProvider({
+        libraryId: "123",
+        apiKey: "api-key",
+        tokenKey: "token-key",
+      }).signThumbnailUrl("vid", 60),
+    ).toBeNull();
+  });
+
   it("creates, reads and deletes videos via the API", async () => {
     const fetchMock = vi
       .fn()

@@ -1,8 +1,8 @@
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 
-import { accounts, galleries, media, sets, users, visitors } from "@/db/schema";
+import { accounts, galleries, media, users, visitors } from "@/db/schema";
 import { FakeMailer } from "@/lib/mailer";
-import { createTestDb, resetDb } from "@/test/db";
+import { createTestDb, resetDb, linkAccountMedia } from "@/test/db";
 import {
   createGuest,
   createList,
@@ -29,17 +29,12 @@ async function makeGallery(acc: string, slug: string) {
     .insert(galleries)
     .values({ accountId: acc, slug, title: "Anna & Ben", status: "published" })
     .returning();
-  const [set] = await db
-    .insert(sets)
-    .values({ accountId: acc, galleryId: g.id, title: "Trauung" })
-    .returning();
   const ids: string[] = [];
   for (let i = 1; i <= 3; i++) {
     const [m] = await db
       .insert(media)
       .values({
         accountId: acc,
-        setId: set.id,
         type: "photo",
         processingStatus: "ready",
         position: i,
@@ -47,6 +42,7 @@ async function makeGallery(acc: string, slug: string) {
       .returning();
     ids.push(m.id);
   }
+  await linkAccountMedia(db, g.id);
   return { g, ids };
 }
 
@@ -218,7 +214,7 @@ describe("magic link", () => {
 });
 
 describe("export to the creator", () => {
-  it("mails the list with photo numbers per set to the owners", async () => {
+  it("mails the list with photo numbers to the owners", async () => {
     const v = await createGuest({ db }, gallery);
     const list = await createList({ db }, gallery, v.id, "Album");
     const mailer = new FakeMailer();
@@ -236,7 +232,42 @@ describe("export to the creator", () => {
     });
     const mail = mailer.lastTo("foto@example.com")!;
     expect(mail.subject).toContain("Album");
-    expect(mail.text).toContain("Trauung: Foto 1, 3");
+    expect(mail.text).toContain("Fotos: 1, 3");
     expect(mail.text).toContain("https://roses.test/g/anna-ben");
+  });
+
+  it("accepts videos as favorites and lists them separately", async () => {
+    const [video] = await db
+      .insert(media)
+      .values({
+        accountId,
+        type: "video",
+        processingStatus: "ready",
+        position: 9,
+      })
+      .returning();
+    await linkAccountMedia(db, gallery.id);
+    const v = await createGuest({ db }, gallery);
+    const list = await createList({ db }, gallery, v.id, "Album");
+    expect(
+      await toggleFavorite({ db }, gallery, v.id, {
+        listId: list.id,
+        mediaId: video.id,
+      }),
+    ).toEqual({ favorite: true });
+    await toggleFavorite({ db }, gallery, v.id, {
+      listId: list.id,
+      mediaId: photoIds[1],
+    });
+    const mailer = new FakeMailer();
+    await sendListToCreator(
+      { db, mailer, baseUrl: "https://roses.test" },
+      gallery,
+      v.id,
+      list.id,
+    );
+    const text = mailer.lastTo("foto@example.com")!.text;
+    expect(text).toContain("Fotos: 2");
+    expect(text).toContain("Videos: 1");
   });
 });

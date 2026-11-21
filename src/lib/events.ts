@@ -1,7 +1,7 @@
 import { and, count, eq, gte, lt } from "drizzle-orm";
 
 import type { Db } from "@/db";
-import { events, media, sets, galleries } from "@/db/schema";
+import { events, galleryMedia, media, galleries } from "@/db/schema";
 
 // Gallery statistics (F-DASH-02), data-sparing by design: no cookies, no IP
 // addresses, no visitor ids. An event is only "what happened where and when",
@@ -36,12 +36,12 @@ export async function recordPlay(db: Db, gallery: Gallery, mediaId: string) {
   const [video] = await db
     .select({ id: media.id })
     .from(media)
-    .innerJoin(sets, eq(sets.id, media.setId))
+    .innerJoin(galleryMedia, eq(galleryMedia.mediaId, media.id))
     .where(
       and(
         eq(media.id, mediaId),
         eq(media.accountId, gallery.accountId),
-        eq(sets.galleryId, gallery.id),
+        eq(galleryMedia.galleryId, gallery.id),
         eq(media.type, "video"),
       ),
     )

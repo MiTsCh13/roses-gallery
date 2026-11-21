@@ -6,7 +6,22 @@
   "HomePage": {
     "title": "Roses Gallery",
     "tagline": "Foto- und Video-Galerien für deine Hochzeitskunden – gebrandet, in 4K und DSGVO-konform.",
-    "cta": "Demnächst verfügbar"
+    "cta": "Demnächst verfügbar",
+    "eyebrow": "Für Hochzeitsfotografen und -videografen",
+    "features": [
+      {
+        "title": "Dein Branding",
+        "text": "Galerien in deinem Stil: Farben, Schriften, Logo und Cover."
+      },
+      {
+        "title": "Fotos und Filme",
+        "text": "Fotos und Videos bis 4K an einem Ort – schnell, auch am Handy."
+      },
+      {
+        "title": "Sicher geteilt",
+        "text": "Passwortschutz, Ablaufdatum und Downloads, wie du es willst."
+      }
+    ]
   },
   "Auth": {
     "mail": {
@@ -21,7 +36,13 @@
     "emailPlaceholder": "du@beispiel.de",
     "submit": "Anmeldelink senden",
     "google": "Mit Google fortfahren",
+    "passwordToggle": "Mit Passwort anmelden",
+    "passwordEmailLabel": "E-Mail",
+    "passwordLabel": "Passwort",
+    "passwordSubmit": "Anmelden",
     "errors": {
+      "invalid_credentials": "E-Mail-Adresse oder Passwort stimmen nicht.",
+      "rate_limited": "Zu viele Versuche. Bitte warte einige Minuten.",
       "invalid_email": "Bitte gib eine gültige E-Mail-Adresse ein."
     }
   },
@@ -33,9 +54,54 @@
     "title": "Dashboard",
     "signedInAs": "Angemeldet als {email}",
     "signOut": "Abmelden",
-    "billing": "Abo & Speicher",
     "galleries": "Galerien",
-    "security": "Sicherheit (2FA)"
+    "library": "Bibliothek",
+    "brand": "Roses Gallery",
+    "navLabel": "Hauptnavigation",
+    "welcome": "Willkommen zurück",
+    "welcomeText": "Was möchtest du heute tun?",
+    "galleriesText": "Galerien anlegen, gestalten und an Kunden senden.",
+    "settings": "Profil & Einstellungen",
+    "settingsText": "Studio, Logo, Abo, Speicher und Sicherheit."
+  },
+  "Library": {
+    "title": "Bibliothek",
+    "root": "Bibliothek",
+    "hint": "Fotos und Videos hierher ziehen oder auswählen – sie landen im aktuellen Ordner.",
+    "choose": "Dateien auswählen",
+    "cancel": "Abbrechen",
+    "retry": "Wiederholen",
+    "done": "Hochgeladen",
+    "error": {
+      "unsupported_type": "Dateityp wird nicht unterstützt",
+      "plan_limit": "Speicherplatz im Plan erschöpft",
+      "aborted": "Abgebrochen",
+      "failed": "Upload fehlgeschlagen"
+    },
+    "newFolder": "Neuer Ordner",
+    "folderName": "Ordnername",
+    "create": "Anlegen",
+    "rename": "Umbenennen",
+    "renamePrompt": "Neuer Name",
+    "deleteFolder": "Ordner löschen",
+    "deleteFolderConfirm": "Ordner „{name}“ löschen? Die Dateien darin bleiben in der Bibliothek.",
+    "empty": "Hier ist noch nichts.",
+    "selected": "{count, plural, one {# ausgewählt} other {# ausgewählt}}",
+    "select": "Auswählen: {n}",
+    "moveTo": "Verschieben nach …",
+    "move": "Verschieben",
+    "delete": "Löschen",
+    "deleteConfirm": "{count, plural, one {Diese Datei} other {Diese # Dateien}} endgültig löschen? Sie verschwinden auch aus allen Galerien.",
+    "clear": "Auswahl aufheben",
+    "photoN": "Foto",
+    "videoN": "Video",
+    "status": {
+      "pending": "wird verarbeitet",
+      "processing": "wird verarbeitet",
+      "ready": "bereit",
+      "failed": "Verarbeitung fehlgeschlagen"
+    },
+    "actionFailed": "Das hat nicht geklappt."
   },
   "TwoFactorLogin": {
     "title": "Zwei-Faktor-Code",
@@ -50,7 +116,6 @@
   },
   "Security": {
     "title": "Sicherheit",
-    "back": "Zurück zum Dashboard",
     "twoFactor": "Zwei-Faktor-Anmeldung (2FA)",
     "disabledInfo": "Schütze dein Konto zusätzlich mit einem Code aus einer Authenticator-App (z. B. Google Authenticator, 1Password, Aegis).",
     "enabledInfo": "2FA ist aktiv. Bei jeder Anmeldung wird ein Code abgefragt.",
@@ -182,6 +247,8 @@
     "watermarkOpacity": "Deckkraft (5–100 %)",
     "watermarkScale": "Größe (5–60 % der Bildbreite)",
     "watermarkSave": "Einstellungen übernehmen",
+    "deliveryOpen": "An Kunden senden",
+    "close": "Schließen",
     "deliveryTitle": "Galerie an Kunden senden",
     "deliveryHint": "Platzhalter: {titel}, {link}, {passwort_hinweis}, {fotograf}. Das Passwort selbst wird nie mitgeschickt.",
     "deliveryRecipients": "Empfänger (E-Mail-Adressen, durch Komma oder Zeilenumbruch getrennt)",
@@ -237,7 +304,16 @@
     "moveUp": "Nach oben",
     "moveDown": "Nach unten",
     "drag": "Zum Sortieren ziehen",
-    "design": "Design"
+    "design": "Design",
+    "blockGeneral": "Allgemein",
+    "blockAccess": "Zugang & Ablauf",
+    "expiresHint": "Kein Datum = kein Ablauf.",
+    "view": "Galerie ansehen ↗",
+    "fieldDescription": "Info",
+    "descriptionHint": "Kurzer Text unter dem Titel in der Galerie (optional).",
+    "copyLink": "Link kopieren",
+    "linkCopied": "Link kopiert ✓",
+    "linkCopyFailed": "Kopieren nicht möglich"
   },
   "Design": {
     "title": "Design",
@@ -265,7 +341,7 @@
     "gap": "Abstand",
     "layoutOption": {
       "masonry": "Mauerwerk",
-      "uniform": "Gleichmäßig",
+      "uniform": "Zeilenbündig",
       "rows": "Reihen"
     },
     "gapOption": {
@@ -283,6 +359,7 @@
     "desktop": "Desktop",
     "mobile": "Mobil",
     "previewSubtitle": "Vorschau",
+    "openPreview": "Vorschau im neuen Tab ↗",
     "error": {
       "invalid": "Ungültiges Design.",
       "not_found": "Galerie oder Theme nicht gefunden.",
@@ -298,12 +375,14 @@
   "PublicGallery": {
     "shareLink": "Galerie-Link teilen",
     "shareCopied": "Link kopiert.",
-    "shareStory": "Als Story teilen",
-    "shareStoryFailed": "Das Bild konnte nicht erstellt werden.",
+    "sharePhoto": "Teilen",
+    "sharePhotoFailed": "Das Foto konnte nicht geteilt werden.",
+    "favoritesFilter": "Nur Favoriten",
+    "favoritesFilterEmpty": "Noch keine Favoriten. Tippe auf das Herz bei einem Foto oder Video.",
     "favoriteAdd": "Zu Favoriten hinzufügen",
     "favoriteRemove": "Aus Favoriten entfernen",
     "favoritesTitle": "Deine Favoriten",
-    "favoritesEmpty": "Tippe auf das Herz bei einem Foto, um es zu merken.",
+    "favoritesEmpty": "Tippe auf das Herz bei einem Foto oder Video, um es zu merken.",
     "favoritesNewList": "Neue Liste (z. B. Album)",
     "favoritesCreate": "Liste anlegen",
     "favoritesDelete": "Löschen",
@@ -325,21 +404,23 @@
     "download": "Herunterladen",
     "downloadOriginal": "Original herunterladen",
     "zipTitle": "Alles als ZIP herunterladen",
-    "zipIntro": "Wir packen die Fotos für dich zusammen und schicken dir den Download-Link per E-Mail.",
-    "zipSet": "Umfang",
-    "zipAllSets": "Alle Sets",
+    "zipIntro": "Wir packen alle Fotos für dich zusammen. Du kannst die ZIP-Datei direkt herunterladen oder dir den Link per E-Mail schicken lassen.",
     "zipSize": "Größe",
     "zipWeb": "Web-Größe",
     "zipOriginal": "Original",
     "zipEmail": "Deine E-Mail-Adresse",
     "zipSubmit": "Link per E-Mail anfordern",
+    "zipDirect": "ZIP herunterladen",
+    "zipBuilding": "ZIP wird erstellt … bitte warten",
+    "zipByMail": "Lieber per E-Mail erhalten?",
     "zipResult": {
       "sent": "Fertig! Der Download-Link kommt in wenigen Minuten per E-Mail.",
-      "invalid": "Bitte gib eine gültige E-Mail-Adresse an.",
+      "invalid": "Das hat nicht geklappt. Bitte prüfe deine Eingabe (bei E-Mail: gültige Adresse).",
+      "failed": "Die ZIP-Datei konnte nicht erstellt werden. Bitte versuche es später erneut.",
       "rate_limited": "Zu viele Anfragen. Bitte versuche es später erneut.",
       "forbidden": "Für diese Auswahl sind Downloads nicht erlaubt.",
       "empty": "In dieser Auswahl gibt es noch keine Fotos.",
-      "too_large": "Die Auswahl ist zu groß für einen ZIP-Download. Bitte wähle ein einzelnes Set oder die Web-Größe.",
+      "too_large": "Die Auswahl ist zu groß für einen ZIP-Download. Bitte wähle die Web-Größe.",
       "not_found": "Diese Galerie ist nicht verfügbar."
     },
     "passwordIntro": "Diese Galerie ist passwortgeschützt. Bitte gib das Passwort ein, das du vom Fotografen erhalten hast.",
@@ -534,5 +615,74 @@
       ]
     },
     "draft": "Entwurf: Die Angaben des Anbieters sind noch nicht vollständig hinterlegt. Dieser Text ist vor dem Launch rechtlich zu prüfen."
+  },
+  "Settings": {
+    "title": "Profil & Einstellungen",
+    "tabsLabel": "Einstellungen",
+    "tabs": {
+      "profile": "Profil",
+      "billing": "Abo & Speicher",
+      "security": "Sicherheit"
+    },
+    "save": "Speichern",
+    "saved": "Gespeichert.",
+    "errors": {
+      "invalid": "Bitte prüfe deine Angaben (Studioname ist Pflicht, die Webseite muss mit https:// beginnen).",
+      "password_invalid": "Das neue Passwort braucht mindestens 8 Zeichen, die Wiederholung muss übereinstimmen.",
+      "wrong_current": "Das aktuelle Passwort stimmt nicht."
+    },
+    "password": {
+      "title": "Passwort",
+      "introNone": "Du meldest dich bisher per Anmeldelink an. Du kannst zusätzlich ein Passwort festlegen.",
+      "introSet": "Ein Passwort ist festgelegt. Der Anmeldelink funktioniert weiterhin.",
+      "current": "Aktuelles Passwort",
+      "next": "Neues Passwort (mind. 8 Zeichen)",
+      "repeat": "Neues Passwort wiederholen",
+      "submitSet": "Passwort festlegen",
+      "submitChange": "Passwort ändern"
+    },
+    "profile": {
+      "title": "Studio & Kontakt",
+      "studioName": "Studioname",
+      "contactName": "Ansprechpartner",
+      "email": "E-Mail-Adresse (Anmeldung)",
+      "phone": "Telefon",
+      "website": "Webseite",
+      "instagram": "Instagram"
+    },
+    "logo": {
+      "title": "Logo",
+      "alt": "Aktuelles Logo",
+      "file": "Logo-Datei",
+      "hint": "PNG, JPEG oder WebP, höchstens 1,5 MB. Das Logo erscheint in allen Galerien.",
+      "upload": "Logo hochladen",
+      "remove": "Logo entfernen"
+    }
+  },
+  "GalleryEditor": {
+    "uploadFiles": "Dateien hochladen",
+    "dropHint": "Fotos und Videos hierher ziehen, um sie hochzuladen und der Galerie hinzuzufügen.",
+    "upload": {
+      "uploading": "Lädt hoch …",
+      "done": "Hinzugefügt",
+      "error": "Fehlgeschlagen"
+    },
+    "processing": "Wird verarbeitet …",
+    "makeCover": "Als Titelbild",
+    "isCover": "Titelbild",
+    "mediaTitle": "Fotos & Videos ({count})",
+    "addFromLibrary": "Aus Bibliothek hinzufügen",
+    "addSelected": "{count} hinzufügen",
+    "removeSelected": "{count} aus Galerie entfernen",
+    "deleteSelected": "{count} endgültig löschen",
+    "deleteConfirm": "{count} Medien endgültig aus der Bibliothek und allen Galerien löschen?",
+    "moveEarlier": "Früher",
+    "moveLater": "Später",
+    "pickerEmpty": "Keine weiteren Medien in der Bibliothek.",
+    "mediaEmpty": "Diese Galerie enthält noch keine Fotos oder Videos.",
+    "select": "{label} {n} auswählen",
+    "video": "Video",
+    "library": "Bibliothek",
+    "gallery": "Galerie"
   }
 }

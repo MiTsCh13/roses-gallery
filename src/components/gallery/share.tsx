@@ -36,8 +36,12 @@ export function ShareLinkButton({ path }: { path: string }) {
   );
 }
 
-/** Story image (1080×1920) of one photo: share sheet with the file, else download. */
-export function StoryShareButton({
+/**
+ * Shares one photo (web size) through the device's share sheet, so it can go
+ * straight to Instagram, WhatsApp & co. Where files cannot be shared (most
+ * desktop browsers), the gallery link is shared or copied instead.
+ */
+export function PhotoShareButton({
   url,
   fileName,
   className = "",
@@ -48,29 +52,34 @@ export function StoryShareButton({
 }) {
   const t = useTranslations("PublicGallery");
   const [busy, setBusy] = useState(false);
-  const [failed, setFailed] = useState(false);
+  const [state, setState] = useState<"idle" | "copied" | "failed">("idle");
   const run = async () => {
     setBusy(true);
-    setFailed(false);
+    setState("idle");
     try {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(String(res.status));
-      const blob = await res.blob();
-      const file = new File([blob], fileName, { type: "image/jpeg" });
-      if (navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file] });
+      if (typeof navigator.canShare === "function") {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(String(res.status));
+        const blob = await res.blob();
+        const file = new File([blob], fileName, {
+          type: blob.type || "image/webp",
+        });
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file] });
+          return;
+        }
+      }
+      const link = window.location.href;
+      if (navigator.share) {
+        await navigator.share({ url: link });
       } else {
-        const href = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = href;
-        a.download = fileName;
-        a.click();
-        URL.revokeObjectURL(href);
+        await navigator.clipboard.writeText(link);
+        setState("copied");
       }
     } catch (e) {
       // a dismissed share sheet is not an error
       if (!(e instanceof DOMException && e.name === "AbortError"))
-        setFailed(true);
+        setState("failed");
     } finally {
       setBusy(false);
     }
@@ -83,11 +92,16 @@ export function StoryShareButton({
         disabled={busy}
         className="underline disabled:opacity-60"
       >
-        {t("shareStory")}
+        {t("sharePhoto")}
       </button>
-      {failed && (
+      {state === "copied" && (
+        <span role="status" className="ml-2">
+          {t("shareCopied")}
+        </span>
+      )}
+      {state === "failed" && (
         <span role="alert" className="ml-2">
-          {t("shareStoryFailed")}
+          {t("sharePhotoFailed")}
         </span>
       )}
     </span>

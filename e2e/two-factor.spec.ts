@@ -27,7 +27,7 @@ test("2FA: set up, challenge at sign-in, recovery code, disable", async ({
   await signIn(page, request, email);
   await expect(page).toHaveURL(/\/dashboard/);
 
-  await page.goto("/dashboard/security");
+  await page.goto("/dashboard/settings/security");
   await page.getByRole("button", { name: "2FA einrichten" }).click();
   const secret = (await page.getByTestId("totp-secret").textContent())!;
   await page.getByLabel("Code").fill("000000");
@@ -60,7 +60,7 @@ test("2FA: set up, challenge at sign-in, recovery code, disable", async ({
   await expect(page).toHaveURL(/\/dashboard$/);
 
   // Disable with a fresh TOTP step (the setup step is already consumed).
-  await page.goto("/dashboard/security");
+  await page.goto("/dashboard/settings/security");
   await expect(page.getByTestId("two-factor-state")).toBeVisible();
   await page.getByLabel("Code").fill(totpCode(secret, Date.now() + 30_000));
   await page.getByRole("button", { name: "2FA deaktivieren" }).click();

@@ -1,6 +1,6 @@
 import sharp from "sharp";
 
-import { allows, effectivePolicy } from "@/lib/download-policy";
+import { allows } from "@/lib/download-policy";
 import { resolveImageKey } from "@/lib/gallery-image";
 
 // Instagram story (F-INT-02): 1080×1920 JPEG, the photo (watermarked if the
@@ -57,7 +57,7 @@ export async function resolveStoryImage(
 ): Promise<StoryResult> {
   const r = await resolveImageKey(deps, { ...input, width: 1200 });
   if (!r.ok) return { ok: false, reason: "not_found" };
-  if (!allows(effectivePolicy(r.gallery.downloadPolicy, r.setPolicy), "web")) {
+  if (!allows(r.gallery.downloadPolicy, "web")) {
     return { ok: false, reason: "forbidden" };
   }
   const jpeg = await renderStory(

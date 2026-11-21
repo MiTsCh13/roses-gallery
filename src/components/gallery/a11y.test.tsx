@@ -9,27 +9,12 @@ import { SYSTEM_THEMES } from "@/lib/themes";
 import { GalleryGrid } from "./gallery-grid";
 import { GalleryView } from "./gallery-view";
 
-const sets = [
+const tiles = [
+  { id: "a", src: "https://x.test/a.jpg", alt: "Foto 1" },
+  { id: "b", src: "https://x.test/b.jpg", alt: "Foto 2" },
   {
-    id: "s1",
-    title: "Trauung",
-    tiles: [
-      { id: "a", src: "https://x.test/a.jpg", alt: "Foto 1" },
-      { id: "b", src: "https://x.test/b.jpg", alt: "Foto 2" },
-    ],
-  },
-  {
-    id: "s2",
-    title: "Film",
-    tiles: [],
-    videos: [
-      {
-        id: "v1",
-        title: "Film 1",
-        playUrl: "https://v.test/e/1",
-        durationS: 95,
-      },
-    ],
+    id: "v1",
+    video: { title: "Film 1", playUrl: "https://v.test/e/1", durationS: 95 },
   },
 ];
 
@@ -57,7 +42,7 @@ describe("gallery markup (axe)", () => {
               logoUrl="https://x.test/logo.png"
               logoAlt="Studio"
               coverUrl="https://x.test/cover.jpg"
-              sets={sets}
+              tiles={tiles}
             />
           </main>
         </NextIntlClientProvider>,
@@ -70,7 +55,7 @@ describe("gallery markup (axe)", () => {
     render(
       <NextIntlClientProvider locale="de" messages={messages}>
         <main>
-          <GalleryGrid layout="uniform" tiles={sets[0].tiles} />
+          <GalleryGrid layout="uniform" tiles={tiles} />
         </main>
       </NextIntlClientProvider>,
     );

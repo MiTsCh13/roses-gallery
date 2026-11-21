@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it } from "vitest";
 
 import messages from "../../../messages/de.json";
 import { SYSTEM_THEMES } from "@/lib/themes";
-import { GalleryGrid } from "./gallery-grid";
+import { GalleryGrid, type GalleryViewTile } from "./gallery-grid";
 
 const tiles = [
   { id: "a", src: "https://x.test/a.webp", alt: "Foto 1" },
@@ -14,7 +14,7 @@ const tiles = [
   { id: "c", src: "https://x.test/c.webp", alt: "Foto 3" },
 ];
 
-function renderGrid(list: typeof tiles = tiles) {
+function renderGrid(list: GalleryViewTile[] = tiles) {
   return render(
     <NextIntlClientProvider locale="de" messages={messages}>
       <GalleryGrid layout={SYSTEM_THEMES[0].config.grid.layout} tiles={list} />
@@ -88,5 +88,30 @@ describe("Lightbox", () => {
     ).toBe("/dl/a?size=original");
     fireEvent.keyDown(window, { key: "ArrowRight" });
     expect(screen.queryByRole("link")).toBeNull();
+  });
+
+  it("opens a video tile in the player and swipes on to the next photo", () => {
+    renderGrid([
+      { id: "a", src: "https://x.test/a.webp", alt: "Foto 1" },
+      {
+        id: "v",
+        video: {
+          title: "Film 1",
+          playUrl: "https://v.test/e/1",
+          durationS: 65,
+        },
+      },
+    ]);
+    // the embed is not loaded before the visitor opens the tile
+    expect(document.querySelector("iframe")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Film 1" }));
+    expect(screen.getByTestId("lightbox-video")).toBeTruthy();
+    expect(document.querySelector("iframe")?.getAttribute("src")).toBe(
+      "https://v.test/e/1",
+    );
+    expect(screen.queryByTestId("lightbox-image")).toBeNull();
+    fireEvent.keyDown(window, { key: "ArrowRight" });
+    expect(shown()).toBe("https://x.test/a.webp");
+    expect(screen.queryByTestId("lightbox-video")).toBeNull();
   });
 });

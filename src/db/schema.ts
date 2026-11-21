@@ -2,6 +2,7 @@
 // directly or via its parent (see docs/SPEC.md → Datenmodell).
 import { sql } from "drizzle-orm";
 import {
+  type AnyPgColumn,
   bigint,
   boolean,
   index,
@@ -28,7 +29,6 @@ export const downloadPolicy = pgEnum("download_policy", [
   "web",
   "original",
 ]);
-export const setType = pgEnum("set_type", ["photo", "video"]);
 export const mediaType = pgEnum("media_type", ["photo", "video"]);
 export const processingStatus = pgEnum("processing_status", [
   "pending",
@@ -84,6 +84,8 @@ export const users = pgTable(
     image: text("image"),
     role: userRole("role").notNull().default("owner"),
     authProvider: text("auth_provider"),
+    // Optional password login (D-141): scrypt hash, null = Magic Link / Google only.
+    passwordHash: text("password_hash"),
     // 2FA (TOTP, D-131): secret is AES-GCM encrypted; active once totpEnabledAt is set.
     totpSecret: text("totp_secret"),
     totpEnabledAt: timestamp("totp_enabled_at", { withTimezone: true }),
@@ -165,6 +167,8 @@ export const galleries = pgTable(
       .references(() => accounts.id, { onDelete: "cascade" }),
     slug: text("slug").notNull(),
     title: text("title").notNull(),
+    // short info line shown under the title; null = none
+    description: text("description"),
     eventDate: timestamp("event_date", { withTimezone: true, mode: "date" }),
     status: galleryStatus("status").notNull().default("draft"),
     themeId: uuid("theme_id").references(() => themes.id, {
@@ -193,26 +197,21 @@ export const galleries = pgTable(
   ],
 );
 
-export const sets = pgTable(
-  "sets",
+// Library folders (D-142); nested via parentId, optional for media.
+export const folders = pgTable(
+  "folders",
   {
     id: id(),
     accountId: uuid("account_id")
       .notNull()
       .references(() => accounts.id, { onDelete: "cascade" }),
-    galleryId: uuid("gallery_id")
-      .notNull()
-      .references(() => galleries.id, { onDelete: "cascade" }),
-    title: text("title").notNull(),
-    type: setType("type").notNull().default("photo"),
-    position: integer("position").notNull().default(0),
-    downloadPolicy: downloadPolicy("download_policy"),
+    parentId: uuid("parent_id").references((): AnyPgColumn => folders.id, {
+      onDelete: "cascade",
+    }),
+    name: text("name").notNull(),
     createdAt: createdAt(),
   },
-  (t) => [
-    index("sets_account_idx").on(t.accountId),
-    index("sets_gallery_idx").on(t.galleryId, t.position),
-  ],
+  (t) => [index("folders_account_idx").on(t.accountId, t.parentId)],
 );
 
 export const media = pgTable(
@@ -222,9 +221,9 @@ export const media = pgTable(
     accountId: uuid("account_id")
       .notNull()
       .references(() => accounts.id, { onDelete: "cascade" }),
-    setId: uuid("set_id")
-      .notNull()
-      .references(() => sets.id, { onDelete: "cascade" }),
+    folderId: uuid("folder_id").references(() => folders.id, {
+      onDelete: "set null",
+    }),
     type: mediaType("type").notNull(),
     originalKey: text("original_key"),
     bunnyVideoId: text("bunny_video_id"),
@@ -244,9 +243,31 @@ export const media = pgTable(
       .default("pending"),
     createdAt: createdAt(),
   },
+  (t) => [index("media_account_idx").on(t.accountId)],
+);
+
+// Assigns library media to galleries (D-142): a medium may sit in several
+// galleries; storage is still counted once on the medium.
+export const galleryMedia = pgTable(
+  "gallery_media",
+  {
+    accountId: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id, { onDelete: "cascade" }),
+    galleryId: uuid("gallery_id")
+      .notNull()
+      .references(() => galleries.id, { onDelete: "cascade" }),
+    mediaId: uuid("media_id")
+      .notNull()
+      .references(() => media.id, { onDelete: "cascade" }),
+    position: integer("position").notNull().default(0),
+    createdAt: createdAt(),
+  },
   (t) => [
-    index("media_account_idx").on(t.accountId),
-    index("media_set_idx").on(t.setId, t.position),
+    primaryKey({ columns: [t.galleryId, t.mediaId] }),
+    index("gallery_media_account_idx").on(t.accountId),
+    index("gallery_media_order_idx").on(t.galleryId, t.position),
+    index("gallery_media_media_idx").on(t.mediaId),
   ],
 );
 
@@ -264,8 +285,6 @@ export const zipExports = pgTable(
     galleryId: uuid("gallery_id")
       .notNull()
       .references(() => galleries.id, { onDelete: "cascade" }),
-    // null = all downloadable sets of the gallery
-    setId: uuid("set_id").references(() => sets.id, { onDelete: "cascade" }),
     size: text("size").notNull().$type<"web" | "original">(),
     email: text("email").notNull(),
     status: zipStatus("status").notNull().default("pending"),

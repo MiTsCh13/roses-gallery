@@ -41,6 +41,11 @@ export class FakeVideoProvider implements VideoProvider {
     return null;
   }
 
+  signThumbnailUrl(videoId?: string): string | null {
+    void videoId;
+    return null;
+  }
+
   signOriginalUrl(videoId: string, ttlSeconds: number) {
     const expires = Math.floor(Date.now() / 1000) + ttlSeconds;
     return `/api/test/original/${videoId}?expires=${expires}&token=fake`;

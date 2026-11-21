@@ -8,7 +8,7 @@ import {
   favoriteLists,
   favorites,
   media,
-  sets,
+  galleryMedia,
   users,
   visitors,
   type galleries,
@@ -228,7 +228,7 @@ export async function deleteList(
     );
 }
 
-/** Adds the photo to the list, or removes it if it is already there. */
+/** Adds the photo or video to the list, or removes it if it is already there. */
 export async function toggleFavorite(
   deps: Deps,
   gallery: Gallery,
@@ -245,17 +245,16 @@ export async function toggleFavorite(
   const [photo] = await deps.db
     .select({ id: media.id })
     .from(media)
-    .innerJoin(sets, eq(sets.id, media.setId))
+    .innerJoin(galleryMedia, eq(galleryMedia.mediaId, media.id))
     .where(
       and(
         eq(media.id, input.mediaId),
         eq(media.accountId, gallery.accountId),
-        eq(sets.galleryId, gallery.id),
-        eq(media.type, "photo"),
+        eq(galleryMedia.galleryId, gallery.id),
       ),
     )
     .limit(1);
-  if (!photo) throw new FavoritesError("not_found", "Photo not found.");
+  if (!photo) throw new FavoritesError("not_found", "Media not found.");
 
   const where = and(
     eq(favorites.listId, list.id),
@@ -345,16 +344,16 @@ export async function sendListToCreator(
   if (!visitor) throw new FavoritesError("not_found", "Visitor not found.");
   const list = await ownList(deps, gallery, visitorId, listId);
   const rows = await deps.db
-    .select({ setTitle: sets.title, setPos: sets.position, m: media })
+    .select({ m: media })
     .from(favorites)
     .innerJoin(media, eq(media.id, favorites.mediaId))
-    .innerJoin(sets, eq(sets.id, media.setId))
+    .innerJoin(galleryMedia, eq(galleryMedia.mediaId, media.id))
     .where(
       and(
         eq(favorites.listId, list.id),
         eq(favorites.accountId, gallery.accountId),
         eq(media.accountId, gallery.accountId),
-        eq(sets.galleryId, gallery.id),
+        eq(galleryMedia.galleryId, gallery.id),
       ),
     );
   if (rows.length === 0) throw new FavoritesError("empty", "List is empty.");
@@ -370,41 +369,36 @@ export async function sendListToCreator(
 
   // photo numbers follow the gallery order, matching what the visitor sees
   const all = await deps.db
-    .select({ id: media.id, setId: media.setId })
-    .from(media)
-    .innerJoin(sets, eq(sets.id, media.setId))
+    .select({ id: media.id, type: media.type })
+    .from(galleryMedia)
+    .innerJoin(media, eq(media.id, galleryMedia.mediaId))
     .where(
       and(
-        eq(media.accountId, gallery.accountId),
-        eq(sets.galleryId, gallery.id),
-        eq(media.type, "photo"),
+        eq(galleryMedia.accountId, gallery.accountId),
+        eq(galleryMedia.galleryId, gallery.id),
         eq(media.processingStatus, "ready"),
       ),
     )
-    .orderBy(asc(media.position), asc(media.createdAt));
+    .orderBy(asc(galleryMedia.position), asc(media.createdAt));
+  // photos and videos are numbered separately, as the visitor sees them
   const numberOf = new Map<string, number>();
-  const perSet = new Map<string, number>();
-  for (const p of all) {
-    const n = (perSet.get(p.setId) ?? 0) + 1;
-    perSet.set(p.setId, n);
-    numberOf.set(p.id, n);
-  }
-  const bySet = new Map<string, { pos: number; nums: number[] }>();
-  for (const r of rows) {
-    const e = bySet.get(r.setTitle) ?? { pos: r.setPos, nums: [] };
-    e.nums.push(numberOf.get(r.m.id) ?? 0);
-    bySet.set(r.setTitle, e);
-  }
-  const lines = [...bySet.entries()]
-    .sort((a, b) => a[1].pos - b[1].pos)
-    .map(
-      ([title, e]) =>
-        `${title}: Foto ${e.nums.sort((x, y) => x - y).join(", ")}`,
-    );
+  const counters = { photo: 0, video: 0 };
+  for (const item of all) numberOf.set(item.id, ++counters[item.type]);
+  const numbers = (type: "photo" | "video") =>
+    rows
+      .filter((r) => r.m.type === type)
+      .map((r) => numberOf.get(r.m.id) ?? 0)
+      .sort((x, y) => x - y);
+  const photoNums = numbers("photo");
+  const videoNums = numbers("video");
+  const lines = [
+    ...(photoNums.length ? [`Fotos: ${photoNums.join(", ")}`] : []),
+    ...(videoNums.length ? [`Videos: ${videoNums.join(", ")}`] : []),
+  ];
   const who = visitor.email ?? "ein Gast";
   const mail = {
     subject: `Favoritenliste „${list.name}“ – ${gallery.title}`,
-    text: `${who} hat die Liste „${list.name}“ (${rows.length} Fotos) aus der Galerie „${gallery.title}“ gesendet:\n\n${lines.join("\n")}\n\nGalerie: ${deps.baseUrl}/g/${encodeURIComponent(gallery.slug)}`,
+    text: `${who} hat die Liste „${list.name}“ (${rows.length} Medien) aus der Galerie „${gallery.title}“ gesendet:\n\n${lines.join("\n")}\n\nGalerie: ${deps.baseUrl}/g/${encodeURIComponent(gallery.slug)}`,
   };
   for (const address of to) await deps.mailer.send({ ...mail, to: address });
   return { count: rows.length };

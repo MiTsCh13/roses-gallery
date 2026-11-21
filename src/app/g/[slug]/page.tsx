@@ -16,6 +16,7 @@ import {
   visitorCookieName,
 } from "@/lib/favorites";
 import { ShareLinkButton } from "@/components/gallery/share";
+import { ZipDownload } from "@/components/gallery/zip-download";
 import { GalleryView } from "@/components/gallery/gallery-view";
 import { db } from "@/db";
 import { Button } from "@/components/ui/button";
@@ -26,7 +27,7 @@ import { loadPublicGallery } from "@/lib/public-gallery";
 import { getStorage } from "@/lib/storage";
 import { getVideoProvider } from "@/lib/video";
 import { accessCookieName } from "@/lib/gallery-access";
-import { requestZipAction, unlockGalleryAction } from "./actions";
+import { unlockGalleryAction } from "./actions";
 
 // Never index client galleries.
 export const metadata: Metadata = { robots: { index: false, follow: false } };
@@ -105,97 +106,56 @@ async function GalleryContent({
   const { zip } = await searchParams;
   const favorites = await loadFavorites(gallery);
   await recordEvent(db(), gallery, "view");
-  const photoSets = gallery.sets.filter((s) => s.photos.length > 0);
+  let photoNo = 0;
+  let videoNo = 0;
+  const tiles = gallery.items.map((item) =>
+    item.kind === "video"
+      ? {
+          id: item.id,
+          aspect:
+            item.width && item.height ? item.width / item.height : undefined,
+          video: {
+            title: t("videoTitle", { n: ++videoNo }),
+            playUrl: item.playUrl,
+            hlsUrl: item.hlsUrl,
+            posterUrl: item.posterUrl,
+            durationS: item.durationS,
+          },
+        }
+      : {
+          id: item.id,
+          aspect:
+            item.width && item.height ? item.width / item.height : undefined,
+          src: item.src,
+          srcSet: item.srcSet,
+          alt: t("photoAlt", { n: ++photoNo }),
+          downloads: item.downloads,
+        },
+  );
+  const hasPhotos = photoNo > 0;
+  // original first: it is what the couple usually wants
+  const photos = gallery.items.filter((i) => i.kind === "photo");
+  const zipSizes = (["original", "web"] as const).filter((size) =>
+    photos.some((p) => p.downloads[size]),
+  );
   return (
     <FavoritesProvider slug={gallery.slug} initial={favorites}>
       <main className="flex-1">
         <GalleryView
           config={gallery.config}
           title={gallery.title}
+          subtitle={gallery.description ?? undefined}
           logoUrl={gallery.logoUrl ?? undefined}
           coverUrl={gallery.coverUrl ?? undefined}
           coverSrcSet={gallery.coverSrcSet ?? undefined}
-          sets={gallery.sets.map((s) => ({
-            id: s.id,
-            title: s.title,
-            videos: s.videos.map((v, n) => ({
-              id: v.id,
-              title: t("videoTitle", { n: n + 1 }),
-              playUrl: v.playUrl,
-              hlsUrl: v.hlsUrl,
-              durationS: v.durationS,
-            })),
-            tiles: s.photos.map((p, n) => ({
-              id: p.id,
-              src: p.src,
-              srcSet: p.srcSet,
-              alt: t("photoAlt", { n: n + 1 }),
-              downloads: p.downloads,
-              story: p.downloads.web
-                ? `/api/g/${encodeURIComponent(gallery.slug)}/story/${p.id}`
-                : undefined,
-            })),
-          }))}
+          tiles={tiles}
         />
         <div className="mx-auto w-full max-w-xl px-6 pt-10">
           <ShareLinkButton path={`/g/${encodeURIComponent(gallery.slug)}`} />
         </div>
-        {photoSets.length > 0 && <FavoritesPanel />}
-        {photoSets.length > 0 && (
-          <section className="mx-auto w-full max-w-xl space-y-3 px-6 py-10">
-            <h2 className="text-lg font-semibold">{t("zipTitle")}</h2>
-            <p className="text-sm text-muted-foreground">{t("zipIntro")}</p>
-            {zip && (
-              <p
-                role={zip === "sent" ? "status" : "alert"}
-                className={
-                  zip === "sent" ? "text-sm" : "text-sm text-destructive"
-                }
-              >
-                {t.has(`zipResult.${zip}`)
-                  ? t(`zipResult.${zip}`)
-                  : t("zipResult.invalid")}
-              </p>
-            )}
-            <form action={requestZipAction} className="space-y-3">
-              <input type="hidden" name="slug" value={gallery.slug} />
-              <label className="block space-y-1 text-sm">
-                <span>{t("zipSet")}</span>
-                <select
-                  name="setId"
-                  className="h-9 w-full rounded-md border bg-background px-2"
-                >
-                  <option value="">{t("zipAllSets")}</option>
-                  {photoSets.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.title}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="block space-y-1 text-sm">
-                <span>{t("zipSize")}</span>
-                <select
-                  name="size"
-                  className="h-9 w-full rounded-md border bg-background px-2"
-                >
-                  <option value="web">{t("zipWeb")}</option>
-                  <option value="original">{t("zipOriginal")}</option>
-                </select>
-              </label>
-              <label className="block space-y-1 text-sm">
-                <span>{t("zipEmail")}</span>
-                <Input
-                  name="email"
-                  type="email"
-                  required
-                  maxLength={254}
-                  autoComplete="email"
-                />
-              </label>
-              <Button type="submit">{t("zipSubmit")}</Button>
-            </form>
-          </section>
+        {hasPhotos && <FavoritesPanel />}
+        {zipSizes.length > 0 && (
+          <ZipDownload slug={gallery.slug} sizes={zipSizes} result={zip} />
         )}
       </main>
     </FavoritesProvider>

@@ -26,7 +26,7 @@ export class UploadError extends Error {
 }
 
 export const startUploadSchema = z.object({
-  setId: z.uuid(),
+  folderId: z.uuid().optional(),
   contentType: z.enum(PHOTO_CONTENT_TYPES),
   sizeBytes: z.number().int().positive().max(MAX_PHOTO_BYTES),
 });
@@ -91,18 +91,17 @@ export async function startUpload(deps: Deps, input: unknown) {
   assertCanUpload(account, data.sizeBytes);
 
   const t = tenantDb(deps.db, deps.accountId);
-  const set = await t.sets.get(data.setId);
-  if (!set || set.type !== "photo") {
-    throw new UploadError("not_found", "Photo set not found.");
+  if (data.folderId && !(await t.folders.get(data.folderId))) {
+    throw new UploadError("not_found", "Folder not found.");
   }
 
   const [{ top }] = await deps.db
     .select({ top: max(media.position) })
     .from(media)
-    .where(and(eq(media.accountId, deps.accountId), eq(media.setId, set.id)));
+    .where(eq(media.accountId, deps.accountId));
 
   const row = await t.media.create({
-    setId: set.id,
+    folderId: data.folderId ?? null,
     type: "photo",
     sizeBytes: data.sizeBytes,
     position: (top ?? -1) + 1,

@@ -21,8 +21,7 @@ const { db, close } = createTestDb();
 let video: FakeVideoProvider;
 let accountId: string;
 let otherId: string;
-let setId: string;
-let photoSetId: string;
+let folderId: string;
 
 const deps = () => ({ db, video, accountId });
 const used = async (id = accountId) =>
@@ -37,21 +36,37 @@ beforeEach(async () => {
     .values([{ name: "A" }, { name: "B" }])
     .returning();
   const t = tenantDb(db, accountId);
-  const gallery = await t.galleries.create({ slug: "g", title: "G" });
-  ({ id: setId } = await t.sets.create({
-    galleryId: gallery.id,
-    title: "Films",
-    type: "video",
-  }));
-  ({ id: photoSetId } = await t.sets.create({
-    galleryId: gallery.id,
-    title: "Photos",
-  }));
+  ({ id: folderId } = await t.folders.create({ name: "F" }));
 });
 afterAll(() => close());
 
 const start = (sizeBytes = 1000) =>
-  startVideoUpload(deps(), { setId, title: "Trauung", sizeBytes });
+  startVideoUpload(deps(), { folderId, title: "Trauung", sizeBytes });
+
+describe("library video uploads", () => {
+  it("creates a video in the given folder", async () => {
+    const t = tenantDb(db, accountId);
+    const folder = await t.folders.create({ name: "F" });
+    const { mediaId } = await startVideoUpload(deps(), {
+      folderId: folder.id,
+      title: "Film",
+      sizeBytes: 10,
+    });
+    const row = await t.media.get(mediaId);
+    expect(row?.folderId).toBe(folder.id);
+  });
+
+  it("rejects a folder of another account", async () => {
+    const foreign = await tenantDb(db, otherId).folders.create({ name: "X" });
+    await expect(
+      startVideoUpload(deps(), {
+        folderId: foreign.id,
+        title: "Film",
+        sizeBytes: 10,
+      }),
+    ).rejects.toBeInstanceOf(VideoError);
+  });
+});
 
 describe("videos", () => {
   it("creates a pending video with tus settings", async () => {
@@ -67,18 +82,15 @@ describe("videos", () => {
     expect(await used()).toBe(0);
   });
 
-  it("rejects photo sets, foreign sets and bad input", async () => {
-    await expect(
-      startVideoUpload(deps(), { setId: photoSetId, title: "x", sizeBytes: 1 }),
-    ).rejects.toBeInstanceOf(VideoError);
+  it("rejects foreign folders and bad input", async () => {
     await expect(
       startVideoUpload(
         { db, video, accountId: otherId },
-        { setId, title: "x", sizeBytes: 1 },
+        { folderId, title: "x", sizeBytes: 1 },
       ),
     ).rejects.toBeInstanceOf(VideoError);
     await expect(
-      startVideoUpload(deps(), { setId, title: "", sizeBytes: 1 }),
+      startVideoUpload(deps(), { folderId, title: "", sizeBytes: 1 }),
     ).rejects.toBeInstanceOf(ZodError);
   });
 

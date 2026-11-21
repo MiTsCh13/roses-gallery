@@ -25,7 +25,7 @@ test("free plan by default, then a trial subscription unlocks the plan", async (
   const email = `bill+${testInfo.project.name}-${Date.now()}@foto-rose.de`;
   await signUp(page, request, email);
 
-  await page.goto("/dashboard/billing");
+  await page.goto("/dashboard/settings/billing");
   await expect(page.getByTestId("current-plan")).toContainText("Free");
   await expect(page.getByTestId("storage-usage")).toContainText("von 2 GB");
 
@@ -59,7 +59,7 @@ test("free plan by default, then a trial subscription unlocks the plan", async (
   });
   expect(hook.ok()).toBe(true);
 
-  await page.goto("/dashboard/billing");
+  await page.goto("/dashboard/settings/billing");
   await expect(page.getByTestId("current-plan")).toContainText(
     "Bloom · Testphase",
   );
@@ -70,6 +70,6 @@ test("free plan by default, then a trial subscription unlocks the plan", async (
 });
 
 test("billing page requires a login", async ({ page }) => {
-  await page.goto("/dashboard/billing");
+  await page.goto("/dashboard/settings/billing");
   await expect(page).toHaveURL(/\/login/);
 });

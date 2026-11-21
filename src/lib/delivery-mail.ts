@@ -11,20 +11,24 @@ import type { Mailer } from "@/lib/mailer";
 
 export const MAX_RECIPIENTS = 20;
 
-export const DEFAULT_SUBJECT = "Deine Galerie „{titel}“ ist fertig";
-export const DEFAULT_BODY = `Hallo,
+export const DEFAULT_SUBJECT = "Eure Galerie „{titel}“ ist da ✨";
+export const DEFAULT_BODY = `Hallo und herzliche Grüße!
 
-deine Galerie „{titel}“ ist fertig und wartet auf dich:
+es war mir eine große Freude, Euren besonderen Tag begleiten zu dürfen. Ich habe Eure Bilder in Ruhe ausgewählt und bearbeitet, und nun ist Eure Galerie „{titel}“ fertig. Ich hoffe, sie gefällt Euch genauso gut wie mir!
+
+Hier könnt Ihr Euch alles in Ruhe ansehen:
 
 {link}
 
 {passwort_hinweis}
 
-Viele Grüße
+Ihr könnt Eure Lieblingsbilder mit dem Herz markieren und alles bequem herunterladen. Wenn Ihr Fragen habt oder mir Eure Gedanken mitteilen möchtet, antwortet einfach auf diese Mail.
+
+Alles Liebe
 {fotograf}`;
 
 export const PASSWORD_HINT =
-  "Die Galerie ist passwortgeschützt. Das Passwort teilt dir {fotograf} separat mit.";
+  "Die Galerie ist passwortgeschützt. Das Passwort teilt Euch {fotograf} separat mit.";
 
 export class DeliveryError extends Error {
   constructor(
@@ -78,6 +82,30 @@ export function renderHtml(
     .replace(escapeHtml(link), (l) => `<a href="${l}">${l}</a>`)
     .replace(/\n/g, "<br>");
   return `<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:24px;color:#222"><p style="font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#888;margin:0 0 16px">${escapeHtml(creator)}</p><p style="font-size:16px;line-height:1.6;margin:0">${body}</p></div>`;
+}
+
+/**
+ * Subject and body for the send dialog, with the gallery's own values filled
+ * in, so the creator sees (and can edit) the actual text instead of
+ * placeholders. Placeholders typed by hand still work when sending.
+ */
+export function deliveryDraft(values: {
+  title: string;
+  link: string;
+  creator: string;
+  hasPassword: boolean;
+}) {
+  const fill = {
+    titel: values.title,
+    link: values.link,
+    fotograf: values.creator,
+  };
+  const hint = values.hasPassword ? fillTemplate(PASSWORD_HINT, fill) : "";
+  const tidy = (text: string) => text.replace(/\n{3,}/g, "\n\n").trim();
+  return {
+    subject: fillTemplate(DEFAULT_SUBJECT, fill),
+    body: tidy(fillTemplate(DEFAULT_BODY, { ...fill, passwort_hinweis: hint })),
+  };
 }
 
 type Deps = { db: Db; mailer: Mailer; baseUrl: string; accountId: string };

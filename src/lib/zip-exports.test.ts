@@ -5,12 +5,13 @@ import path from "node:path";
 
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 
-import { accounts, galleries, media, sets, zipExports } from "@/db/schema";
-import { createTestDb, resetDb } from "@/test/db";
+import { accounts, galleries, media, zipExports } from "@/db/schema";
+import { createTestDb, resetDb, linkAccountMedia } from "@/test/db";
 import { FakeMailer } from "@/lib/mailer";
 import { FakeStorage } from "@/lib/storage/fake";
 import {
   buildZipExport,
+  getZipStatus,
   cleanupExpiredZips,
   requestZipExport,
   resolveZipDownload,
@@ -36,12 +37,11 @@ const ask = (
       enqueue: async (p) => void queued.push(p),
       ...deps,
     },
-    { slug, setId: null, size: "web", email: "Gast@Example.com", ...extra },
+    { slug, size: "web", email: "Gast@Example.com", ...extra },
   );
 
 async function setup(
   galleryValues: Partial<typeof galleries.$inferInsert> = {},
-  setPolicy: "none" | "web" | "original" | null = null,
 ) {
   const [g] = await db
     .insert(galleries)
@@ -54,22 +54,12 @@ async function setup(
       ...galleryValues,
     })
     .returning();
-  const [set] = await db
-    .insert(sets)
-    .values({
-      accountId,
-      galleryId: g.id,
-      title: "Trauung / Kirche",
-      downloadPolicy: setPolicy,
-    })
-    .returning();
   const keys: string[] = [];
   for (let i = 1; i <= 2; i++) {
     const [m] = await db
       .insert(media)
       .values({
         accountId,
-        setId: set.id,
         type: "photo",
         processingStatus: "ready",
         position: i,
@@ -92,7 +82,8 @@ async function setup(
     );
     keys.push(m.id);
   }
-  return { g, set, keys };
+  await linkAccountMedia(db, g.id);
+  return { g, keys };
 }
 
 beforeEach(async () => {
@@ -136,18 +127,10 @@ describe("requestZipExport", () => {
       ok: false,
       reason: "forbidden",
     });
-    await resetDb(db);
-    const [a] = await db.insert(accounts).values({ name: "A" }).returning();
-    accountId = a.id;
-    await setup({ downloadPolicy: "none" }, "original");
-    expect((await ask("anna-ben", { size: "original" })).ok).toBe(true);
   });
 
-  it("rejects a set from another gallery and invalid input", async () => {
+  it("rejects invalid input", async () => {
     await setup();
-    expect(
-      await ask("anna-ben", { setId: "00000000-0000-4000-8000-000000000000" }),
-    ).toEqual({ ok: false, reason: "not_found" });
     await expect(ask("anna-ben", { email: "kaputt" })).rejects.toThrow();
   });
 
@@ -191,11 +174,11 @@ describe("buildZipExport", () => {
     writeFileSync(file, await storage.get(done.storageKey!));
     const names = execFileSync("unzip", ["-Z1", file], { encoding: "utf8" });
     expect(names.trim().split("\n")).toEqual([
-      "Trauung _ Kirche/anna-ben-1.webp",
-      "Trauung _ Kirche/anna-ben-2.webp",
+      "anna-ben-1.webp",
+      "anna-ben-2.webp",
     ]);
     expect(
-      execFileSync("unzip", ["-p", file, "Trauung _ Kirche/anna-ben-2.webp"], {
+      execFileSync("unzip", ["-p", file, "anna-ben-2.webp"], {
         encoding: "utf8",
       }),
     ).toBe("web-2");
@@ -209,6 +192,31 @@ describe("buildZipExport", () => {
     expect(done.status).toBe("ready");
     expect((await storage.head(done.storageKey!))?.size).toBeGreaterThan(0);
     expect(row.size).toBe("original");
+  });
+
+  it("builds a direct download without an address and sends no mail", async () => {
+    await setup();
+    await ask("anna-ben", { email: undefined });
+    const [row] = await db.select().from(zipExports);
+    expect(row.email).toBe("");
+    expect(
+      await getZipStatus({ db }, { slug: "anna-ben", exportId: row.id }),
+    ).toBe("pending");
+    const { result, mailer } = await build();
+    expect(result.status).toBe("ready");
+    expect(mailer.outbox).toHaveLength(0);
+    expect(
+      await getZipStatus({ db }, { slug: "anna-ben", exportId: row.id }),
+    ).toBe("ready");
+    expect(
+      await getZipStatus({ db }, { slug: "other", exportId: row.id }),
+    ).toBe("gone");
+    expect(
+      await resolveZipDownload(
+        { db, storage },
+        { slug: "anna-ben", exportId: row.id },
+      ),
+    ).toMatchObject({ ok: true });
   });
 
   it("does not rebuild on retry but sends the mail again", async () => {

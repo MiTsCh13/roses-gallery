@@ -1,19 +1,11 @@
 import type { CSSProperties } from "react";
 
-import { GalleryGrid } from "./gallery-grid";
-import { VideoShelf, type GalleryViewVideo } from "./video-shelf";
+import { GalleryGrid, type GalleryViewVideo } from "./gallery-grid";
 
 import { themeCssVars, type ThemeConfig } from "@/lib/themes";
 import type { GalleryViewTile } from "./gallery-grid";
 
 export type { GalleryViewTile, GalleryViewVideo };
-export type GalleryViewSet = {
-  id: string;
-  title: string;
-  tiles: GalleryViewTile[];
-  videos?: GalleryViewVideo[];
-};
-
 export type GalleryViewProps = {
   config: ThemeConfig;
   title: string;
@@ -22,7 +14,8 @@ export type GalleryViewProps = {
   logoAlt?: string;
   coverUrl?: string;
   coverSrcSet?: string;
-  sets: GalleryViewSet[];
+  /** Photos and videos in gallery order. */
+  tiles: GalleryViewTile[];
 };
 
 /**
@@ -38,11 +31,8 @@ export function GalleryView({
   logoAlt = "",
   coverUrl,
   coverSrcSet,
-  sets,
+  tiles,
 }: GalleryViewProps) {
-  const videoRows = sets
-    .filter((set) => set.videos?.length)
-    .map((set) => ({ id: set.id, title: set.title, videos: set.videos! }));
   return (
     <div
       data-testid="gallery-view"
@@ -66,20 +56,7 @@ export function GalleryView({
         coverSrcSet={coverSrcSet}
       />
       <div className="mx-auto max-w-6xl space-y-10 px-4 py-8 @lg:px-8">
-        {videoRows.length > 0 && <VideoShelf rows={videoRows} />}
-        {sets
-          .filter((set) => !set.videos?.length)
-          .map((set) => (
-            <section key={set.id} aria-label={set.title} className="space-y-3">
-              <h2
-                className="text-xl"
-                style={{ fontFamily: "var(--g-font-heading)" }}
-              >
-                {set.title}
-              </h2>
-              <GalleryGrid layout={config.grid.layout} tiles={set.tiles} />
-            </section>
-          ))}
+        <GalleryGrid layout={config.grid.layout} tiles={tiles} />
       </div>
     </div>
   );

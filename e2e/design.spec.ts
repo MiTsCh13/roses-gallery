@@ -19,14 +19,25 @@ test("switch theme and viewport in the design editor, then persist", async ({
   await page.getByLabel("Titel").fill("Design-Test");
   await page.getByRole("button", { name: "Galerie anlegen" }).click();
   await expect(page).toHaveURL(/\/dashboard\/galleries\/[0-9a-f-]{36}$/);
-  await page.getByRole("link", { name: "Design" }).click();
-  await expect(page).toHaveURL(/\/design$/);
+  await page.getByText("Design", { exact: true }).first().click();
 
   const view = page.getByTestId("gallery-view");
   await expect(view).toHaveAttribute("data-layout", "uniform");
   await page.getByLabel("Theme").selectOption({ label: "Dunkel" });
   await expect(view).toHaveAttribute("data-layout", "rows");
   await expect(view).toHaveAttribute("data-cover", "minimal");
+
+  // the preview follows the title field before anything is saved
+  await page
+    .locator("input[name=title][form=gallery-form]")
+    .fill("Neuer Titel");
+  await expect(
+    view.getByRole("heading", { name: "Neuer Titel" }),
+  ).toBeVisible();
+
+  // the info line shows up under the title
+  await page.getByLabel("Info").fill("Hochzeit am See");
+  await expect(view.getByText("Hochzeit am See")).toBeVisible();
 
   await page.getByRole("button", { name: "Mobil" }).click();
   await expect(page.getByTestId("design-preview")).toHaveAttribute(
@@ -54,12 +65,12 @@ test("switch theme and viewport in the design editor, then persist", async ({
 
   // the logo upload already redirected to ?saved=1, so wait for the save itself
   await Promise.all([
-    page.waitForResponse(
-      (r) => r.request().method() === "POST" && r.url().includes("/design"),
-    ),
-    page.getByRole("button", { name: "Design speichern" }).click(),
+    page.waitForResponse((r) => r.request().method() === "POST"),
+    page.getByRole("button", { name: "Speichern", exact: true }).click(),
   ]);
-  await expect(page.getByText("Design gespeichert.")).toBeVisible();
+  await expect(
+    page.getByRole("status").filter({ hasText: "gespeichert" }).first(),
+  ).toBeVisible();
   await page.reload();
   await expect(page.getByTestId("gallery-view")).toHaveAttribute(
     "data-layout",

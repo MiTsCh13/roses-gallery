@@ -4,11 +4,11 @@ import path from "node:path";
 
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 
-import { accounts, galleries, media, sets } from "@/db/schema";
-import { createTestDb, resetDb } from "@/test/db";
+import { accounts, galleries, media } from "@/db/schema";
+import { createTestDb, resetDb, linkAccountMedia } from "@/test/db";
 import { FakeStorage } from "@/lib/storage/fake";
 import { allows, effectivePolicy } from "./download-policy";
-import { resolvePhotoDownload, setSetDownloadPolicy } from "./downloads";
+import { resolvePhotoDownload } from "./downloads";
 import { createAccessToken, hashPassword } from "./gallery-access";
 import { loadPublicGallery } from "./public-gallery";
 
@@ -19,11 +19,9 @@ const storage = new FakeStorage(
 );
 const SECRET = "test-secret-with-enough-length";
 let accountId: string;
-let otherId: string;
 
 async function setup(
   galleryValues: Partial<typeof galleries.$inferInsert> = {},
-  setPolicy: "none" | "web" | "original" | null = null,
 ) {
   const [g] = await db
     .insert(galleries)
@@ -35,20 +33,10 @@ async function setup(
       ...galleryValues,
     })
     .returning();
-  const [set] = await db
-    .insert(sets)
-    .values({
-      accountId,
-      galleryId: g.id,
-      title: "Trauung",
-      downloadPolicy: setPolicy,
-    })
-    .returning();
   const [photo] = await db
     .insert(media)
     .values({
       accountId,
-      setId: set.id,
       type: "photo",
       processingStatus: "ready",
       originalKey: `${accountId}/m/original-1`,
@@ -68,17 +56,14 @@ async function setup(
       },
     })
     .returning();
-  return { g, set, photo };
+  await linkAccountMedia(db, g.id);
+  return { g, photo };
 }
 
 beforeEach(async () => {
   await resetDb(db);
-  const [a, b] = await db
-    .insert(accounts)
-    .values([{ name: "A" }, { name: "B" }])
-    .returning();
+  const [a] = await db.insert(accounts).values({ name: "A" }).returning();
   accountId = a.id;
-  otherId = b.id;
 });
 afterAll(close);
 
@@ -123,19 +108,11 @@ describe("resolvePhotoDownload", () => {
     expect(r.ok && r.url).toContain("anna-ben-1-original");
   });
 
-  it("refuses everything when downloads are off, and honours set overrides", async () => {
+  it("refuses everything when downloads are off", async () => {
     const off = await setup({ downloadPolicy: "none" });
     expect(await ask("anna-ben", off.photo.id, "web")).toMatchObject({
       reason: "forbidden",
     });
-    await resetDb(db);
-    const [a] = await db
-      .insert(accounts)
-      .values([{ name: "A" }])
-      .returning();
-    accountId = a.id;
-    const open = await setup({ downloadPolicy: "none" }, "original");
-    expect((await ask("anna-ben", open.photo.id, "original")).ok).toBe(true);
   });
 
   it("hides drafts, expired galleries, unknown media and other galleries' media", async () => {
@@ -201,37 +178,27 @@ describe("resolvePhotoDownload", () => {
   });
 });
 
-describe("setSetDownloadPolicy", () => {
-  it("sets, inherits and stays tenant-scoped", async () => {
-    const { set } = await setup();
-    await setSetDownloadPolicy({ db, accountId }, set.id, "original");
-    expect((await db.select().from(sets))[0].downloadPolicy).toBe("original");
-    await setSetDownloadPolicy({ db, accountId }, set.id, "inherit");
-    expect((await db.select().from(sets))[0].downloadPolicy).toBeNull();
-    await expect(
-      setSetDownloadPolicy({ db, accountId: otherId }, set.id, "none"),
-    ).rejects.toMatchObject({ code: "not_found" });
-    await expect(
-      setSetDownloadPolicy({ db, accountId }, set.id, "bogus"),
-    ).rejects.toThrow();
-  });
-});
-
 describe("loadPublicGallery download links", () => {
-  it("only lists links the effective policy permits", async () => {
+  it("only lists links the gallery policy permits", async () => {
     const { photo } = await setup({ downloadPolicy: "web" });
     const r = await loadPublicGallery({ db, storage }, "anna-ben");
-    const p = r && !r.locked ? r.sets[0].photos[0] : undefined;
-    expect(p?.downloads).toEqual({
+    const p = r && !r.locked ? r.items[0] : undefined;
+    expect(p?.kind === "photo" ? p.downloads : undefined).toEqual({
       web: `/api/g/anna-ben/download/${photo.id}?size=web`,
     });
     await db.update(galleries).set({ downloadPolicy: "original" });
     const r2 = await loadPublicGallery({ db, storage }, "anna-ben");
     expect(
-      r2 && !r2.locked && r2.sets[0].photos[0].downloads.original,
+      r2 && !r2.locked && r2.items[0].kind === "photo"
+        ? r2.items[0].downloads.original
+        : undefined,
     ).toContain("size=original");
-    await db.update(sets).set({ downloadPolicy: "none" });
+    await db.update(galleries).set({ downloadPolicy: "none" });
     const r3 = await loadPublicGallery({ db, storage }, "anna-ben");
-    expect(r3 && !r3.locked && r3.sets[0].photos[0].downloads).toEqual({});
+    expect(
+      r3 && !r3.locked && r3.items[0].kind === "photo"
+        ? r3.items[0].downloads
+        : undefined,
+    ).toEqual({});
   });
 });

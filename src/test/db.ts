@@ -26,3 +26,17 @@ export async function resetDb(db: TestDb) {
       SYSTEM_THEMES.map((t) => ({ id: t.id, name: t.name, config: t.config })),
     );
 }
+
+/**
+ * Puts every medium of the gallery's account into the gallery, in `position`
+ * order (idempotent). Fixtures insert media first, then call this.
+ */
+export async function linkAccountMedia(db: TestDb, galleryId: string) {
+  await db.execute(sql`
+    insert into gallery_media (account_id, gallery_id, media_id, position)
+    select m.account_id, g.id, m.id, m.position
+    from media m join galleries g on g.account_id = m.account_id
+    where g.id = ${galleryId}
+    on conflict do nothing
+  `);
+}

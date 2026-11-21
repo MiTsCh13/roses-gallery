@@ -4,7 +4,7 @@
 > und `docs/DECISIONS.md`. Log kurz halten (max. 10 Einträge, ältere löschen –
 > die Git-Historie bleibt).
 
-**Aktueller Meilenstein:** M10 – Härtung & Launch (Rest aus M4/M7: Live-Abnahme HLS/Original-URL, D-117)
+**Aktueller Meilenstein:** keiner offen – M11 abgeschlossen (D-147). Phase 2 (alles Priorität S) wartet auf Freigabe durch Mitsch. M10-Rest bei Mitsch: Rechtstexte, Postmark, Stripe-Live
 **Stand main:** M0–M3 und M5–M9 abgeschlossen (M2: Abnahme gegen echtes Stripe offen, D-006; M4: Original-URL live offen, D-117)
 
 ## Meilensteine
@@ -21,7 +21,29 @@
 | M7 | Galerie-Ansicht & Player | ✅ fertig bis auf Live-Abnahme HLS/Original (D-117) |
 | M8 | Zugriff, Downloads, Favoriten | ✅ fertig (Dashboard-Ansicht der Favoriten optional, nicht Teil des Kriteriums) |
 | M9 | Auslieferung & Statistik | ✅ fertig (Postmark live ungeprüft: nur Fake getestet) |
-| M10 | Härtung & Launch | in Arbeit |
+| M10 | Härtung & Launch | ✅ live (Mitsch: Rechtstexte, Postmark, Stripe-Live offen) |
+| M11 | Überarbeitung Dashboard & Galerie-Editor | ✅ fertig (Schritte 1–8 + Migration 0015; optionale Reste unten) |
+
+## Optionale Reste aus M11 (niedrige Priorität, nicht Teil des Abschlusses)
+
+- [ ] Wasserzeichen-Standard ins Profil; „Passwort vergessen“ (derzeit = Anmeldelink)
+- [ ] Video-Original-Download/-Vorschau in der Bibliothek (D-145)
+- [ ] E2E-Test für „Als Titelbild“ im Medienpanel
+- [ ] Dashboard-Ansicht der Favoritenlisten je Galerie (CSV)
+
+## Nächste Schritte (M11, erledigt; ein Schritt = ein PR)
+
+Anlass: Rückmeldung von Mitsch nach dem ersten Live-Test (D-140). Reihenfolge so, dass jeder Schritt für sich lauffähig bleibt.
+
+- [x] **1. Optik & Dashboard-Shell:** wärmeres Farbsystem (Rosé/Creme, Display-Schrift für Überschriften), `dashboard/layout.tsx` mit Kopfzeile/Navigation (Galerien, Bibliothek, Profil & Einstellungen, Abmelden), freundlichere Startseite, Login, Galerieliste als Karten. Nur Optik, keine Funktionsänderung
+- [x] **2a. Profil & Einstellungen:** `/dashboard/settings` mit Reitern Profil (Studioname, Ansprechpartner, Telefon, Webseite, Instagram in `branding.contact`, Logo), Abo & Speicher (`/settings/billing`), Sicherheit (`/settings/security`); alte Routen `/dashboard/billing` und `/security` entfallen (kein Redirect, Wunsch Mitsch)
+- [x] **2b. Passwort (D-141):** `users.password_hash` (Migration 0013), `lib/account-password.ts`, Passwort setzen/ändern im Profil, Login mit E-Mail + Passwort (Session-Zeile + Cookie selbst angelegt, 2FA greift weiter über `requireAccount`, Rate-Limit 10/10 min je E-Mail). Offen daraus: Wasserzeichen-Standard ins Profil (mit Schritt 5/Galerie-Editor), „Passwort vergessen“ = Anmeldelink
+- [x] **3. Datenmodell Bibliothek (D-143: additiv):** `folders`, `gallery_media`, `media.folderId`, `media.setId` nullable, Migration 0014 mit Datenübernahme, `lib/library.ts` (+ Test); Uploads in ein Set schreiben zusätzlich `gallery_media`. `sets`/`media.setId` bleiben bis Schritt 7/8 bestehen (öffentliche Ansicht, ZIP, Favoriten, Statistik lesen noch über Sets). Ursprünglich geplant: Tabellen `folders` (verschachtelt) und `gallery_media` (Medium ↔ Galerie, Position); `media.setId` entfällt, `sets` werden migriert und entfernt (Sortierung: Set-Position, dann Medien-Position); Download-Recht nur noch je Galerie (D-142). Upload ohne Galerie möglich. Migration mit Datenübernahme + Test
+- [x] **4. Bibliothek `/dashboard/library`** (PR M11-4; Upload ohne Set per `folderId` in `startUpload`/`startVideoUpload`, `lib/library.ts`: `listFolder`/`deleteFolder`/`deleteMedia`, Thumbnails über `/api/library/thumb/[mediaId]`, Video-Kacheln als Platzhalter; Ordner verschieben nicht, Medien-Löschung entfernt auch aus Galerien): Medienraster, Ordner anlegen/umbenennen/löschen, Upload per Drag & Drop (Foto und Video gemischt) in den aktuellen Ordner, Mehrfachauswahl (verschieben, löschen), Wiederholen-Button bei abgebrochenem Upload
+- [~] **5. Galerie-Editor zweispaltig** (5a erledigt: zweispaltiges Layout, ausklappbare Blöcke, Slug ausgeblendet (Link „Galerie ansehen“), Wasserzeichen-Block nur bei aktivem Wasserzeichen, Medienpanel rechts mit Bibliothek hinzufügen/entfernen über `gallery_media`; **5b teilweise:** Reihenfolge per Ziehen + Früher/Später-Buttons erledigt (`reorderGalleryMedia`); **5b Design inline erledigt** (Block „Design“ im Editor, Unterseite `/design` entfernt; Vorschau im Block gestapelt); **5b Upload erledigt** (Drag & Drop + Button „Dateien hochladen“ im Medienpanel, Foto+Video, fügt der Galerie direkt hinzu; `lib/video-upload-client.ts` geteilt mit Bibliothek); **5b Vorschau erledigt** (Design-Vorschau im Editor zeigt echte Fotos der Galerie, `lib/design-preview.ts`; Videos als Platzhalter-Kacheln); **offen 5b:** nichts außer Folge-Migration (Mehrfach-Löschen aus der Bibliothek erledigt: Button „endgültig löschen“ im Medienpanel); Sets-Abschnitt bleibt bis Schritt 7/8): links Einstellungen in ausklappbaren Blöcken (Allgemein, Zugang & Ablauf mit Hinweis „kein Datum = kein Ablauf“, Downloads, Wasserzeichen nur sichtbar wenn aktiv, Design inline statt Unterseite), rechts Live-Vorschau der Galerie mit allen Fotos/Videos; Medien per Drag & Drop in die Vorschau hochladen oder aus der Bibliothek hinzufügen; Mehrfachauswahl zum Entfernen/Löschen; Reihenfolge per Ziehen. Slug wird nicht angezeigt (wird weiter automatisch aus dem Titel erzeugt)
+- [x] **6. „An Kunden senden“ als Dialog:** Button „An Kunden senden“ im Editor-Kopf öffnet natives `<dialog>` (`components/dialog-button.tsx`) mit dem bisherigen Versandformular + Protokoll; E2E angepasst
+- [x] **7. Öffentliche Ansicht ohne Sets:** `loadPublicGallery` liest `gallery_media` (`items`: Fotos + Videos in Galerie-Reihenfolge), ein gemischtes Raster, Video-Kachel öffnet den Player in der Lightbox (`VideoShelf` entfällt), Download-Recht/ZIP/Favoriten/Statistik/Story/Wasserzeichen je Galerie auf `gallery_media`. ZIP ohne Set-Auswahl, Dateinamen `<slug>-<n>`, Foto-Nummern zählen nur Fotos der Galerie. Design-Vorschau mit Platzhalter-Kacheln. Rest: `sets`/`media.setId`/`zip_exports.setId`/Set-Download-Recht noch im Schema (Schritt 8)
+- [x] **8. Aufräumen (D-145):** Set-Seite `/dashboard/sets/[setId]`, Sets-Block im Editor, Set-Aktionen, `seed-set`-Route, `PhotoUploader`/`VideoUploader`/`VideoPreview`/`SortableList` entfernt. Titelbild-Auswahl im Medienpanel („Als Titelbild“, ohne eigenen E2E-Test), Galerieliste zählt über `gallery_media`, Cover-Prüfung über `gallery_media`. E2E: Upload (mehrteilig, Fehlertyp, Video) in `library.spec`, Galerie-Flow über Bibliothek. **Folge-Migration erledigt (D-146, Migration 0015).** Offen: Video-Original-Download/-Vorschau im Dashboard (API `/api/videos/{original,playback}` steht noch); 5b-Reste (Design inline, Live-Vorschau, Drag-&-Drop-Upload in die Vorschau, Reihenfolge per Ziehen, Mehrfach-Löschen)
 
 ## Nächste Schritte (M4, in dieser Reihenfolge)
 
@@ -91,6 +113,8 @@
 
 ## Entscheidungsbedarf
 
+D-147: Phase 2 (P2-1 Premiere/Countdown usw.) besteht nur aus Anforderungen mit Priorität S. Freigabe und Reihenfolge durch Mitsch nötig; bis dahin nur optionale M11-Reste.
+
 D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (blockiert nur die Live-Abnahme des Original-Downloads, nicht M5).
 
 ## Umgebung (Cloud-Sessions)
@@ -129,70 +153,54 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 
 ### 2026-10-29 – M10 Lückenliste + CSP
 - `docs/NFR-LUECKEN.md`, CSP (D-129). Nächster Schritt: Sentry-Interface. Cloud: Postgres/Redis neu starten, Rolle/DBs anlegen.
+- 2026-11-01 (Fix): Video-Poster auch in Galerie-Editor (Medienpanel, Live-Vorschau) und Bibliothek: `/api/library/thumb/<id>` liefert für Videos den signierten CDN-Poster (404 → Platzhalter bleibt).
 
-### 2026-10-29 – M9 abgeschlossen
-- Kriterium erfüllt, M10 aufgeschlüsselt. Nächster Schritt: Lückenliste NFR + Security-Header.
+- 2026-11-01 (Fix): Info-Text wurde nicht gespeichert (Feld fehlte in `updateGalleryAction`, stattdessen irrtümlich in `createGalleryAction`); E2E `gallery-info` deckt Speichern + öffentliche Anzeige ab.
 
-### 2026-10-29 – M9 Auslieferungs-Mail
-- F-DASH-03 fertig (D-128). Nächster Schritt: Fertig-Kriterium M9 prüfen (Mail kommt an = Fake/Postmark-Test, Aufrufe gezählt), dann M10 aufschlüsseln. Cloud: Postgres/Redis neu starten, Rolle/DBs anlegen.
+- 2026-11-01 (Mitsch-Rückmeldungen 3): Info-Zeile unter dem Galerie-Titel (D-151, Migration 0016).
 
-### 2026-10-28 – M9 Statistik
-- Events + Dashboard-Statistik (D-127). Nächster Schritt: Auslieferungs-Mail (F-DASH-03). Cloud: Postgres/Redis neu starten, Rolle/DBs anlegen.
+- 2026-11-01 (Mitsch-Rückmeldungen 2): Upload-Fortschrittsbalken im Editor, „Wird verarbeitet“ statt weißer Kacheln, Galerie im echten Seitenverhältnis (D-150).
 
-### 2026-10-28 – M8 Teilen, M8 fertig
-- Link-/Story-Teilen (D-126), M8-Kriterium erfüllt, M9 aufgeschlüsselt. Nächster Schritt: Event-Erfassung. Cloud: Postgres/Redis neu starten, Rolle/DBs anlegen.
+- 2026-11-01 (Mitsch-Rückmeldungen): PR #87 Galerie-Ansicht (Video-Favoriten, Filter, Poster, ZIP direkt/Original, Teilen) und Editor-PR (Reihenfolge, ein Speichern, Link kopieren, Live-Vorschau, Mail-Entwurf), D-148/D-149. Cloud: `service postgresql start`, `redis-server --daemonize yes`, Rolle `roses`/DBs, `.env.local` aus `.env.example`. Offen: Video-Poster live prüfen (braucht CDN-Hostname + Token-Key, D-148).
 
-### 2026-10-28 – M8 Favoriten
-- F-INT-01 fertig (D-125). Nächster Schritt: Dashboard-Ansicht der Favoriten, dann Teilen/Instagram-Story (F-INT-02). Cloud: Postgres/Redis neu starten, Rolle/DBs anlegen.
+- 2026-11-01 (Routine 4): M11 abgeschlossen (main grün: pnpm check, 329 Tests). Phase 2 nicht begonnen (D-147). Cloud: `service postgresql start`, `redis-server --daemonize yes`, Rolle `roses`/DBs, `.env.local` aus `.env.example`.
 
-### 2026-10-28 – M8 Wasserzeichen
-- F-SEC-03 fertig (D-124). Cloud: Postgres/Redis neu starten, Rolle/DBs anlegen. Nächster Schritt: Favoriten (mehrere Listen ohne Konto, Magic Link, Export), dann Teilen/Instagram-Story.
+- 2026-11-01 (Routine 3): M11 Folge-Migration 0015 (`sets` entfernt, D-146), Tests ohne Sets-Fixtures (`linkAccountMedia`). Nächster Schritt: M11-Fertig-Kriterium gegen UMSETZUNGSPLAN prüfen, Video-Original-Download in die Bibliothek (optional). Cloud: `service postgresql start`, `redis-server --daemonize yes`, Rolle `roses`/DBs, `.env.local` aus `.env.example`.
 
-### 2026-10-28 – M8 ZIP-Download
-- ZIP per Mail fertig (D-123). Cloud: Postgres/Redis neu starten, Rolle `roses` + DBs anlegen. Nächster Schritt: Wasserzeichen auf Web-Größen (F-SEC-03), dann Favoriten.
+- 2026-11-01 (Routine 2): M11-5b-5 Design-Vorschau mit echten Galerie-Fotos (Unit + E2E grün). Nächster Schritt: Folge-Migration `sets` entfernen (eigener PR, ~25 Testdateien), danach M11-Fertig-Kriterium prüfen. Cloud: `service postgresql start`, `redis-server --daemonize yes`, Rolle `roses`/DBs, `.env.local` aus `.env.example`.
 
-### 2026-10-28 – M8 Download-Rechte
-- Einzel-Download + Rechte fertig. Cloud: nach Resume Postgres/Redis neu starten (`pg_ctlcluster 16 main start`, `redis-server --daemonize yes`). Nächster Schritt: ZIP-Download als Worker-Job mit Mail-Link.
+- 2026-11-01 (Routine): M11-5b-4 Upload per Drag & Drop/Button direkt im Galerie-Editor (Unit + E2E). Nächster Schritt: Live-Vorschau rechts, Folge-Migration `sets` entfernen (eigener PR). Cloud: `service postgresql start`, `redis-server --daemonize yes`, Rolle `roses`/DBs, `.env.local` aus `.env.example`.
 
-### 2026-10-28 – M8 Passwortschutz
-- F-SEC-01 fertig (siehe M8-Liste, D-122). Cloud: Postgres/Redis neu starten und Rolle/DBs anlegen wie unten. Nächster Schritt: Download-Rechte je Galerie/Set (F-SEC-02).
+- 2026-10-31 (Routine): M11-5b-3 Mehrfach-Löschen aus der Bibliothek im Editor (`deleteGalleryMediaAction`, Bestätigung, Unit-Test). Nächster Schritt: Live-Vorschau + Drag & Drop Upload, Folge-Migration `sets` entfernen (~25 Testdateien betroffen, eigener PR). Cloud: `service postgresql start`, `redis-server --daemonize yes`, Rolle `roses`/DBs, `.env.local` aus `.env.example`.
 
-### 2026-10-28 – M7 LCP
-- Lighthouse-Skript + Cover-`srcset`, LCP 3,1 s → 0,9 s. M7 damit funktional fertig. Nächster Schritt: M8 in `UMSETZUNGSPLAN.md` aufschlüsseln. Cloud: Postgres `pg_ctlcluster 16 main start`, Rolle/DBs neu anlegen, `redis-server --daemonize yes`; Lighthouse per `npm i lighthouse` außerhalb des Repos.
+- `/dashboard/library`: Ordner (anlegen/umbenennen/löschen), Foto+Video-Upload per Drag & Drop in den Ordner, Wiederholen, Mehrfachauswahl (verschieben/löschen), Nav-Eintrag. Unit- und E2E-Test. Nächster Schritt: 5 Galerie-Editor zweispaltig (groß, ggf. in 5a/5b teilen). Cloud: Postgres/Redis neu starten, Rolle `roses`/DBs anlegen.
 
-### 2026-10-28 – M7 Cast
-- Cast-Button via Remote Playback API (D-121). Nächster Schritt: Lighthouse-LCP (<2,5 s) prüfen = letztes M7-Kriterium; Chromium ist vorinstalliert. Cloud: Rolle/DBs wie oben neu anlegen.
+### 2026-10-31 – M11 Schritt 3 (Datenmodell Bibliothek)
+- Additive Migration (D-143), Bibliotheks-Lib mit Mandantentests. Nächster Schritt: 4 Bibliothek-UI. Cloud: Postgres/Redis neu starten, Rolle `roses`/DBs anlegen.
 
-### 2026-10-28 – M7 HLS-Player
-- `HlsPlayer` + `signHlsUrl`, Fallback Embed ohne CDN-Key. Nächster Schritt: AirPlay/Chromecast (Cast SDK, Feature-Detection), dann Lighthouse-LCP. Live-Prüfung HLS hängt an D-117.
+### 2026-10-31 – M11 Schritt 2b (Passwort)
+- Optionales Passwort (scrypt) im Profil, Login-Formular „Mit Passwort anmelden“, Unit- und E2E-Test. Nächster Schritt: 3 Datenmodell Bibliothek (große Migration, eigener PR). Cloud: Postgres/Redis neu starten, Rolle `roses`/DBs anlegen.
 
-### 2026-10-28 – M7 Video-Reihen
-- `loadPublicGallery` liefert signierte Video-URLs, `VideoShelf` + Hybrid-Ansicht, Tests. Cloud: Rolle `roses` + DBs wieder anlegen (siehe oben). Nächster Schritt: HLS-Player (hls.js) mit Qualitätswahl/Fortsetzen; Thumbnails für Videos klären.
+### 2026-10-31 – M11 Schritt 2a (Profil & Einstellungen)
+- Reiter-Bereich unter `/dashboard/settings`, Profil-Lib mit Mandantenschutz-Test, E2E. Nächster Schritt: 2b Passwort, dann 3 Datenmodell Bibliothek. Cloud: Postgres/Redis neu starten, Rolle `roses`/DBs anlegen.
 
-### 2026-10-28 – M7 Lightbox
-- Lightbox + Fotos/Cover auf `/g/[slug]` verdrahtet. Cloud: Rolle `roses` (superuser) und DBs `roses`, `roses_gallery`, `roses_gallery_test` neu anlegen, falls leer. Nächster Schritt: Video-Reihen (F-VID-01).
+### 2026-10-31 – M11 Schritt 1 (Optik)
+- Farbsystem Rosé/Creme, Display-Schrift Fraunces, Dashboard-Layout mit Navigation, Startseite/Login/Galerieliste überarbeitet. Nächster Schritt: M11-2 Profil & Einstellungen. Cloud: Postgres/Redis neu starten, Rolle `roses`/DBs anlegen.
 
-### 2026-10-28 – M7 Foto-Raster
-- `loadPublicGallery` liefert Fotos/Cover mit signierten Varianten, `GalleryGrid` mit `srcset`/lazy. Nächster Schritt: Lightbox.
+### 2026-10-29 – M10 Rechtstexte
+- Impressum/Datenschutz/AGB als Entwurf (D-137, PR folgt im Log). Mitsch: D-117 erledigt (Live-Abnahme Original-URL/HLS beim nächsten Lauf prüfen), kein eigener Backup-Bucket, optionale Reste vorerst nicht. Cloud: Postgres/Redis neu starten (`service postgresql start`, `redis-server --daemonize yes`), Rolle `roses`/DBs `roses_gallery`, `roses_gallery_test` anlegen.
 
-### 2026-10-28 – M7 öffentliche Route
-- `/g/[slug]`, globale Slugs (Migration 0007), Tests + E2E. Cloud: Postgres per `pg_ctlcluster 16 main start`, Rolle/DBs `roses`, `roses_gallery(_test)` anlegen, `redis-server --daemonize yes`. Nächster Schritt: Foto-Raster mit signierten Varianten.
+### 2026-10-29 – M10 Abschluss der baubaren Teile
+- Barrierefreiheit (PR #60), Event-Aufbewahrung (#61), DB-Backup (#62), Deployment-Artefakte (#63). Alles Baubare in M10 ist erledigt. Offen nur das Fertig-Kriterium (Produktion auf Hetzner, Impressum/Datenschutz online): braucht Coolify-Zugang, Domain, Rechtstexte (D-135, D-136) sowie Live-Abnahmen D-117, D-006. Docker-Build ungeprüft. Cloud: Postgres/Redis neu starten, Rolle `roses`/DBs anlegen.
 
-### 2026-10-28 – M6 abgeschlossen
-- Fertig-Kriterium erfüllt, M7 aufgeschlüsselt.
+### 2026-10-29 – M10 Barrierefreiheit
+- D-133, axe-Tests, Theme-Kontrast. Nächster Schritt: Aufbewahrung alter Events (D-127), dann Backup/Deployment. Cloud: Postgres/Redis neu starten, Rolle `roses`/DBs anlegen.
 
-### 2026-10-28 – M6 Logo
-- Logo-Upload, Test-Route `/api/test/storage` erkennt Fake-Storage per Duck-Typing (Bundles mit eigenen Klassenkopien). Hinweis E2E lokal: alte `next start`-Prozesse auf Port 3100 beenden, sonst wird ein veralteter Build wiederverwendet. Nächster Schritt: Fertig-Kriterium M6 prüfen, M7 aufschlüsseln.
+### 2026-10-29 – M10 Login-Rate-Limit
+- D-132. Nächster Schritt: axe-Test Galerie, dann Backup/Deployment. Cloud: Postgres/Redis neu starten (`service postgresql start`, `redis-server --daemonize yes`), Rolle `roses`/DB `roses_gallery`.
 
-### 2026-10-28 – M6 Ansicht-Komponenten
-- `GalleryView` mit 3 Cover-Stilen und 3 Raster-Layouts, Unit-Tests (SSR-Markup). Nächster Schritt: Editor-Seite `/design`.
+### 2026-10-29 – M10 2FA
+- TOTP-2FA (D-131). Nächster Schritt: Login-Rate-Limits/`x-forwarded-for`, axe-Test. Cloud: Postgres/Redis neu starten (`service postgresql start`, `redis-server --daemonize yes`), Rolle `roses`/DB `roses_gallery` anlegen.
 
-### 2026-10-28 – M6 Themes
-- `lib/themes.ts`, Migration 0005 (System-Themes), Tests. Nächster Schritt: Ansichts-Komponenten.
-
-### 2026-10-28 – M5 abgeschlossen
-- Fertig-Kriterium (Galerie mit Sets anlegen, sortieren, veröffentlichen) per E2E erfüllt. M6 aufgeschlüsselt.
-
-### 2026-10-28 – M5 Sortierung & Cover
-- `SortableList` (native DnD + Buttons), Server Actions, Unit-Tests (Reihenfolge, Mandantentrennung, Cover), E2E für Set-Reihenfolge inkl. Reload. Gesamt-E2E lokal 22/22.
-
+### 2026-10-29 – M10 Rechtsseiten
+- Platzhalter-Seiten online-bereit. Offen für Launch: echte Texte (Anwalt). Nächster Schritt: 2FA (TOTP, Entscheidung optional vs. Pflicht in DECISIONS), dann Login-Rate-Limits, axe-Test. Cloud: Postgres/Redis neu starten, Rolle/DBs anlegen.

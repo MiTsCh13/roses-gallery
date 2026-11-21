@@ -2,11 +2,10 @@ import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 
 import type { Db } from "@/db";
-import { media, sets } from "@/db/schema";
+import { galleryMedia, media } from "@/db/schema";
 import { findVisibleGallery } from "@/lib/downloads";
 import type { PhotoVariants } from "@/lib/photos";
 import type { Storage } from "@/lib/storage/types";
-import type { DownloadPolicy } from "@/lib/download-policy";
 import { ensureWatermarked } from "@/lib/watermark";
 
 export const GALLERY_IMAGE_URL_TTL_SECONDS = 60 * 60;
@@ -26,7 +25,6 @@ type ImageKey =
       ok: true;
       key: string;
       gallery: NonNullable<Awaited<ReturnType<typeof findVisibleGallery>>>;
-      setPolicy: DownloadPolicy | null;
     }
   | { ok: false };
 
@@ -47,14 +45,14 @@ export async function resolveImageKey(
   );
   if (!gallery) return { ok: false };
   const [row] = await deps.db
-    .select({ media, setPolicy: sets.downloadPolicy })
+    .select({ media })
     .from(media)
-    .innerJoin(sets, eq(sets.id, media.setId))
+    .innerJoin(galleryMedia, eq(galleryMedia.mediaId, media.id))
     .where(
       and(
         eq(media.id, input.mediaId),
         eq(media.accountId, gallery.accountId),
-        eq(sets.galleryId, gallery.id),
+        eq(galleryMedia.galleryId, gallery.id),
         eq(media.type, "photo"),
         eq(media.processingStatus, "ready"),
       ),
@@ -72,7 +70,7 @@ export async function resolveImageKey(
     });
     if (stamped) key = stamped.key;
   }
-  return { ok: true, key, gallery, setPolicy: row.setPolicy };
+  return { ok: true, key, gallery };
 }
 
 /** Signed URL for one photo width of a public gallery. */

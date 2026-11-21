@@ -20,16 +20,15 @@ test("public gallery is only visible once published", async ({
   await page.getByLabel("Titel").fill(title);
   await page.getByRole("button", { name: "Galerie anlegen" }).click();
   await expect(page).toHaveURL(/\/dashboard\/galleries\/[0-9a-f-]{36}$/);
-  const slug = await page
-    .getByRole("textbox", { name: "Adresse (Slug)" })
-    .inputValue();
-  await page.getByRole("textbox", { name: "Titel des Sets" }).fill("Trauung");
-  await page.getByRole("button", { name: "Set hinzufügen" }).click();
-  await expect(page.getByTestId("set-list").locator("li")).toHaveCount(1);
+  const slug = (
+    (await page
+      .getByRole("link", { name: "Vorschau im neuen Tab" })
+      .getAttribute("href")) ?? ""
+  ).replace("/g/", "");
 
   // not-found is rendered inside the streamed shell, so assert on content
   const draft = await request.get(`/g/${slug}`);
-  expect(await draft.text()).not.toContain("Trauung");
+  expect(await draft.text()).not.toContain(title);
   expect(await draft.text()).not.toContain('data-testid="gallery-view"');
 
   await page
@@ -46,7 +45,7 @@ test("public gallery is only visible once published", async ({
   const visitor = await anon.newPage();
   await visitor.goto(`/g/${slug}`);
   await expect(visitor.getByTestId("gallery-view")).toBeVisible();
-  await expect(visitor.getByRole("heading", { name: "Trauung" })).toBeVisible();
+  await expect(visitor.getByRole("heading", { name: title })).toBeVisible();
   await anon.close();
 });
 
@@ -71,12 +70,11 @@ test("password-protected gallery asks for the password and stays open with the c
     .fill(`Geschützt ${testInfo.project.name} ${Date.now()}`);
   await page.getByRole("button", { name: "Galerie anlegen" }).click();
   await expect(page).toHaveURL(/\/dashboard\/galleries\/[0-9a-f-]{36}$/);
-  const slug = await page
-    .getByRole("textbox", { name: "Adresse (Slug)" })
-    .inputValue();
-  await page.getByRole("textbox", { name: "Titel des Sets" }).fill("Feier");
-  await page.getByRole("button", { name: "Set hinzufügen" }).click();
-  await expect(page.getByTestId("set-list").locator("li")).toHaveCount(1);
+  const slug = (
+    (await page
+      .getByRole("link", { name: "Vorschau im neuen Tab" })
+      .getAttribute("href")) ?? ""
+  ).replace("/g/", "");
   await page
     .getByRole("combobox", { name: "Status" })
     .selectOption("published");
@@ -103,7 +101,6 @@ test("password-protected gallery asks for the password and stays open with the c
   const visitor = await anon.newPage();
   await visitor.goto(`/g/${slug}`);
   await expect(visitor.getByTestId("gallery-view")).toHaveCount(0);
-  await expect(visitor.getByText("Feier")).toHaveCount(0);
 
   await visitor.getByLabel("Passwort").fill("falsch-123");
   await visitor.getByRole("button", { name: "Galerie öffnen" }).click();
@@ -114,7 +111,6 @@ test("password-protected gallery asks for the password and stays open with the c
   await visitor.getByLabel("Passwort").fill("geheim-123");
   await visitor.getByRole("button", { name: "Galerie öffnen" }).click();
   await expect(visitor.getByTestId("gallery-view")).toBeVisible();
-  await expect(visitor.getByRole("heading", { name: "Feier" })).toBeVisible();
   // the cookie keeps the gallery open on reload
   await visitor.reload();
   await expect(visitor.getByTestId("gallery-view")).toBeVisible();

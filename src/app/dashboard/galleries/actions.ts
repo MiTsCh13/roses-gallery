@@ -6,10 +6,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/db";
 import {
   createGallery,
-  createSet,
   GalleryError,
-  reorderMedia,
-  reorderSets,
   setGalleryCover,
   updateGallery,
 } from "@/lib/galleries";
@@ -18,14 +15,20 @@ import { DeliveryError, sendDeliveryMail } from "@/lib/delivery-mail";
 import { serverEnv } from "@/lib/env";
 import { getMailer } from "@/lib/mailer";
 import { getRateLimiter } from "@/lib/rate-limit";
-import { setSetDownloadPolicy } from "@/lib/downloads";
 import { setGalleryPassword } from "@/lib/gallery-access";
+import { deleteMedia } from "@/lib/library";
 import { getStorage } from "@/lib/storage";
+import { getVideoProvider } from "@/lib/video";
 import { saveGalleryDesign } from "@/lib/gallery-design";
 import { PlanLimitError } from "@/lib/plans";
 import { saveWatermarkConfig } from "@/lib/watermark";
 import { requireAccount } from "@/lib/session";
-import { ZodError } from "zod";
+import {
+  addToGallery,
+  removeFromGallery,
+  reorderGalleryMedia,
+} from "@/lib/library";
+import { z, ZodError } from "zod";
 
 function errorCode(e: unknown): string {
   if (e instanceof PlanLimitError) return e.code;
@@ -70,6 +73,7 @@ export async function updateGalleryAction(formData: FormData) {
         galleryId,
         title: field(formData, "title"),
         slug: field(formData, "slug"),
+        description: field(formData, "description"),
         eventDate: field(formData, "eventDate"),
         expiresAt: field(formData, "expiresAt"),
         status: field(formData, "status"),
@@ -77,7 +81,22 @@ export async function updateGalleryAction(formData: FormData) {
         watermarkEnabled: field(formData, "watermarkEnabled") === "on",
       },
     );
+    // the design controls belong to the same form: one Save for everything
+    const config = field(formData, "config");
+    if (config !== undefined) {
+      await saveGalleryDesign(
+        { db: db(), accountId: account.id },
+        {
+          galleryId,
+          themeId: field(formData, "themeId"),
+          config: JSON.parse(config),
+        },
+      );
+    }
   } catch (e) {
+    if (e instanceof SyntaxError) {
+      redirect(`/dashboard/galleries/${galleryId}?error=invalid`);
+    }
     redirect(`/dashboard/galleries/${galleryId}?error=${errorCode(e)}`);
   }
   revalidatePath("/dashboard/galleries");
@@ -120,69 +139,18 @@ export async function setGalleryPasswordAction(formData: FormData) {
   redirect(`/dashboard/galleries/${galleryId}?saved=1`);
 }
 
-export async function setSetDownloadPolicyAction(formData: FormData) {
-  const { account } = await requireAccount();
-  const setId = field(formData, "setId") ?? "";
-  try {
-    await setSetDownloadPolicy(
-      { db: db(), accountId: account.id },
-      setId,
-      field(formData, "downloadPolicy"),
-    );
-  } catch (e) {
-    redirect(`/dashboard/sets/${setId}?error=${errorCode(e)}`);
-  }
-  revalidatePath(`/dashboard/sets/${setId}`);
-}
-
-export async function createSetAction(formData: FormData) {
-  const { account } = await requireAccount();
-  const galleryId = field(formData, "galleryId") ?? "";
-  try {
-    await createSet(
-      { db: db(), accountId: account.id },
-      {
-        galleryId,
-        title: field(formData, "title"),
-        type: field(formData, "type"),
-      },
-    );
-  } catch (e) {
-    redirect(`/dashboard/galleries/${galleryId}?error=${errorCode(e)}`);
-  }
-  redirect(`/dashboard/galleries/${galleryId}`);
-}
-
-export async function reorderSetsAction(
+export async function setGalleryCoverAction(
   galleryId: string,
-  orderedIds: string[],
+  mediaId: string | null,
 ) {
   const { account } = await requireAccount();
-  await reorderSets({ db: db(), accountId: account.id }, galleryId, orderedIds);
-  revalidatePath(`/dashboard/galleries/${galleryId}`);
-}
-
-export async function reorderMediaAction(setId: string, orderedIds: string[]) {
-  const { account } = await requireAccount();
-  await reorderMedia({ db: db(), accountId: account.id }, setId, orderedIds);
-  revalidatePath(`/dashboard/sets/${setId}`);
-}
-
-export async function setCoverAction(formData: FormData) {
-  const { account } = await requireAccount();
-  const galleryId = field(formData, "galleryId") ?? "";
-  const setId = field(formData, "setId") ?? "";
-  const mediaId = field(formData, "mediaId");
-  try {
-    await setGalleryCover(
-      { db: db(), accountId: account.id },
-      galleryId,
-      mediaId ? mediaId : null,
-    );
-  } catch (e) {
-    errorCode(e);
-  }
-  redirect(`/dashboard/sets/${setId}?cover=1`);
+  const gid = z.uuid().parse(galleryId);
+  await setGalleryCover(
+    { db: db(), accountId: account.id },
+    gid,
+    mediaId === null ? null : z.uuid().parse(mediaId),
+  );
+  revalidatePath(`/dashboard/galleries/${gid}`);
 }
 
 export async function saveDesignAction(formData: FormData) {
@@ -199,19 +167,21 @@ export async function saveDesignAction(formData: FormData) {
     );
   } catch (e) {
     if (e instanceof SyntaxError) {
-      redirect(`/dashboard/galleries/${galleryId}/design?error=invalid`);
+      redirect(`/dashboard/galleries/${galleryId}?error=invalid#design-block`);
     }
-    redirect(`/dashboard/galleries/${galleryId}/design?error=${errorCode(e)}`);
+    redirect(
+      `/dashboard/galleries/${galleryId}?error=${errorCode(e)}#design-block`,
+    );
   }
   revalidatePath(`/dashboard/galleries/${galleryId}`);
-  redirect(`/dashboard/galleries/${galleryId}/design?saved=1`);
+  redirect(`/dashboard/galleries/${galleryId}?saved=1#design-block`);
 }
 
 export async function removeLogoAction(formData: FormData) {
   const { account } = await requireAccount();
   const galleryId = field(formData, "galleryId") ?? "";
   await removeLogo({ db: db(), storage: getStorage(), accountId: account.id });
-  redirect(`/dashboard/galleries/${galleryId}/design?saved=1`);
+  redirect(`/dashboard/galleries/${galleryId}?saved=1#design-block`);
 }
 
 export async function sendDeliveryMailAction(formData: FormData) {
@@ -249,4 +219,56 @@ export async function sendDeliveryMailAction(formData: FormData) {
   redirect(
     `/dashboard/galleries/${galleryId}?sent=${result.sent}&failed=${result.failed}`,
   );
+}
+
+const mediaIds = z.array(z.uuid()).min(1).max(500);
+
+export async function addGalleryMediaAction(galleryId: string, ids: string[]) {
+  const { account } = await requireAccount();
+  const d = { db: db(), accountId: account.id };
+  const gid = z.uuid().parse(galleryId);
+  for (const mediaId of mediaIds.parse(ids)) {
+    await addToGallery(d, gid, mediaId);
+  }
+  revalidatePath(`/dashboard/galleries/${gid}`);
+}
+
+export async function removeGalleryMediaAction(
+  galleryId: string,
+  ids: string[],
+) {
+  const { account } = await requireAccount();
+  const d = { db: db(), accountId: account.id };
+  const gid = z.uuid().parse(galleryId);
+  for (const mediaId of mediaIds.parse(ids)) {
+    await removeFromGallery(d, gid, mediaId);
+  }
+  revalidatePath(`/dashboard/galleries/${gid}`);
+}
+
+export async function reorderGalleryMediaAction(
+  galleryId: string,
+  ids: string[],
+) {
+  const { account } = await requireAccount();
+  const d = { db: db(), accountId: account.id };
+  const gid = z.uuid().parse(galleryId);
+  await reorderGalleryMedia(d, gid, mediaIds.parse(ids));
+  revalidatePath(`/dashboard/galleries/${gid}`);
+}
+
+/** Deletes the marked media from the library for good (also from all galleries). */
+export async function deleteGalleryMediaAction(
+  galleryId: string,
+  ids: string[],
+) {
+  const { account } = await requireAccount();
+  const d = { db: db(), accountId: account.id };
+  const gid = z.uuid().parse(galleryId);
+  await deleteMedia(
+    { ...d, storage: getStorage(), video: getVideoProvider() },
+    mediaIds.parse(ids),
+  );
+  revalidatePath(`/dashboard/galleries/${gid}`);
+  revalidatePath("/dashboard/library");
 }

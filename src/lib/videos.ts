@@ -23,7 +23,7 @@ export class VideoError extends Error {
 }
 
 export const startVideoSchema = z.object({
-  setId: z.uuid(),
+  folderId: z.uuid().optional(),
   title: z.string().trim().min(1).max(200),
   sizeBytes: z.number().int().positive().max(MAX_VIDEO_BYTES),
 });
@@ -59,19 +59,18 @@ export async function startVideoUpload(deps: Deps, input: unknown) {
   assertCanUpload(await loadAccount(deps), data.sizeBytes);
 
   const t = tenantDb(deps.db, deps.accountId);
-  const set = await t.sets.get(data.setId);
-  if (!set || set.type !== "video") {
-    throw new VideoError("not_found", "Video set not found.");
+  if (data.folderId && !(await t.folders.get(data.folderId))) {
+    throw new VideoError("not_found", "Folder not found.");
   }
 
   const [{ top }] = await deps.db
     .select({ top: max(media.position) })
     .from(media)
-    .where(and(eq(media.accountId, deps.accountId), eq(media.setId, set.id)));
+    .where(eq(media.accountId, deps.accountId));
 
   const { videoId } = await deps.video.createVideo(data.title);
   const row = await t.media.create({
-    setId: set.id,
+    folderId: data.folderId ?? null,
     type: "video",
     bunnyVideoId: videoId,
     sizeBytes: data.sizeBytes,

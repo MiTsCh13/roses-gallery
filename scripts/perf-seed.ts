@@ -8,7 +8,7 @@ import { eq } from "drizzle-orm";
 import sharp from "sharp";
 
 import { db } from "../src/db";
-import { accounts, galleries, media, sets } from "../src/db/schema";
+import { accounts, galleries, galleryMedia, media } from "../src/db/schema";
 import { FakeStorage } from "../src/lib/storage/fake";
 import { derivativeKey } from "../src/lib/storage/types";
 
@@ -54,16 +54,6 @@ async function main() {
       status: "published",
     })
     .returning();
-  const [set] = await database
-    .insert(sets)
-    .values({
-      accountId: account.id,
-      galleryId: gallery.id,
-      title: "Fotos",
-      type: "photo",
-    })
-    .returning();
-
   const bases = await Promise.all([0, 1, 2, 3, 4, 5].map(sample));
   const variantsOf = await Promise.all(
     bases.map(async (base) =>
@@ -85,7 +75,6 @@ async function main() {
       .insert(media)
       .values({
         accountId: account.id,
-        setId: set.id,
         type: "photo",
         position: i,
         width: 3600,
@@ -94,6 +83,12 @@ async function main() {
       })
       .returning();
     first ??= row.id;
+    await database.insert(galleryMedia).values({
+      accountId: account.id,
+      galleryId: gallery.id,
+      mediaId: row.id,
+      position: i,
+    });
     const variants: Record<string, unknown> = {};
     for (const v of variantsOf[i % variantsOf.length]) {
       const key = derivativeKey(account.id, row.id, 1, v.width);

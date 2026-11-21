@@ -1,7 +1,7 @@
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 
 import { createTestDb, resetDb } from "@/test/db";
-import { accounts, galleries, sets, media, users } from "./schema";
+import { accounts, galleries, media, users } from "./schema";
 
 const { db, close } = createTestDb();
 
@@ -18,17 +18,7 @@ describe("schema", () => {
       .insert(galleries)
       .values({ accountId: account.id, slug: "anna-ben", title: "Anna & Ben" })
       .returning();
-    const [set] = await db
-      .insert(sets)
-      .values({
-        accountId: account.id,
-        galleryId: gallery.id,
-        title: "Trauung",
-      })
-      .returning();
-    await db
-      .insert(media)
-      .values({ accountId: account.id, setId: set.id, type: "photo" });
+    await db.insert(media).values({ accountId: account.id, type: "photo" });
 
     expect(gallery.status).toBe("draft");
     await db.delete(accounts);
