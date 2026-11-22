@@ -10,6 +10,7 @@
 | --- | --- | --- | --- |
 | D-153 | Blogbeiträge sind öffentliche Werbeaussagen: Routinen schreiben sie mit `draft: true`, Mitsch gibt frei (draft entfernen) | Entwürfe werden gemergt, aber nicht angezeigt; Website-Code selbst fällt weiter unter D-100 | vor erstem Beitrag (W1-6) |
 | D-154 | `roses-gallery.app` (und `www.roses-gallery.app`) in die Netzwerk-Allowlist der Cloud-Umgebung „Roses gallery“ aufnehmen, damit Routinen die Live-Seite prüfen können | Live-Abnahme bleibt bis dahin offen | W1-7 |
+| D-156 | Preisseite: Sind die Preise aus `lib/plans.ts` (10/20/50 €) netto oder brutto, und welcher Umsatzsteuer-Hinweis soll erscheinen („zzgl. MwSt.“ / „inkl. MwSt.“ / Kleinunternehmer)? Ebenso: Stimmt der Stripe-Preis damit überein? | Seite zeigt nur „Alle Preise in Euro.“ ohne Steuerhinweis | vor Bewerbung der Website |
 | D-117 | Original-Download liefert live 403 (auch signierte `playlist.m3u8`). Vermutung: Der Pull-Zone-Token-Key der Library (Bunny → Library → Delivery/Security → Pull-Zone *Token Authentication Key*) ist ein anderer als der Embed-Key `BUNNY_STREAM_TOKEN_KEY`. Bitte als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (ohne ihn wird der Embed-Key genutzt) | Code liest den Key bereits; Original-Download bleibt bis dahin ungeprüft | M4-Abnahme |
 
 Schlüssel bitte als Secrets in der Cloud-Umgebung (bzw. GitHub Actions Secrets) hinterlegen, nie ins Repo. Anleitung und Variablenliste: `docs/ZUGAENGE.md`.
