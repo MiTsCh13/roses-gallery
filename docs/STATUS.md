@@ -39,7 +39,8 @@ Rahmen (D-152): Website und App laufen in **derselben** Next.js-App auf `roses-g
 
 ## Optionale Reste aus M11 (niedrige Priorität, nicht Teil des Abschlusses)
 
-- [ ] Wasserzeichen-Standard ins Profil; „Passwort vergessen“ (derzeit = Anmeldelink)
+- [x] Wasserzeichen-Standard ins Profil (Abschnitt „Wasserzeichen“ in Profil & Einstellungen, gemeinsame Komponente `components/watermark-form.tsx` mit dem Galerie-Editor; Einstellungen bleiben accountweit, Ein/Aus je Galerie unter „Downloads“)
+- [ ] „Passwort vergessen“: wartet auf D-157 (wer sein Passwort vergessen hat, kann sich per Anmeldelink anmelden, das Passwort aber nicht ohne das alte ändern)
 - [ ] Video-Original-Download/-Vorschau in der Bibliothek (D-145)
 - [x] E2E-Test für „Als Titelbild“ im Medienpanel (`e2e/gallery-cover.spec.ts`)
 - [x] Dashboard-Ansicht der Favoritenlisten je Galerie (CSV): Block „Favoriten“ im Galerie-Editor (Liste, Besucher, Foto-/Video-Nummern wie in der Galerie), Export `GET /api/galleries/[galleryId]/favorites` (Semikolon + BOM für Excel, Formel-Neutralisierung gegen CSV-Injection), `lib/favorites-overview.ts`
@@ -126,6 +127,8 @@ Anlass: Rückmeldung von Mitsch nach dem ersten Live-Test (D-140). Reihenfolge s
 
 ## Entscheidungsbedarf
 
+D-157: „Passwort vergessen“ – neues Passwort nach Anmeldelink ohne altes Passwort setzen? (Vorschlag: ja, nur innerhalb von 15 min nach Anmeldung per Link, Mail-Hinweis an den Nutzer.)
+
 D-153: Zwei Blogbeiträge liegen als Entwurf in `content/blog/` – Mitsch liest gegen und gibt frei (`draft: true` entfernen). D-154: `roses-gallery.app` in die Netzwerk-Allowlist der Umgebung „Roses gallery“ aufnehmen (blockiert nur W1-7; Stand 2026-11-22: Proxy antwortet 403). D-155: Texte der Landing Page gegenlesen (bewusst ohne „DSGVO-konform“/„EU-Hosting“, keine Bilder). D-156: Preise netto oder brutto, welcher MwSt.-Hinweis?
 
 D-147: Phase 2 (P2-1 Premiere/Countdown usw.) besteht nur aus Anforderungen mit Priorität S. Freigabe und Reihenfolge durch Mitsch nötig; bis dahin nur optionale M11-Reste.
@@ -141,6 +144,9 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-11-22 – M11-Reste (Routine, abends)
+- W1-7 weiter blockiert (Proxy 403 für `roses-gallery.app`, D-154). Daher optionale M11-Reste: E2E „Als Titelbild“ (#108), Favoritenlisten im Galerie-Editor + CSV-Export (#109), Wasserzeichen-Standard ins Profil (#110). Neu: D-157 („Passwort vergessen“).
 
 ### 2026-11-22 – W1 Website (Routine)
 - W1-1 Rahmen (#100), W1-2 Landing Page (#101), W1-3 Preisseite (#102), W1-4 Blog/MDX/RSS (#103), W1-5 SEO (#104), W1-6 zwei Blog-Entwürfe (#105). Flaky `gallery-info`-E2E behoben (wartet auf die POST-Antwort). Offen: W1-7 Live-Abnahme (D-154), Freigaben D-153/D-155/D-156. Next.js 16.4.3 → 16.4.6 (#106, 7 Advisories „moderate“, u. a. Cache Components; wirksam nach nächstem Coolify-Deploy). Cloud: `service postgresql start`, `redis-server --daemonize yes`, Rolle `roses` + DBs `roses_gallery`/`roses_gallery_test`, `.env.local` aus `.env.example`.

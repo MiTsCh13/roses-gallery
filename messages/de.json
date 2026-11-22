@@ -375,7 +375,7 @@
     "watermarkTitle": "Wasserzeichen",
     "watermarkEnable": "Wasserzeichen auf Web-Größen (Originale bleiben unberührt)",
     "watermarkHint": "Dein Logo wird auf Anzeige und Web-Download gelegt. Einstellungen gelten für alle Galerien.",
-    "watermarkNoLogo": "Lade zuerst ein Logo hoch (Design-Editor), sonst wird kein Wasserzeichen gesetzt.",
+    "watermarkNoLogo": "Lade zuerst unter „Profil & Einstellungen“ ein Logo hoch, sonst wird kein Wasserzeichen gesetzt.",
     "watermarkPosition": "Position",
     "watermarkPositions": {
       "center": "Mitte",
@@ -786,7 +786,8 @@
     "errors": {
       "invalid": "Bitte prüfe deine Angaben (Studioname ist Pflicht, die Webseite muss mit https:// beginnen).",
       "password_invalid": "Das neue Passwort braucht mindestens 8 Zeichen, die Wiederholung muss übereinstimmen.",
-      "wrong_current": "Das aktuelle Passwort stimmt nicht."
+      "wrong_current": "Das aktuelle Passwort stimmt nicht.",
+      "watermark_invalid": "Bitte prüfe die Wasserzeichen-Werte (Deckkraft 5–100 %, Größe 5–60 %)."
     },
     "password": {
       "title": "Passwort",
@@ -814,6 +815,10 @@
       "hint": "PNG, JPEG oder WebP, höchstens 1,5 MB. Das Logo erscheint in allen Galerien.",
       "upload": "Logo hochladen",
       "remove": "Logo entfernen"
+    },
+    "watermark": {
+      "title": "Wasserzeichen",
+      "intro": "Standard für alle Galerien. Ob eine Galerie ein Wasserzeichen bekommt, schaltest du im Galerie-Editor unter „Downloads“ ein."
     }
   },
   "GalleryEditor": {

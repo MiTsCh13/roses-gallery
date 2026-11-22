@@ -12,7 +12,8 @@ import { tenantDb } from "@/db/tenant";
 import { deliveryDraft, listDeliveries } from "@/lib/delivery-mail";
 import { serverEnv } from "@/lib/env";
 import { DOWNLOAD_POLICIES } from "@/lib/download-policy";
-import { readWatermarkConfig, WATERMARK_POSITIONS } from "@/lib/watermark";
+import { readWatermarkConfig } from "@/lib/watermark";
+import { WatermarkForm } from "@/components/watermark-form";
 import { EVENT_TYPES, galleryStats } from "@/lib/events";
 import { galleryFavorites } from "@/lib/favorites-overview";
 import { requireAccount } from "@/lib/session";
@@ -377,51 +378,12 @@ async function GalleryContent({
               className="max-w-md space-y-3"
               title={t("watermarkTitle")}
             >
-              <p className="text-sm text-muted-foreground">
-                {typeof account.branding.logoKey === "string"
-                  ? t("watermarkHint")
-                  : t("watermarkNoLogo")}
-              </p>
-              <form action={saveWatermarkAction} className="space-y-3">
-                <input type="hidden" name="galleryId" value={gallery.id} />
-                <label className="block space-y-1 text-sm">
-                  <span>{t("watermarkPosition")}</span>
-                  <select
-                    name="position"
-                    defaultValue={watermark.position}
-                    className="h-9 w-full rounded-md border bg-transparent px-3"
-                  >
-                    {WATERMARK_POSITIONS.map((p) => (
-                      <option key={p} value={p}>
-                        {t(`watermarkPositions.${p}`)}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="block space-y-1 text-sm">
-                  <span>{t("watermarkOpacity")}</span>
-                  <Input
-                    name="opacity"
-                    type="number"
-                    min={5}
-                    max={100}
-                    defaultValue={watermark.opacity}
-                  />
-                </label>
-                <label className="block space-y-1 text-sm">
-                  <span>{t("watermarkScale")}</span>
-                  <Input
-                    name="scale"
-                    type="number"
-                    min={5}
-                    max={60}
-                    defaultValue={watermark.scale}
-                  />
-                </label>
-                <Button type="submit" variant="outline">
-                  {t("watermarkSave")}
-                </Button>
-              </form>
+              <WatermarkForm
+                action={saveWatermarkAction}
+                config={watermark}
+                hasLogo={typeof account.branding.logoKey === "string"}
+                galleryId={gallery.id}
+              />
             </Block>
           )}
 
