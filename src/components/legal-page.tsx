@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { connection } from "next/server";
 import { getTranslations } from "next-intl/server";
@@ -39,6 +40,11 @@ async function LegalBody({ page }: { page: LegalKey }) {
       ))}
     </>
   );
+}
+
+export async function legalMetadata(page: LegalKey): Promise<Metadata> {
+  const t = await getTranslations("Legal");
+  return { title: t(`${page}.title`), alternates: { canonical: `/${page}` } };
 }
 
 export async function LegalPage({ page }: { page: LegalKey }) {

@@ -1,4 +1,15 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+
+// Speichern per Server Action: auf die POST-Antwort warten statt auf eine
+// Statusmeldung (die Seite hat mehrere role=status-Elemente).
+async function save(page: Page) {
+  await Promise.all([
+    page.waitForResponse(
+      (r) => r.request().method() === "POST" && r.url().includes("/galleries/"),
+    ),
+    page.getByRole("button", { name: "Speichern", exact: true }).click(),
+  ]);
+}
 
 test("the info text under the title is saved and shown publicly", async ({
   page,
@@ -19,8 +30,7 @@ test("the info text under the title is saved and shown publicly", async ({
   await expect(page).toHaveURL(/galleries\/[0-9a-f-]{36}$/);
   await page.waitForLoadState("networkidle");
   await page.locator("input[name=description]").fill("Hochzeit am See");
-  await page.getByRole("button", { name: "Speichern", exact: true }).click();
-  await expect(page.getByRole("status").first()).toBeVisible();
+  await save(page);
   await page.reload();
   await expect(page.locator("input[name=description]")).toHaveValue(
     "Hochzeit am See",
@@ -30,8 +40,7 @@ test("the info text under the title is saved and shown publicly", async ({
   await page
     .getByRole("combobox", { name: "Status" })
     .selectOption("published");
-  await page.getByRole("button", { name: "Speichern", exact: true }).click();
-  await expect(page.getByRole("status").first()).toBeVisible();
+  await save(page);
   // Erst weiter, wenn der Status wirklich gespeichert ist (sonst 404-Race).
   await page.reload();
   await expect(page.getByRole("combobox", { name: "Status" })).toHaveValue(

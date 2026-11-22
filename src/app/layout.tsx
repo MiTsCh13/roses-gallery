@@ -4,6 +4,8 @@ import { NextIntlClientProvider } from "next-intl";
 import { getTranslations } from "next-intl/server";
 
 import { defaultLocale } from "@/i18n/config";
+import { SITE_NAME } from "@/lib/seo";
+import { siteUrl } from "@/lib/site-url";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -23,7 +25,16 @@ const fraunces = Fraunces({
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Metadata");
-  return { title: t("title"), description: t("description") };
+  return {
+    metadataBase: new URL(siteUrl()),
+    title: { default: t("title"), template: `%s | ${SITE_NAME}` },
+    description: t("description"),
+    openGraph: {
+      siteName: SITE_NAME,
+      locale: "de_DE",
+      type: "website",
+    },
+  };
 }
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

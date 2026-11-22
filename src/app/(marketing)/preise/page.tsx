@@ -11,7 +11,11 @@ import { pricingPlans, yearlyDiscountPercent } from "@/lib/pricing";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Pricing");
-  return { title: t("title"), description: t("intro") };
+  return {
+    title: t("title"),
+    description: t("intro"),
+    alternates: { canonical: "/preise" },
+  };
 }
 
 async function EnterpriseContact() {

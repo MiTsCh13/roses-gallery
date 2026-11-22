@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import {
@@ -11,6 +12,10 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { buildStructuredData, jsonLd } from "@/lib/seo";
+import { siteUrl } from "@/lib/site-url";
+
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 type TextBlock = { title: string; text: string };
 
@@ -25,6 +30,12 @@ export default function HomePage() {
   const faq = t.raw("faq") as { q: string; a: string }[];
   return (
     <main className="flex flex-1 flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: jsonLd(buildStructuredData(siteUrl(), t("tagline"))),
+        }}
+      />
       <section className="bg-gradient-to-b from-accent/60 via-background to-background px-4 py-20 text-center sm:px-6 sm:py-28">
         <div className="mx-auto flex max-w-3xl flex-col items-center">
           <p className="rounded-full bg-secondary px-4 py-1 text-sm text-secondary-foreground">

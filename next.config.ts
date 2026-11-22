@@ -35,7 +35,14 @@ const nextConfig: NextConfig = {
     },
   },
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    // Kundengalerien und App nie indexieren – auch wenn robots.txt ignoriert wird.
+    const noindex = [{ key: "X-Robots-Tag", value: "noindex, nofollow" }];
+    return [
+      { source: "/:path*", headers: securityHeaders },
+      { source: "/g/:path*", headers: noindex },
+      { source: "/dashboard/:path*", headers: noindex },
+      { source: "/login/:path*", headers: noindex },
+    ];
   },
 };
 
