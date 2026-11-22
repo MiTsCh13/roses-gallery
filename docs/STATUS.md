@@ -41,7 +41,7 @@ Rahmen (D-152): Website und App laufen in **derselben** Next.js-App auf `roses-g
 
 - [x] Wasserzeichen-Standard ins Profil (Abschnitt „Wasserzeichen“ in Profil & Einstellungen, gemeinsame Komponente `components/watermark-form.tsx` mit dem Galerie-Editor; Einstellungen bleiben accountweit, Ein/Aus je Galerie unter „Downloads“)
 - [ ] „Passwort vergessen“: wartet auf D-157 (wer sein Passwort vergessen hat, kann sich per Anmeldelink anmelden, das Passwort aber nicht ohne das alte ändern)
-- [ ] Video-Original-Download/-Vorschau in der Bibliothek (D-145)
+- [x] Video-Original-Download/-Vorschau in der Bibliothek (D-145): Buttons „Ansehen“ (signierte Player-URL im `<dialog>`, erst per Klick) und „Original laden“ an fertigen Video-Kacheln (`components/library-video-actions.tsx`, nutzt `/api/videos/{playback,original}`); live hängt der Original-Download weiter an D-117
 - [x] E2E-Test für „Als Titelbild“ im Medienpanel (`e2e/gallery-cover.spec.ts`)
 - [x] Dashboard-Ansicht der Favoritenlisten je Galerie (CSV): Block „Favoriten“ im Galerie-Editor (Liste, Besucher, Foto-/Video-Nummern wie in der Galerie), Export `GET /api/galleries/[galleryId]/favorites` (Semikolon + BOM für Excel, Formel-Neutralisierung gegen CSV-Injection), `lib/favorites-overview.ts`
 
@@ -116,14 +116,14 @@ Anlass: Rückmeldung von Mitsch nach dem ersten Live-Test (D-140). Reihenfolge s
 
 - [x] Theme-Konfiguration als Zod-Schema (`lib/themes.ts`: Schrift, Farben, Raster-Layout, Cover-Stil, `themeCssVars`); 4 System-Themes (Klassisch, Modern, Romantisch, Dunkel) per Migration 0005 mit festen IDs, Test prüft Code ↔ Migration. `resetDb` legt die System-Themes nach dem Truncate neu an. Schriften vorerst System-Stacks (keine Webfonts)
 - [x] Galerie-Ansicht-Komponenten (`src/components/gallery/gallery-view.tsx`: `GalleryView`, `GalleryCover`, `GalleryGrid`), Theme per CSS-Variablen, responsiv per Container-Queries (Vorschau = schmaler Container, kein iframe nötig); Logo-Slot vorhanden
-- [ ] Editor `/dashboard/galleries/[id]/design`: Themewahl + Anpassung (Schrift, Farben, Raster, Cover-Stil), Speichern in `galleries.themeId`/Overrides; Live-Vorschau mit Umschalter Desktop/Mobil (iframe oder Container-Breite)
+- [x] (in M11-5b in den Galerie-Editor verlegt) Editor `/dashboard/galleries/[id]/design`: Themewahl + Anpassung (Schrift, Farben, Raster, Cover-Stil), Speichern in `galleries.themeId`/Overrides; Live-Vorschau mit Umschalter Desktop/Mobil (iframe oder Container-Breite)
 - [x] Logo-Upload pro Account (`lib/branding.ts`, `POST /api/branding/logo`, Speicherung in `accounts.branding.logoKey`, PNG/JPEG/WebP per Magic Bytes, ≤1,5 MB, signierte URL); Anzeige in der Vorschau; E2E erweitert. Hinweis: kein Server-Action-Upload, weil `bodySizeLimit` global wirkt
 - [x] Fertig-Kriterium M6 („4 Themes mit Live-Vorschau Desktop und Mobil“) per E2E erfüllt; Logo „in jeder Galerie“ folgt mit der öffentlichen Ansicht (M7)
 
-## Reste aus M5 (niedrige Priorität)
+## Reste aus M5 (durch M11 erledigt)
 
-- [ ] Sortierung auch für Videos (Video-Set-Seite), Miniaturen/Cover in der Galerie-Übersicht über signierte Varianten-URLs
-- [ ] `/api/test/seed-set` in den Upload-/Video-E2E-Tests durch die echte UI ersetzen und Route entfernen
+- [x] Sortierung auch für Videos: `reorderGalleryMedia` sortiert Fotos und Videos gemeinsam (M11-5b)
+- [x] `/api/test/seed-set` entfernt (M11-8)
 
 ## Entscheidungsbedarf
 
@@ -144,6 +144,9 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-11-22 – M11-Rest Video in der Bibliothek (Routine, nachts)
+- W1-7 weiter blockiert (Proxy 403, D-154). Video-Vorschau und Original-Download in der Bibliothek (D-145). Veraltete M5-/M6-Reste als erledigt markiert. Offen nur noch: D-157 („Passwort vergessen“), W1-7 und Freigaben D-147/D-153/D-155/D-156.
 
 ### 2026-11-22 – M11-Reste (Routine, abends)
 - W1-7 weiter blockiert (Proxy 403 für `roses-gallery.app`, D-154). Daher optionale M11-Reste: E2E „Als Titelbild“ (#108), Favoritenlisten im Galerie-Editor + CSV-Export (#109), Wasserzeichen-Standard ins Profil (#110). Neu: D-157 („Passwort vergessen“).

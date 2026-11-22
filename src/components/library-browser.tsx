@@ -12,6 +12,7 @@ import {
   moveMediaAction,
   renameFolderAction,
 } from "@/app/dashboard/library/actions";
+import { LibraryVideoActions } from "@/components/library-video-actions";
 import { Button } from "@/components/ui/button";
 import { formatBytes } from "@/lib/format";
 import {
@@ -436,6 +437,9 @@ export function LibraryBrowser({
                   {t(`status.${m.status}`)} · {formatBytes(m.sizeBytes)}
                 </span>
               </div>
+              {m.type === "video" && m.status === "ready" && (
+                <LibraryVideoActions mediaId={m.id} />
+              )}
               <label className="absolute top-2 left-2 flex h-7 w-7 items-center justify-center rounded bg-background/90">
                 <input
                   type="checkbox"
