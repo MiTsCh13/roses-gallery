@@ -14,6 +14,7 @@ import { serverEnv } from "@/lib/env";
 import { DOWNLOAD_POLICIES } from "@/lib/download-policy";
 import { readWatermarkConfig, WATERMARK_POSITIONS } from "@/lib/watermark";
 import { EVENT_TYPES, galleryStats } from "@/lib/events";
+import { galleryFavorites } from "@/lib/favorites-overview";
 import { requireAccount } from "@/lib/session";
 import { AutoRefresh } from "@/components/auto-refresh";
 import { CopyLinkButton } from "@/components/gallery-editor/copy-link-button";
@@ -121,9 +122,10 @@ async function GalleryContent({
     gallery.coverMediaId && inGallery.some((m) => m.id === gallery.coverMediaId)
       ? `/api/library/thumb/${gallery.coverMediaId}?size=large`
       : undefined;
-  const [stats7, stats30] = await Promise.all([
+  const [stats7, stats30, favoriteLists] = await Promise.all([
     galleryStats(db(), account.id, gallery.id, 7),
     galleryStats(db(), account.id, gallery.id, 30),
+    galleryFavorites({ db: db(), accountId: account.id }, gallery.id),
   ]);
 
   return (
@@ -445,6 +447,54 @@ async function GalleryContent({
               </tbody>
             </table>
             <p className="text-xs text-muted-foreground">{t("statsPrivacy")}</p>
+          </Block>
+
+          <Block id="favorites-block" title={t("favoritesTitle")}>
+            {favoriteLists.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                {t("favoritesEmpty")}
+              </p>
+            ) : (
+              <>
+                <ul className="space-y-3 text-sm" data-testid="favorite-lists">
+                  {favoriteLists.map((l) => (
+                    <li key={l.id} className="rounded-lg border p-3">
+                      <p className="font-medium">
+                        {l.name}{" "}
+                        <span className="font-normal text-muted-foreground">
+                          · {l.email ?? t("favoritesGuest")} ·{" "}
+                          {t("favoritesCount", {
+                            count: l.photos.length + l.videos.length,
+                          })}
+                        </span>
+                      </p>
+                      {l.photos.length > 0 && (
+                        <p>
+                          {t("favoritesPhotos", {
+                            numbers: l.photos.join(", "),
+                          })}
+                        </p>
+                      )}
+                      {l.videos.length > 0 && (
+                        <p>
+                          {t("favoritesVideos", {
+                            numbers: l.videos.join(", "),
+                          })}
+                        </p>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+                <p className="text-xs text-muted-foreground">
+                  {t("favoritesHint")}
+                </p>
+                <Button asChild variant="outline">
+                  <a href={`/api/galleries/${gallery.id}/favorites`} download>
+                    {t("favoritesDownload")}
+                  </a>
+                </Button>
+              </>
+            )}
           </Block>
         </div>
         <div className="flex min-w-0 flex-col gap-8">

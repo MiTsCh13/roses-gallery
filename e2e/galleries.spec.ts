@@ -59,6 +59,7 @@ test("create a gallery, edit it and add library media", async ({
     "Zugang & Ablauf",
     "Downloads",
     "Statistik",
+    "Favoriten",
   ]);
   await page.getByRole("button", { name: "Speichern" }).click();
   await expect(page.getByRole("status")).toHaveText("Gespeichert.");
