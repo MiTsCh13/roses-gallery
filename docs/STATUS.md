@@ -67,7 +67,7 @@ Anlass: Rückmeldung von Mitsch nach dem ersten Live-Test (D-140). Reihenfolge s
 - [x] Deployment-Artefakte (D-136): `Dockerfile`, `docker-compose.prod.yml`, `docs/DEPLOYMENT.md`. **Ungeprüft** (kein Docker in der Cloud), Ausrollen braucht Zugang
 - [x] Seiten `/impressum`, `/datenschutz`, `/agb` als Platzhalter (Texte in `messages/de.json` → `Legal`, Rechtstexte vom Anwalt), Links auf der Startseite, E2E
 - [x] Rechtstexte als Entwurf (D-137), Anbieterdaten per `LEGAL_*`-Umgebung
-- [ ] Fertig-Kriterium M10: Produktion auf Hetzner (Mitsch deployt nach `docs/DEPLOYMENT.md`, `LEGAL_*` setzen), Rechtstexte anwaltlich prüfen
+- [ ] Fertig-Kriterium M10: Produktion läuft seit 2026-10-30; offen nur Rechtstexte prüfen/`LEGAL_*` (Mitsch deployt nach `docs/DEPLOYMENT.md`, `LEGAL_*` setzen), Rechtstexte anwaltlich prüfen
 
 ## Nächste Schritte (M9, erledigt)
 
@@ -127,6 +127,32 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 
 ## Log
 
+### 2026-10-30 – Produktion läuft
+- Deployment auf Hetzner/Coolify (Mitsch), Magic-Link-Login, Foto-Upload (R2-CORS `ExposeHeaders: ETag`) und HLS-Wiedergabe live bestätigt (D-138, D-139). Offen: Original-Download live prüfen, Stripe live/Webhook, Postmark-Absender, Rechtstexte anwaltlich prüfen, `LEGAL_*` setzen, Wiederherstellungsprobe Backup. Cloud: Postgres/Redis neu starten, Rolle `roses`/DBs anlegen.
+
+### 2026-10-29 – M10 Rechtstexte
+- Impressum/Datenschutz/AGB als Entwurf (D-137, PR folgt im Log). Mitsch: D-117 erledigt (Live-Abnahme Original-URL/HLS beim nächsten Lauf prüfen), kein eigener Backup-Bucket, optionale Reste vorerst nicht. Cloud: Postgres/Redis neu starten (`service postgresql start`, `redis-server --daemonize yes`), Rolle `roses`/DBs `roses_gallery`, `roses_gallery_test` anlegen.
+
+### 2026-10-29 – M10 Abschluss der baubaren Teile
+- Barrierefreiheit (PR #60), Event-Aufbewahrung (#61), DB-Backup (#62), Deployment-Artefakte (#63). Alles Baubare in M10 ist erledigt. Offen nur das Fertig-Kriterium (Produktion auf Hetzner, Impressum/Datenschutz online): braucht Coolify-Zugang, Domain, Rechtstexte (D-135, D-136) sowie Live-Abnahmen D-117, D-006. Docker-Build ungeprüft. Cloud: Postgres/Redis neu starten, Rolle `roses`/DBs anlegen.
+
+### 2026-10-29 – M10 Barrierefreiheit
+- D-133, axe-Tests, Theme-Kontrast. Nächster Schritt: Aufbewahrung alter Events (D-127), dann Backup/Deployment. Cloud: Postgres/Redis neu starten, Rolle `roses`/DBs anlegen.
+
+### 2026-10-29 – M10 Login-Rate-Limit
+- D-132. Nächster Schritt: axe-Test Galerie, dann Backup/Deployment. Cloud: Postgres/Redis neu starten (`service postgresql start`, `redis-server --daemonize yes`), Rolle `roses`/DB `roses_gallery`.
+
+### 2026-10-29 – M10 2FA
+- TOTP-2FA (D-131). Nächster Schritt: Login-Rate-Limits/`x-forwarded-for`, axe-Test. Cloud: Postgres/Redis neu starten (`service postgresql start`, `redis-server --daemonize yes`), Rolle `roses`/DB `roses_gallery` anlegen.
+
+### 2026-10-29 – M10 Rechtsseiten
+- Platzhalter-Seiten online-bereit. Offen für Launch: echte Texte (Anwalt). Nächster Schritt: 2FA (TOTP, Entscheidung optional vs. Pflicht in DECISIONS), dann Login-Rate-Limits, axe-Test. Cloud: Postgres/Redis neu starten, Rolle/DBs anlegen.
+
+### 2026-10-29 – M10 Sentry
+- Fehlerberichte ohne SDK (D-130). Nächster Schritt: 2FA (TOTP) / Rate-Limits Login. Cloud: Postgres/Redis neu starten, Rolle/DBs anlegen.
+
+### 2026-10-29 – M10 Lückenliste + CSP
+- `docs/NFR-LUECKEN.md`, CSP (D-129). Nächster Schritt: Sentry-Interface. Cloud: Postgres/Redis neu starten, Rolle/DBs anlegen.
 - 2026-11-01 (Fix): Video-Poster auch in Galerie-Editor (Medienpanel, Live-Vorschau) und Bibliothek: `/api/library/thumb/<id>` liefert für Videos den signierten CDN-Poster (404 → Platzhalter bleibt).
 
 - 2026-11-01 (Fix): Info-Text wurde nicht gespeichert (Feld fehlte in `updateGalleryAction`, stattdessen irrtümlich in `createGalleryAction`); E2E `gallery-info` deckt Speichern + öffentliche Anzeige ab.
