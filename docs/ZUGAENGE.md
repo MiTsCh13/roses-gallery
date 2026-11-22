@@ -27,7 +27,7 @@ sonst Fake. `E2E_TEST_MODE=1` nur in der E2E-Umgebung, nie in Produktion.
   Ausgabe eintragen, oder einen beliebigen zufälligen String aus einem Passwort-Generator nehmen.
 - `AUTH_URL`: keine Zugangsdaten, sondern die Adresse, unter der die App erreichbar ist.
   Lokal `http://localhost:3000`, nach dem Deployment (M10) die echte Domain, z. B.
-  `https://roses-gallery.de`. In der Cloud-Umgebung der Routine kann sie fehlen.
+  `https://roses-gallery.app`. In der Cloud-Umgebung der Routine kann sie fehlen.
 
 ### Postmark (E-Mail)
 1. Konto auf postmarkapp.com anlegen, Server erstellen (Name z. B. „Roses Gallery Test“).
