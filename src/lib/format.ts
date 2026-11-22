@@ -17,3 +17,13 @@ export function formatBytes(bytes: number): string {
   const digits = unit === 0 || value >= 100 ? 0 : 1;
   return `${new Intl.NumberFormat("de-DE", { maximumFractionDigits: digits }).format(value)} ${units[unit]}`;
 }
+
+/** `2026-11-22` → `22. November 2026` (ohne Zeitzonen-Verschiebung). */
+export function formatPostDate(isoDate: string): string {
+  return new Intl.DateTimeFormat("de-DE", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(`${isoDate}T00:00:00Z`));
+}

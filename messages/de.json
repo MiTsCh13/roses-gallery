@@ -95,7 +95,8 @@
       "features": "Funktionen",
       "signIn": "Anmelden",
       "start": "Kostenlos starten",
-      "pricing": "Preise"
+      "pricing": "Preise",
+      "blog": "Blog"
     },
     "footer": {
       "label": "Rechtliches und Kontakt",
@@ -150,6 +151,16 @@
       "video_chapters": "Video-Kapitel"
     },
     "landingLink": "Preise ansehen"
+  },
+  "Blog": {
+    "title": "Blog",
+    "description": "Praxiswissen rund um Hochzeitsgalerien, Videoauslieferung und Kundenerlebnis.",
+    "empty": "Hier erscheinen bald die ersten Beiträge.",
+    "draft": "Entwurf",
+    "rss": "RSS-Feed",
+    "back": "Alle Beiträge",
+    "byline": "{author} · {date}",
+    "readMore": "Weiterlesen"
   },
   "Auth": {
     "mail": {
