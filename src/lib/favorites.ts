@@ -333,6 +333,30 @@ export async function requestMagicLink(
   });
 }
 
+/**
+ * Numbers of the gallery's ready media as the visitor sees them: gallery
+ * order, photos and videos counted separately (1-based).
+ */
+export async function mediaNumbers(db: Db, gallery: GalleryRef) {
+  const all = await db
+    .select({ id: media.id, type: media.type })
+    .from(galleryMedia)
+    .innerJoin(media, eq(media.id, galleryMedia.mediaId))
+    .where(
+      and(
+        eq(galleryMedia.accountId, gallery.accountId),
+        eq(media.accountId, gallery.accountId),
+        eq(galleryMedia.galleryId, gallery.id),
+        eq(media.processingStatus, "ready"),
+      ),
+    )
+    .orderBy(asc(galleryMedia.position), asc(media.createdAt));
+  const numberOf = new Map<string, number>();
+  const counters = { photo: 0, video: 0 };
+  for (const item of all) numberOf.set(item.id, ++counters[item.type]);
+  return numberOf;
+}
+
 /** Mails the list's contents to the account owners (F-INT-01 export). */
 export async function sendListToCreator(
   deps: Deps & { mailer: Mailer; baseUrl: string },
@@ -367,23 +391,7 @@ export async function sendListToCreator(
   if (to.length === 0)
     throw new FavoritesError("no_recipient", "No recipient.");
 
-  // photo numbers follow the gallery order, matching what the visitor sees
-  const all = await deps.db
-    .select({ id: media.id, type: media.type })
-    .from(galleryMedia)
-    .innerJoin(media, eq(media.id, galleryMedia.mediaId))
-    .where(
-      and(
-        eq(galleryMedia.accountId, gallery.accountId),
-        eq(galleryMedia.galleryId, gallery.id),
-        eq(media.processingStatus, "ready"),
-      ),
-    )
-    .orderBy(asc(galleryMedia.position), asc(media.createdAt));
-  // photos and videos are numbered separately, as the visitor sees them
-  const numberOf = new Map<string, number>();
-  const counters = { photo: 0, video: 0 };
-  for (const item of all) numberOf.set(item.id, ++counters[item.type]);
+  const numberOf = await mediaNumbers(deps.db, gallery);
   const numbers = (type: "photo" | "video") =>
     rows
       .filter((r) => r.m.type === type)

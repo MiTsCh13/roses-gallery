@@ -453,7 +453,24 @@
     "descriptionHint": "Kurzer Text unter dem Titel in der Galerie (optional).",
     "copyLink": "Link kopieren",
     "linkCopied": "Link kopiert ✓",
-    "linkCopyFailed": "Kopieren nicht möglich"
+    "linkCopyFailed": "Kopieren nicht möglich",
+    "favoritesTitle": "Favoriten",
+    "favoritesEmpty": "Noch hat niemand Favoriten markiert.",
+    "favoritesGuest": "Gast ohne E-Mail",
+    "favoritesPhotos": "Fotos: {numbers}",
+    "favoritesVideos": "Videos: {numbers}",
+    "favoritesCount": "{count, plural, one {# Medium} other {# Medien}}",
+    "favoritesDownload": "Als CSV herunterladen",
+    "favoritesHint": "Nummern wie in der Galerie: Fotos und Videos werden getrennt gezählt.",
+    "favoritesCsv": {
+      "list": "Liste",
+      "visitor": "Besucher",
+      "type": "Typ",
+      "number": "Nummer",
+      "photo": "Foto",
+      "video": "Video",
+      "guest": "Gast"
+    }
   },
   "Design": {
     "title": "Design",

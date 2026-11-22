@@ -42,7 +42,7 @@ Rahmen (D-152): Website und App laufen in **derselben** Next.js-App auf `roses-g
 - [ ] Wasserzeichen-Standard ins Profil; „Passwort vergessen“ (derzeit = Anmeldelink)
 - [ ] Video-Original-Download/-Vorschau in der Bibliothek (D-145)
 - [x] E2E-Test für „Als Titelbild“ im Medienpanel (`e2e/gallery-cover.spec.ts`)
-- [ ] Dashboard-Ansicht der Favoritenlisten je Galerie (CSV)
+- [x] Dashboard-Ansicht der Favoritenlisten je Galerie (CSV): Block „Favoriten“ im Galerie-Editor (Liste, Besucher, Foto-/Video-Nummern wie in der Galerie), Export `GET /api/galleries/[galleryId]/favorites` (Semikolon + BOM für Excel, Formel-Neutralisierung gegen CSV-Injection), `lib/favorites-overview.ts`
 
 ## Nächste Schritte (M11, erledigt; ein Schritt = ein PR)
 
@@ -88,7 +88,7 @@ Anlass: Rückmeldung von Mitsch nach dem ersten Live-Test (D-140). Reihenfolge s
 - [x] Statistik pro Galerie im Dashboard (Galerie-Seite): Aufrufe, Wiedergaben, Downloads, Favoriten für 7/30 Tage. Tests: Unit gegen Postgres. Offen: Zeitreihe/Diagramm, Aufbewahrungsfrist/Aufräumen alter Events (M10)
 - [x] Auslieferungs-Mail (F-DASH-03, D-128): `lib/delivery-mail.ts`, Abschnitt „Galerie an Kunden senden“ auf der Galerie-Seite (Empfänger ≤ 20, Betreff/Text mit Platzhaltern `{titel} {link} {passwort_hinweis} {fotograf}`), Text + HTML, Protokoll (`delivery_mails`, Migration 0010), Empfänger werden Kunden-Besucher (Ablauf-Erinnerung). Tests: Unit gegen Postgres + E2E. Offen: Logo im Mail-Kopf (signierte URLs laufen ab, D-128), Vorlage nicht dauerhaft speicherbar
 - [x] Fertig-Kriterium M9: Mail kommt an (Fake-Postfach in E2E, Postmark-Format per Unit-Test), Aufrufe werden gezählt (Unit-Test Statistik)
-- [ ] Optional aus M8: Dashboard-Ansicht der Favoritenlisten je Galerie (CSV)
+- [x] Optional aus M8: Dashboard-Ansicht der Favoritenlisten je Galerie (CSV) – mit M11-Rest erledigt
 
 ## Nächste Schritte (M8, erledigt)
 
