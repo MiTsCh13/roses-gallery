@@ -18,6 +18,7 @@ const FEATURE_ICONS = [Palette, Download, Heart, Mail, ShieldCheck, PiggyBank];
 
 export default function HomePage() {
   const t = useTranslations("HomePage");
+  const tPricing = useTranslations("Pricing");
   const highlights = t.raw("highlights") as string[];
   const features = t.raw("features") as TextBlock[];
   const steps = t.raw("steps") as TextBlock[];
@@ -153,6 +154,9 @@ export default function HomePage() {
           >
             <Link href="/login">{t("cta")}</Link>
           </Button>
+          <Link href="/preise" className="mt-4 text-sm underline">
+            {tPricing("landingLink")}
+          </Link>
         </div>
       </section>
     </main>

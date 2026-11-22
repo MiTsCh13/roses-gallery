@@ -94,13 +94,62 @@
       "menu": "Menü",
       "features": "Funktionen",
       "signIn": "Anmelden",
-      "start": "Kostenlos starten"
+      "start": "Kostenlos starten",
+      "pricing": "Preise"
     },
     "footer": {
       "label": "Rechtliches und Kontakt",
       "tagline": "Roses Gallery – Foto- und Video-Galerien für Hochzeitsfotografen und -videografen.",
       "contact": "Kontakt"
     }
+  },
+  "Pricing": {
+    "title": "Preise",
+    "intro": "Einfache Pläne ohne Provision. Die Kernfunktionen sind in jedem Plan enthalten – du wählst nach Speicher.",
+    "billingLabel": "Abrechnungszeitraum",
+    "monthly": "Monatlich",
+    "yearly": "Jährlich",
+    "yearlySave": "−{percent} %",
+    "perMonth": "/ Monat",
+    "perYear": "/ Jahr",
+    "yearlyHint": "entspricht {price} pro Monat",
+    "freePrice": "0 €",
+    "freeHint": "dauerhaft kostenlos",
+    "onRequest": "Auf Anfrage",
+    "enterpriseHint": "Für Studios mit großem Archiv und individuellen Anforderungen.",
+    "storage": "{size} Speicher",
+    "galleriesLimited": "bis zu {count} Galerien",
+    "galleriesUnlimited": "Unbegrenzte Galerien",
+    "trial": "{days} Tage kostenlos testen",
+    "startFree": "Kostenlos starten",
+    "choose": "{plan} wählen",
+    "contact": "Anfrage senden",
+    "contactSubject": "Anfrage Enterprise",
+    "planned": "geplant",
+    "coreTitle": "In jedem Plan enthalten",
+    "core": [
+      "Fotos und Videos in einer Galerie, Videos bis 4K",
+      "Wiedergabe per AirPlay und Chromecast",
+      "Vier Designs, eigene Farben, Schriften und Logo",
+      "Passwortschutz und Ablaufdatum",
+      "Download-Rechte je Galerie, Wasserzeichen",
+      "Favoritenlisten für deine Kunden",
+      "Auslieferungs-Mail und Statistik",
+      "0 % Provision"
+    ],
+    "plannedHint": "Mit „geplant“ markierte Funktionen sind in Entwicklung und im jeweiligen Plan enthalten, sobald sie erscheinen.",
+    "currencyHint": "Alle Preise in Euro.",
+    "features": {
+      "video_cover": "Video als Titelbild",
+      "branding_socials": "Branding & Social-Links",
+      "tips": "Trinkgeld",
+      "premiere": "Premiere mit Countdown",
+      "face_search": "Find my Face (Gesichtssuche)",
+      "white_label": "White-Label",
+      "external_download_links": "Externe Download-Links",
+      "video_chapters": "Video-Kapitel"
+    },
+    "landingLink": "Preise ansehen"
   },
   "Auth": {
     "mail": {

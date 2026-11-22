@@ -133,3 +133,30 @@ test("landing page shows features, steps and a working FAQ", async ({
     page.getByRole("heading", { level: 2, name: home.closingTitle }),
   ).toBeVisible();
 });
+
+test("pricing page is linked and toggles yearly billing", async ({
+  page,
+  isMobile,
+}) => {
+  await page.goto("/");
+  if (isMobile) {
+    await page.getByText(messages.Marketing.nav.menu, { exact: true }).click();
+    await page
+      .getByRole("navigation", { name: messages.Marketing.nav.mobileLabel })
+      .getByRole("link", { name: messages.Marketing.nav.pricing })
+      .click();
+  } else {
+    await page
+      .locator("header")
+      .getByRole("link", { name: messages.Marketing.nav.pricing })
+      .click();
+  }
+  await expect(page).toHaveURL(/\/preise$/);
+  await expect(
+    page.getByRole("heading", { level: 1, name: messages.Pricing.title }),
+  ).toBeVisible();
+  const bud = page.getByTestId("plan-bud").getByTestId("price");
+  await expect(bud).toContainText(messages.Pricing.perMonth);
+  await page.getByRole("button", { name: /Jährlich/ }).click();
+  await expect(bud).toContainText(messages.Pricing.perYear);
+});

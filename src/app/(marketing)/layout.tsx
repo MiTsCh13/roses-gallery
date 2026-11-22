@@ -8,8 +8,11 @@ import { LEGAL_MISSING, legalDetails } from "@/lib/legal-details";
 
 import { MobileMenu } from "./mobile-menu";
 
-// Preise und Blog kommen mit W1-3/W1-4 dazu (nur verlinken, was es gibt).
-const MARKETING_NAV = [{ href: "/#funktionen", key: "features" }] as const;
+// Blog kommt mit W1-4 dazu (nur verlinken, was es gibt).
+const MARKETING_NAV = [
+  { href: "/#funktionen", key: "features" },
+  { href: "/preise", key: "pricing" },
+] as const;
 
 const LEGAL_LINKS = ["impressum", "datenschutz", "agb"] as const;
 
