@@ -23,7 +23,7 @@
 | M9 | Auslieferung & Statistik | ✅ fertig (Postmark live ungeprüft: nur Fake getestet) |
 | M10 | Härtung & Launch | ✅ live (Mitsch: Rechtstexte, Postmark, Stripe-Live offen) |
 | M11 | Überarbeitung Dashboard & Galerie-Editor | ✅ fertig (Schritte 1–8 + Migration 0015; optionale Reste unten) |
-| W1 | Marketing-Website (Landing Page, Preise, Blog, SEO) | ⏭️ als Nächstes |
+| W1 | Marketing-Website (Landing Page, Preise, Blog, SEO) | 🔄 Schritte 1–6 fertig, offen nur Live-Abnahme (D-154) |
 
 ## Nächste Schritte (W1, in dieser Reihenfolge; ein Schritt = ein PR)
 
@@ -34,7 +34,7 @@ Rahmen (D-152): Website und App laufen in **derselben** Next.js-App auf `roses-g
 - [x] **3. Preisseite `/preise`** (`lib/pricing.ts` als Darstellungsmodell; Plan-Funktionen aus `FEATURES` sind alle Phase 2 → als „geplant“ markiert; Enterprise-Mail nur mit `LEGAL_EMAIL`; MwSt.-Hinweis offen, D-156): liest Pläne, Preise (Cent → EUR formatiert) und Features **nur** aus `lib/plans.ts`; Umschalter monatlich/jährlich (−20 %), Free-Plan, Enterprise „auf Anfrage“ (Mail-Link). Unit-Test: Seite zeigt genau die Werte aus `plans.ts`. Link aus Kopfzeile und Landing Page
 - [x] **4. Blog** (`@next/mdx` + `remark-frontmatter`, Frontmatter per `yaml` + Zod in `lib/blog.ts`; `/blog/[slug]` ohne `dynamicParams` (nicht mit `cacheComponents` vereinbar), unbekannt/Entwurf → notFound; ohne veröffentlichten Beitrag Platzhalter-Param `_`; erster Entwurf liegt bei, s. W1-6): Beiträge als Markdown/MDX in `content/blog/*.mdx` mit Frontmatter (title, description, date, author, draft, cover optional), Frontmatter per Zod geprüft (Build bricht bei Fehlern). `/blog` (Liste, neueste zuerst, ohne Entwürfe in Produktion), `/blog/[slug]` statisch vorgerendert, RSS `/blog/rss.xml`. Vor Umsetzung `node_modules/next/dist/docs/01-app/02-guides/mdx.md` lesen. Tests: Frontmatter-Validierung, Entwürfe ausgeblendet, RSS gültig
 - [x] **5. SEO** (`lib/seo.ts`, `lib/site-url.ts`; zusätzlich `X-Robots-Tag: noindex` für `/g/`, `/dashboard`, `/login`; Basis-URL wird beim Build eingebrannt, s. DEPLOYMENT.md): `metadataBase` aus `AUTH_URL` (Fallback `https://roses-gallery.app`), Titel/Beschreibung/Canonical je Seite, `sitemap.ts` (Website + Blog), `robots.ts` (erlaubt Website/Blog; sperrt `/dashboard`, `/api`, `/g/`, `/login`), Galerien zusätzlich `noindex`, `opengraph-image` für Startseite und Blogbeiträge, JSON-LD (Organization, SoftwareApplication mit Preisen aus `plans.ts`). Tests für sitemap/robots/noindex
-- [~] **6. Erste Blogbeiträge als Entwurf** (1/2: „Hochzeitsvideos ohne Qualitätsverlust …“ mit W1-4) (`draft: true`, D-153): z. B. „Hochzeitsvideos ohne Qualitätsverlust an Kunden ausliefern“, „Galerie-Link statt Dropbox: was Brautpaare erwarten“. Sachlich, keine erfundenen Zahlen/Zitate. Mitsch gibt frei, indem `draft` entfernt wird
+- [x] **6. Erste Blogbeiträge als Entwurf** (`hochzeitsvideos-ohne-qualitaetsverlust-ausliefern`, `galerie-link-statt-dropbox`; Titel des zweiten ohne „was Brautpaare erwarten“, weil dafür keine Belege vorliegen. **Freigabe durch Mitsch** = `draft: true` entfernen, D-153) (`draft: true`, D-153): z. B. „Hochzeitsvideos ohne Qualitätsverlust an Kunden ausliefern“, „Galerie-Link statt Dropbox: was Brautpaare erwarten“. Sachlich, keine erfundenen Zahlen/Zitate. Mitsch gibt frei, indem `draft` entfernt wird
 - [ ] **7. Live-Abnahme** (braucht D-154): `https://roses-gallery.app` und `www` → 200/Weiterleitung, `/api/health`, `/preise`, `/blog`, `/sitemap.xml`, `/robots.txt`, Security-Header/HSTS. Ergebnis ins Log
 
 ## Optionale Reste aus M11 (niedrige Priorität, nicht Teil des Abschlusses)
@@ -126,7 +126,7 @@ Anlass: Rückmeldung von Mitsch nach dem ersten Live-Test (D-140). Reihenfolge s
 
 ## Entscheidungsbedarf
 
-D-153: Blogbeiträge erscheinen erst nach Freigabe durch Mitsch (`draft` entfernen). D-154: `roses-gallery.app` in die Netzwerk-Allowlist der Umgebung „Roses gallery“ aufnehmen (nur für die Live-Abnahme W1-7 nötig, blockiert W1-1 bis W1-6 nicht).
+D-153: Zwei Blogbeiträge liegen als Entwurf in `content/blog/` – Mitsch liest gegen und gibt frei (`draft: true` entfernen). D-154: `roses-gallery.app` in die Netzwerk-Allowlist der Umgebung „Roses gallery“ aufnehmen (blockiert nur W1-7; Stand 2026-11-22: Proxy antwortet 403). D-155: Texte der Landing Page gegenlesen (bewusst ohne „DSGVO-konform“/„EU-Hosting“, keine Bilder). D-156: Preise netto oder brutto, welcher MwSt.-Hinweis?
 
 D-147: Phase 2 (P2-1 Premiere/Countdown usw.) besteht nur aus Anforderungen mit Priorität S. Freigabe und Reihenfolge durch Mitsch nötig; bis dahin nur optionale M11-Reste.
 
@@ -142,83 +142,20 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 
 ## Log
 
+### 2026-11-22 – W1 Website (Routine)
+- W1-1 Rahmen (#100), W1-2 Landing Page (#101), W1-3 Preisseite (#102), W1-4 Blog/MDX/RSS (#103), W1-5 SEO (#104), W1-6 zwei Blog-Entwürfe. Flaky `gallery-info`-E2E behoben (wartet auf die POST-Antwort). Offen: W1-7 Live-Abnahme (D-154), Freigaben D-153/D-155/D-156. Next.js 16.4.3 hat 7 Advisories („moderate“, u. a. Cache Components) → Patch-Update auf 16.4.6 als eigener PR. Cloud: `service postgresql start`, `redis-server --daemonize yes`, Rolle `roses` + DBs `roses_gallery`/`roses_gallery_test`, `.env.local` aus `.env.example`. `next build` bricht in der Cloud jeden zweiten Lauf mit einem Upgrade-Hinweis ab („SecurityFatalError“) – Befehl einfach wiederholen.
+
 ### 2026-11-22 – Domain & Website-Planung
 - Domain `roses-gallery.app` (Mitsch): DNS, Coolify-Domains (www → Apex), `AUTH_URL`, Stripe-/Bunny-Webhooks, Google-Redirect-URI und Postmark-Absender laut Mitsch umgestellt. Aus der Cloud-Umgebung nicht prüfbar (Host nicht freigegeben, D-154). Meilenstein W1 geplant (D-152).
 
+### 2026-11-01 – Mitsch-Rückmeldungen und M11-Abschluss
+- Video-Poster in Editor/Bibliothek, Info-Text-Fix (#91), Galerie-Info (D-151), Upload-Fortschritt/Seitenverhältnis (D-150), Galerie-Ansicht/Editor (D-148/D-149), M11 abgeschlossen inkl. Migration 0015 (D-146, D-147).
+
+### 2026-10-31 – M11 Schritte 1–5
+- Optik, Profil & Einstellungen, Passwort (D-141), Datenmodell Bibliothek (D-143), Bibliothek-UI, Galerie-Editor zweispaltig.
+
 ### 2026-10-30 – Produktion läuft
-- Deployment auf Hetzner/Coolify (Mitsch), Magic-Link-Login, Foto-Upload (R2-CORS `ExposeHeaders: ETag`) und HLS-Wiedergabe live bestätigt (D-138, D-139). Offen: Original-Download live prüfen, Stripe live/Webhook, Postmark-Absender, Rechtstexte anwaltlich prüfen, `LEGAL_*` setzen, Wiederherstellungsprobe Backup. Cloud: Postgres/Redis neu starten, Rolle `roses`/DBs anlegen.
+- Deployment auf Hetzner/Coolify (Mitsch), Magic-Link-Login, Foto-Upload (R2-CORS `ExposeHeaders: ETag`) und HLS-Wiedergabe live bestätigt (D-138, D-139). Offen: Original-Download live prüfen, Stripe live/Webhook, Postmark-Absender, Rechtstexte anwaltlich prüfen, `LEGAL_*` setzen, Wiederherstellungsprobe Backup.
 
-### 2026-10-29 – M10 Rechtstexte
-- Impressum/Datenschutz/AGB als Entwurf (D-137, PR folgt im Log). Mitsch: D-117 erledigt (Live-Abnahme Original-URL/HLS beim nächsten Lauf prüfen), kein eigener Backup-Bucket, optionale Reste vorerst nicht. Cloud: Postgres/Redis neu starten (`service postgresql start`, `redis-server --daemonize yes`), Rolle `roses`/DBs `roses_gallery`, `roses_gallery_test` anlegen.
-
-### 2026-10-29 – M10 Abschluss der baubaren Teile
-- Barrierefreiheit (PR #60), Event-Aufbewahrung (#61), DB-Backup (#62), Deployment-Artefakte (#63). Alles Baubare in M10 ist erledigt. Offen nur das Fertig-Kriterium (Produktion auf Hetzner, Impressum/Datenschutz online): braucht Coolify-Zugang, Domain, Rechtstexte (D-135, D-136) sowie Live-Abnahmen D-117, D-006. Docker-Build ungeprüft. Cloud: Postgres/Redis neu starten, Rolle `roses`/DBs anlegen.
-
-### 2026-10-29 – M10 Barrierefreiheit
-- D-133, axe-Tests, Theme-Kontrast. Nächster Schritt: Aufbewahrung alter Events (D-127), dann Backup/Deployment. Cloud: Postgres/Redis neu starten, Rolle `roses`/DBs anlegen.
-
-### 2026-10-29 – M10 Login-Rate-Limit
-- D-132. Nächster Schritt: axe-Test Galerie, dann Backup/Deployment. Cloud: Postgres/Redis neu starten (`service postgresql start`, `redis-server --daemonize yes`), Rolle `roses`/DB `roses_gallery`.
-
-### 2026-10-29 – M10 2FA
-- TOTP-2FA (D-131). Nächster Schritt: Login-Rate-Limits/`x-forwarded-for`, axe-Test. Cloud: Postgres/Redis neu starten (`service postgresql start`, `redis-server --daemonize yes`), Rolle `roses`/DB `roses_gallery` anlegen.
-
-### 2026-10-29 – M10 Rechtsseiten
-- Platzhalter-Seiten online-bereit. Offen für Launch: echte Texte (Anwalt). Nächster Schritt: 2FA (TOTP, Entscheidung optional vs. Pflicht in DECISIONS), dann Login-Rate-Limits, axe-Test. Cloud: Postgres/Redis neu starten, Rolle/DBs anlegen.
-
-### 2026-10-29 – M10 Sentry
-- Fehlerberichte ohne SDK (D-130). Nächster Schritt: 2FA (TOTP) / Rate-Limits Login. Cloud: Postgres/Redis neu starten, Rolle/DBs anlegen.
-
-### 2026-10-29 – M10 Lückenliste + CSP
-- `docs/NFR-LUECKEN.md`, CSP (D-129). Nächster Schritt: Sentry-Interface. Cloud: Postgres/Redis neu starten, Rolle/DBs anlegen.
-- 2026-11-01 (Fix): Video-Poster auch in Galerie-Editor (Medienpanel, Live-Vorschau) und Bibliothek: `/api/library/thumb/<id>` liefert für Videos den signierten CDN-Poster (404 → Platzhalter bleibt).
-
-- 2026-11-01 (Fix): Info-Text wurde nicht gespeichert (Feld fehlte in `updateGalleryAction`, stattdessen irrtümlich in `createGalleryAction`); E2E `gallery-info` deckt Speichern + öffentliche Anzeige ab.
-
-- 2026-11-01 (Mitsch-Rückmeldungen 3): Info-Zeile unter dem Galerie-Titel (D-151, Migration 0016).
-
-- 2026-11-01 (Mitsch-Rückmeldungen 2): Upload-Fortschrittsbalken im Editor, „Wird verarbeitet“ statt weißer Kacheln, Galerie im echten Seitenverhältnis (D-150).
-
-- 2026-11-01 (Mitsch-Rückmeldungen): PR #87 Galerie-Ansicht (Video-Favoriten, Filter, Poster, ZIP direkt/Original, Teilen) und Editor-PR (Reihenfolge, ein Speichern, Link kopieren, Live-Vorschau, Mail-Entwurf), D-148/D-149. Cloud: `service postgresql start`, `redis-server --daemonize yes`, Rolle `roses`/DBs, `.env.local` aus `.env.example`. Offen: Video-Poster live prüfen (braucht CDN-Hostname + Token-Key, D-148).
-
-- 2026-11-01 (Routine 4): M11 abgeschlossen (main grün: pnpm check, 329 Tests). Phase 2 nicht begonnen (D-147). Cloud: `service postgresql start`, `redis-server --daemonize yes`, Rolle `roses`/DBs, `.env.local` aus `.env.example`.
-
-- 2026-11-01 (Routine 3): M11 Folge-Migration 0015 (`sets` entfernt, D-146), Tests ohne Sets-Fixtures (`linkAccountMedia`). Nächster Schritt: M11-Fertig-Kriterium gegen UMSETZUNGSPLAN prüfen, Video-Original-Download in die Bibliothek (optional). Cloud: `service postgresql start`, `redis-server --daemonize yes`, Rolle `roses`/DBs, `.env.local` aus `.env.example`.
-
-- 2026-11-01 (Routine 2): M11-5b-5 Design-Vorschau mit echten Galerie-Fotos (Unit + E2E grün). Nächster Schritt: Folge-Migration `sets` entfernen (eigener PR, ~25 Testdateien), danach M11-Fertig-Kriterium prüfen. Cloud: `service postgresql start`, `redis-server --daemonize yes`, Rolle `roses`/DBs, `.env.local` aus `.env.example`.
-
-- 2026-11-01 (Routine): M11-5b-4 Upload per Drag & Drop/Button direkt im Galerie-Editor (Unit + E2E). Nächster Schritt: Live-Vorschau rechts, Folge-Migration `sets` entfernen (eigener PR). Cloud: `service postgresql start`, `redis-server --daemonize yes`, Rolle `roses`/DBs, `.env.local` aus `.env.example`.
-
-- 2026-10-31 (Routine): M11-5b-3 Mehrfach-Löschen aus der Bibliothek im Editor (`deleteGalleryMediaAction`, Bestätigung, Unit-Test). Nächster Schritt: Live-Vorschau + Drag & Drop Upload, Folge-Migration `sets` entfernen (~25 Testdateien betroffen, eigener PR). Cloud: `service postgresql start`, `redis-server --daemonize yes`, Rolle `roses`/DBs, `.env.local` aus `.env.example`.
-
-- `/dashboard/library`: Ordner (anlegen/umbenennen/löschen), Foto+Video-Upload per Drag & Drop in den Ordner, Wiederholen, Mehrfachauswahl (verschieben/löschen), Nav-Eintrag. Unit- und E2E-Test. Nächster Schritt: 5 Galerie-Editor zweispaltig (groß, ggf. in 5a/5b teilen). Cloud: Postgres/Redis neu starten, Rolle `roses`/DBs anlegen.
-
-### 2026-10-31 – M11 Schritt 3 (Datenmodell Bibliothek)
-- Additive Migration (D-143), Bibliotheks-Lib mit Mandantentests. Nächster Schritt: 4 Bibliothek-UI. Cloud: Postgres/Redis neu starten, Rolle `roses`/DBs anlegen.
-
-### 2026-10-31 – M11 Schritt 2b (Passwort)
-- Optionales Passwort (scrypt) im Profil, Login-Formular „Mit Passwort anmelden“, Unit- und E2E-Test. Nächster Schritt: 3 Datenmodell Bibliothek (große Migration, eigener PR). Cloud: Postgres/Redis neu starten, Rolle `roses`/DBs anlegen.
-
-### 2026-10-31 – M11 Schritt 2a (Profil & Einstellungen)
-- Reiter-Bereich unter `/dashboard/settings`, Profil-Lib mit Mandantenschutz-Test, E2E. Nächster Schritt: 2b Passwort, dann 3 Datenmodell Bibliothek. Cloud: Postgres/Redis neu starten, Rolle `roses`/DBs anlegen.
-
-### 2026-10-31 – M11 Schritt 1 (Optik)
-- Farbsystem Rosé/Creme, Display-Schrift Fraunces, Dashboard-Layout mit Navigation, Startseite/Login/Galerieliste überarbeitet. Nächster Schritt: M11-2 Profil & Einstellungen. Cloud: Postgres/Redis neu starten, Rolle `roses`/DBs anlegen.
-
-### 2026-10-29 – M10 Rechtstexte
-- Impressum/Datenschutz/AGB als Entwurf (D-137, PR folgt im Log). Mitsch: D-117 erledigt (Live-Abnahme Original-URL/HLS beim nächsten Lauf prüfen), kein eigener Backup-Bucket, optionale Reste vorerst nicht. Cloud: Postgres/Redis neu starten (`service postgresql start`, `redis-server --daemonize yes`), Rolle `roses`/DBs `roses_gallery`, `roses_gallery_test` anlegen.
-
-### 2026-10-29 – M10 Abschluss der baubaren Teile
-- Barrierefreiheit (PR #60), Event-Aufbewahrung (#61), DB-Backup (#62), Deployment-Artefakte (#63). Alles Baubare in M10 ist erledigt. Offen nur das Fertig-Kriterium (Produktion auf Hetzner, Impressum/Datenschutz online): braucht Coolify-Zugang, Domain, Rechtstexte (D-135, D-136) sowie Live-Abnahmen D-117, D-006. Docker-Build ungeprüft. Cloud: Postgres/Redis neu starten, Rolle `roses`/DBs anlegen.
-
-### 2026-10-29 – M10 Barrierefreiheit
-- D-133, axe-Tests, Theme-Kontrast. Nächster Schritt: Aufbewahrung alter Events (D-127), dann Backup/Deployment. Cloud: Postgres/Redis neu starten, Rolle `roses`/DBs anlegen.
-
-### 2026-10-29 – M10 Login-Rate-Limit
-- D-132. Nächster Schritt: axe-Test Galerie, dann Backup/Deployment. Cloud: Postgres/Redis neu starten (`service postgresql start`, `redis-server --daemonize yes`), Rolle `roses`/DB `roses_gallery`.
-
-### 2026-10-29 – M10 2FA
-- TOTP-2FA (D-131). Nächster Schritt: Login-Rate-Limits/`x-forwarded-for`, axe-Test. Cloud: Postgres/Redis neu starten (`service postgresql start`, `redis-server --daemonize yes`), Rolle `roses`/DB `roses_gallery` anlegen.
-
-### 2026-10-29 – M10 Rechtsseiten
-- Platzhalter-Seiten online-bereit. Offen für Launch: echte Texte (Anwalt). Nächster Schritt: 2FA (TOTP, Entscheidung optional vs. Pflicht in DECISIONS), dann Login-Rate-Limits, axe-Test. Cloud: Postgres/Redis neu starten, Rolle/DBs anlegen.
+### 2026-10-29 – M10 Härtung
+- Lückenliste + CSP (D-129), Sentry (D-130), 2FA (D-131), Login-Rate-Limit (D-132), Barrierefreiheit (D-133), Event-Aufbewahrung, Backup (D-135), Deployment-Artefakte (D-136), Rechtstexte als Entwurf (D-137).
