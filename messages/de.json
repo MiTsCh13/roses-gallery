@@ -5,23 +5,86 @@
   },
   "HomePage": {
     "title": "Roses Gallery",
-    "tagline": "Foto- und Video-Galerien für deine Hochzeitskunden – gebrandet, in 4K und DSGVO-konform.",
-    "cta": "Kostenlos starten",
     "eyebrow": "Für Hochzeitsfotografen und -videografen",
+    "tagline": "Foto- und Video-Galerien für deine Hochzeitskunden – gebrandet, in 4K und auf Servern in Deutschland.",
+    "cta": "Kostenlos starten",
+    "secondaryCta": "Funktionen ansehen",
+    "highlights": [
+      "Fotos und Videos gleichrangig in einer Galerie",
+      "Videos in bis zu 4K, Originale bleiben erhalten",
+      "Per AirPlay oder Chromecast auf den Fernseher"
+    ],
+    "featuresTitle": "Alles, was eine Hochzeitsgalerie braucht",
     "features": [
       {
-        "title": "Dein Branding",
-        "text": "Galerien in deinem Stil: Farben, Schriften, Logo und Cover."
+        "title": "Gebrandete Galerien",
+        "text": "Vier Designs als Ausgangspunkt, dazu deine Farben, Schriften, dein Logo und ein Titelbild – jede Galerie sieht nach deinem Studio aus."
       },
       {
-        "title": "Fotos und Filme",
-        "text": "Fotos und Videos bis 4K an einem Ort – schnell, auch am Handy."
+        "title": "Passwort & Download-Rechte",
+        "text": "Passwortschutz und Ablaufdatum je Galerie. Du legst fest, ob Kunden gar nicht, in Web-Größe oder im Original herunterladen dürfen – auf Wunsch mit Wasserzeichen."
       },
       {
-        "title": "Sicher geteilt",
-        "text": "Passwortschutz, Ablaufdatum und Downloads, wie du es willst."
+        "title": "Favoriten",
+        "text": "Brautpaare markieren Fotos und Videos, legen mehrere Listen an und schicken sie dir mit einem Klick – ohne eigenes Konto."
+      },
+      {
+        "title": "Auslieferungs-Mail",
+        "text": "Den Galerie-Link verschickst du direkt aus Roses Gallery, mit vorbereitetem Text und Passwort-Hinweis."
+      },
+      {
+        "title": "Datenschutz",
+        "text": "Server in Deutschland, keine Tracking-Cookies und eine Statistik ohne Besucherprofile. Alle Dienstleister stehen offen in der Datenschutzerklärung."
+      },
+      {
+        "title": "0 % Provision",
+        "text": "Du zahlst nur dein Abo. Roses Gallery behält keine Provision ein."
       }
-    ]
+    ],
+    "stepsTitle": "So funktioniert's",
+    "steps": [
+      {
+        "title": "Hochladen",
+        "text": "Fotos und Videos per Drag & Drop in deine Bibliothek oder direkt in die Galerie ziehen."
+      },
+      {
+        "title": "Gestalten",
+        "text": "Design wählen, Reihenfolge festlegen, Passwort und Download-Rechte setzen – mit Live-Vorschau."
+      },
+      {
+        "title": "Ausliefern",
+        "text": "Galerie veröffentlichen und den Link per Mail an das Brautpaar senden."
+      }
+    ],
+    "faqTitle": "Häufige Fragen",
+    "faq": [
+      {
+        "q": "Brauche ich zum Start eine Kreditkarte?",
+        "a": "Nein. Du startest im kostenlosen Plan und wechselst erst in einen bezahlten Plan, wenn du mehr Speicher oder Galerien brauchst."
+      },
+      {
+        "q": "Werden meine Videos komprimiert?",
+        "a": "Für das Streaming entstehen Fassungen in mehreren Qualitätsstufen bis 4K, damit Videos auch am Handy flüssig laufen. Deine Originaldatei bleibt erhalten, und du entscheidest je Galerie, ob Kunden das Original herunterladen dürfen."
+      },
+      {
+        "q": "Können meine Kunden die Videos am Fernseher ansehen?",
+        "a": "Ja. Der Player kann Videos per AirPlay oder Chromecast an den Fernseher senden, sofern Gerät und Browser das unterstützen."
+      },
+      {
+        "q": "Brauchen meine Kunden ein Konto?",
+        "a": "Nein. Kunden öffnen die Galerie über den Link, bei Bedarf mit Passwort. Favoriten funktionieren ohne Anmeldung."
+      },
+      {
+        "q": "Wo liegen die Daten?",
+        "a": "Die App läuft auf Servern der Hetzner Online GmbH in Deutschland, Videos liefert Bunny Stream (Slowenien) aus. Alle Dienstleister und Rechtsgrundlagen findest du in der Datenschutzerklärung."
+      },
+      {
+        "q": "Verdient Roses Gallery an meinen Verkäufen mit?",
+        "a": "Nein. Es gibt keine Provision – du zahlst ausschließlich dein Abo."
+      }
+    ],
+    "closingTitle": "Bereit für deine nächste Hochzeit?",
+    "closingText": "Lege deine erste Galerie kostenlos an – in wenigen Minuten."
   },
   "Marketing": {
     "brand": "Roses Gallery",

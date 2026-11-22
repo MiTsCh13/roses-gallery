@@ -89,6 +89,7 @@ test("website navigation works on desktop and mobile", async ({
   await page
     .getByRole("main")
     .getByRole("link", { name: messages.HomePage.cta })
+    .first()
     .click();
   await expect(page).toHaveURL(/\/login$/);
 });
@@ -107,4 +108,28 @@ test("all website links resolve", async ({ page, request }) => {
     const response = await request.get(href.split("#")[0]);
     expect(response.status(), href).toBe(200);
   }
+});
+
+test("landing page shows features, steps and a working FAQ", async ({
+  page,
+}) => {
+  const home = messages.HomePage;
+  await page.goto("/");
+  for (const feature of home.features) {
+    await expect(
+      page.getByRole("heading", { level: 3, name: feature.title }),
+    ).toBeVisible();
+  }
+  for (const step of home.steps) {
+    await expect(
+      page.getByRole("heading", { level: 3, name: step.title }),
+    ).toBeVisible();
+  }
+  const first = home.faq[0];
+  await expect(page.getByText(first.a)).toBeHidden();
+  await page.getByText(first.q).click();
+  await expect(page.getByText(first.a)).toBeVisible();
+  await expect(
+    page.getByRole("heading", { level: 2, name: home.closingTitle }),
+  ).toBeVisible();
 });
