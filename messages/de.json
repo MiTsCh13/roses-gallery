@@ -6,7 +6,7 @@
   "HomePage": {
     "title": "Roses Gallery",
     "tagline": "Foto- und Video-Galerien für deine Hochzeitskunden – gebrandet, in 4K und DSGVO-konform.",
-    "cta": "Demnächst verfügbar",
+    "cta": "Kostenlos starten",
     "eyebrow": "Für Hochzeitsfotografen und -videografen",
     "features": [
       {
@@ -22,6 +22,22 @@
         "text": "Passwortschutz, Ablaufdatum und Downloads, wie du es willst."
       }
     ]
+  },
+  "Marketing": {
+    "brand": "Roses Gallery",
+    "nav": {
+      "label": "Hauptnavigation",
+      "mobileLabel": "Menü",
+      "menu": "Menü",
+      "features": "Funktionen",
+      "signIn": "Anmelden",
+      "start": "Kostenlos starten"
+    },
+    "footer": {
+      "label": "Rechtliches und Kontakt",
+      "tagline": "Roses Gallery – Foto- und Video-Galerien für Hochzeitsfotografen und -videografen.",
+      "contact": "Kontakt"
+    }
   },
   "Auth": {
     "mail": {

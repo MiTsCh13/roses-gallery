@@ -32,6 +32,11 @@ test("the info text under the title is saved and shown publicly", async ({
     .selectOption("published");
   await page.getByRole("button", { name: "Speichern", exact: true }).click();
   await expect(page.getByRole("status").first()).toBeVisible();
+  // Erst weiter, wenn der Status wirklich gespeichert ist (sonst 404-Race).
+  await page.reload();
+  await expect(page.getByRole("combobox", { name: "Status" })).toHaveValue(
+    "published",
+  );
   const href = await page
     .getByRole("link", { name: "Vorschau im neuen Tab" })
     .getAttribute("href");
