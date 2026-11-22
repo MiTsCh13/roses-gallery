@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatBytes, formatEuro } from "./format";
+import { formatBytes, formatEuro, formatPostDate } from "./format";
 
 describe("formatEuro", () => {
   it("formats cent integers in German notation", () => {
@@ -15,5 +15,11 @@ describe("formatBytes", () => {
     expect(formatBytes(1536)).toBe("1,5 KB");
     expect(formatBytes(2 * 1024 ** 3)).toBe("2 GB");
     expect(formatBytes(600 * 1024 ** 3)).toBe("600 GB");
+  });
+});
+
+describe("formatPostDate", () => {
+  it("formats an ISO date in German without timezone shift", () => {
+    expect(formatPostDate("2026-01-01")).toBe("1. Januar 2026");
   });
 });

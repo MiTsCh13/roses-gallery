@@ -160,3 +160,29 @@ test("pricing page is linked and toggles yearly billing", async ({
   await page.getByRole("button", { name: /Jährlich/ }).click();
   await expect(bud).toContainText(messages.Pricing.perYear);
 });
+
+test("blog lists no drafts in production and serves RSS", async ({
+  page,
+  request,
+}) => {
+  await page.goto("/blog");
+  await expect(
+    page.getByRole("heading", { level: 1, name: messages.Blog.title }),
+  ).toBeVisible();
+  // Die ersten Beiträge sind Entwürfe (D-153) und erscheinen nicht.
+  await expect(page.getByText(messages.Blog.draft)).toHaveCount(0);
+
+  // notFound kommt im gestreamten Shell (HTTP 200), daher Inhalt prüfen.
+  await page.goto("/blog/hochzeitsvideos-ohne-qualitaetsverlust-ausliefern");
+  await expect(
+    page.getByRole("heading", { name: "This page could not be found." }),
+  ).toBeVisible();
+
+  const rss = await request.get("/blog/rss.xml");
+  expect(rss.status()).toBe(200);
+  expect(rss.headers()["content-type"]).toContain("application/rss+xml");
+  const xml = await rss.text();
+  expect(xml).toContain('<rss version="2.0"');
+  expect(xml).toMatch(/<link>https?:\/\/[^<]+\/blog<\/link>/);
+  expect(xml).not.toContain("hochzeitsvideos-ohne-qualitaetsverlust");
+});

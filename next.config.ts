@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import createMDX from "@next/mdx";
 import createNextIntlPlugin from "next-intl/plugin";
 
 import { buildCsp } from "./src/lib/csp";
@@ -40,4 +41,10 @@ const nextConfig: NextConfig = {
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
-export default withNextIntl(nextConfig);
+// Blogbeiträge (content/blog/*.mdx); die YAML-Frontmatter wird aus dem
+// Inhalt entfernt und separat in lib/blog.ts geprüft.
+const withMDX = createMDX({
+  options: { remarkPlugins: ["remark-frontmatter"] },
+});
+
+export default withNextIntl(withMDX(nextConfig));
