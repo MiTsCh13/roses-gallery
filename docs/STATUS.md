@@ -4,7 +4,7 @@
 > und `docs/DECISIONS.md`. Log kurz halten (max. 10 Einträge, ältere löschen –
 > die Git-Historie bleibt).
 
-**Aktueller Meilenstein:** keiner offen – M11 abgeschlossen (D-147). Phase 2 (alles Priorität S) wartet auf Freigabe durch Mitsch. M10-Rest bei Mitsch: Rechtstexte, Postmark, Stripe-Live
+**Aktueller Meilenstein:** W1 – Marketing-Website auf `roses-gallery.app` (D-152). Phase 2 (Priorität S) wartet weiter auf Freigabe durch Mitsch (D-147). M10-Rest bei Mitsch: Rechtstexte anwaltlich prüfen, Stripe-Live
 **Stand main:** M0–M3 und M5–M9 abgeschlossen (M2: Abnahme gegen echtes Stripe offen, D-006; M4: Original-URL live offen, D-117)
 
 ## Meilensteine
@@ -23,6 +23,19 @@
 | M9 | Auslieferung & Statistik | ✅ fertig (Postmark live ungeprüft: nur Fake getestet) |
 | M10 | Härtung & Launch | ✅ live (Mitsch: Rechtstexte, Postmark, Stripe-Live offen) |
 | M11 | Überarbeitung Dashboard & Galerie-Editor | ✅ fertig (Schritte 1–8 + Migration 0015; optionale Reste unten) |
+| W1 | Marketing-Website (Landing Page, Preise, Blog, SEO) | ⏭️ als Nächstes |
+
+## Nächste Schritte (W1, in dieser Reihenfolge; ein Schritt = ein PR)
+
+Rahmen (D-152): Website und App laufen in **derselben** Next.js-App auf `roses-gallery.app` (www → Apex). Website-Seiten liegen in einer Route-Gruppe `src/app/(marketing)/`, App unter `/login`, `/dashboard`, Galerien unter `/g/…`. Keine Tracking-Skripte/Cookies auf der Website (kein Cookie-Banner nötig). Keine erfundenen Aussagen: keine Kundenstimmen, Kundenzahlen oder Bewertungen, die es nicht gibt; Funktionen nur nennen, wenn sie live sind (Phase-2-Funktionen höchstens als „geplant“).
+
+- [ ] **1. Website-Rahmen:** Route-Gruppe `(marketing)` mit eigenem Layout: Kopfzeile (Logo, Funktionen, Preise, Blog, „Anmelden“, Button „Kostenlos starten“ → `/login`), Fußzeile (Impressum, Datenschutz, AGB, Kontakt aus `LEGAL_EMAIL`). Startseite und Rechtsseiten ziehen hinein. Deaktivierten CTA auf der Startseite aktivieren. Mobile Navigation. E2E: Navigation Desktop + Mobil, alle Links erreichbar
+- [ ] **2. Landing Page:** Hero mit Kernversprechen (Hybrid-Galerien Foto + Video gleichrangig, 4K ohne erzwungene Kompression, TV-Streaming), Funktionsblöcke (gebrandete Galerien/Themes, Passwort & Download-Rechte, Favoriten, Auslieferungs-Mail, DSGVO/EU-Hosting, 0 % Provision), „So funktioniert's“ in 3 Schritten, FAQ (natives `<details>`), Abschluss-CTA. Bilder nur eigene/lizenzfreie, über `next/image`. Texte in `messages/de.json`. axe-Test
+- [ ] **3. Preisseite `/preise`:** liest Pläne, Preise (Cent → EUR formatiert) und Features **nur** aus `lib/plans.ts`; Umschalter monatlich/jährlich (−20 %), Free-Plan, Enterprise „auf Anfrage“ (Mail-Link). Unit-Test: Seite zeigt genau die Werte aus `plans.ts`. Link aus Kopfzeile und Landing Page
+- [ ] **4. Blog:** Beiträge als Markdown/MDX in `content/blog/*.mdx` mit Frontmatter (title, description, date, author, draft, cover optional), Frontmatter per Zod geprüft (Build bricht bei Fehlern). `/blog` (Liste, neueste zuerst, ohne Entwürfe in Produktion), `/blog/[slug]` statisch vorgerendert, RSS `/blog/rss.xml`. Vor Umsetzung `node_modules/next/dist/docs/01-app/02-guides/mdx.md` lesen. Tests: Frontmatter-Validierung, Entwürfe ausgeblendet, RSS gültig
+- [ ] **5. SEO:** `metadataBase` aus `AUTH_URL` (Fallback `https://roses-gallery.app`), Titel/Beschreibung/Canonical je Seite, `sitemap.ts` (Website + Blog), `robots.ts` (erlaubt Website/Blog; sperrt `/dashboard`, `/api`, `/g/`, `/login`), Galerien zusätzlich `noindex`, `opengraph-image` für Startseite und Blogbeiträge, JSON-LD (Organization, SoftwareApplication mit Preisen aus `plans.ts`). Tests für sitemap/robots/noindex
+- [ ] **6. Erste Blogbeiträge als Entwurf** (`draft: true`, D-153): z. B. „Hochzeitsvideos ohne Qualitätsverlust an Kunden ausliefern“, „Galerie-Link statt Dropbox: was Brautpaare erwarten“. Sachlich, keine erfundenen Zahlen/Zitate. Mitsch gibt frei, indem `draft` entfernt wird
+- [ ] **7. Live-Abnahme** (braucht D-154): `https://roses-gallery.app` und `www` → 200/Weiterleitung, `/api/health`, `/preise`, `/blog`, `/sitemap.xml`, `/robots.txt`, Security-Header/HSTS. Ergebnis ins Log
 
 ## Optionale Reste aus M11 (niedrige Priorität, nicht Teil des Abschlusses)
 
@@ -113,6 +126,8 @@ Anlass: Rückmeldung von Mitsch nach dem ersten Live-Test (D-140). Reihenfolge s
 
 ## Entscheidungsbedarf
 
+D-153: Blogbeiträge erscheinen erst nach Freigabe durch Mitsch (`draft` entfernen). D-154: `roses-gallery.app` in die Netzwerk-Allowlist der Umgebung „Roses gallery“ aufnehmen (nur für die Live-Abnahme W1-7 nötig, blockiert W1-1 bis W1-6 nicht).
+
 D-147: Phase 2 (P2-1 Premiere/Countdown usw.) besteht nur aus Anforderungen mit Priorität S. Freigabe und Reihenfolge durch Mitsch nötig; bis dahin nur optionale M11-Reste.
 
 D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (blockiert nur die Live-Abnahme des Original-Downloads, nicht M5).
@@ -126,6 +141,9 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-11-22 – Domain & Website-Planung
+- Domain `roses-gallery.app` (Mitsch): DNS, Coolify-Domains (www → Apex), `AUTH_URL`, Stripe-/Bunny-Webhooks, Google-Redirect-URI und Postmark-Absender laut Mitsch umgestellt. Aus der Cloud-Umgebung nicht prüfbar (Host nicht freigegeben, D-154). Meilenstein W1 geplant (D-152).
 
 ### 2026-10-30 – Produktion läuft
 - Deployment auf Hetzner/Coolify (Mitsch), Magic-Link-Login, Foto-Upload (R2-CORS `ExposeHeaders: ETag`) und HLS-Wiedergabe live bestätigt (D-138, D-139). Offen: Original-Download live prüfen, Stripe live/Webhook, Postmark-Absender, Rechtstexte anwaltlich prüfen, `LEGAL_*` setzen, Wiederherstellungsprobe Backup. Cloud: Postgres/Redis neu starten, Rolle `roses`/DBs anlegen.
