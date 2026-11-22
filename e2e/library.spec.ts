@@ -90,3 +90,47 @@ test("library: folders, upload into a folder, move and delete", async ({
   await page.getByRole("button", { name: "Ordner löschen" }).click();
   await expect(page.getByTestId("folder-list")).toHaveCount(0);
 });
+
+test("library: preview and download the original of a ready video", async ({
+  page,
+  request,
+}, testInfo) => {
+  await signUp(
+    page,
+    request,
+    `library-video+${testInfo.project.name}-${Date.now()}@foto-rose.de`,
+  );
+  await page.goto("/dashboard/library", { waitUntil: "networkidle" });
+  await page.getByTestId("file-input").setInputFiles({
+    name: "film.mp4",
+    mimeType: "video/mp4",
+    buffer: Buffer.alloc(1024 * 1024, 3),
+  });
+  await expect(
+    page.getByTestId("upload-list").locator('[data-state="done"]'),
+  ).toHaveCount(1);
+  const tile = page.getByTestId("media-grid").locator("li").first();
+  // Not ready yet: no preview/download buttons.
+  await expect(tile.getByRole("button", { name: "Ansehen" })).toHaveCount(0);
+
+  const mediaId = await tile.getAttribute("data-id");
+  expect(
+    (
+      await page.request.post("/api/test/video-ready", { data: { mediaId } })
+    ).ok(),
+  ).toBe(true);
+  await page.reload();
+  await expect(tile).toHaveAttribute("data-status", "ready");
+
+  await tile.getByRole("button", { name: "Ansehen" }).click();
+  await expect(page.getByTestId("library-player")).toHaveAttribute(
+    "src",
+    /\/api\/test\/player\/.+token=/,
+  );
+  await page.getByRole("button", { name: "Schließen" }).click();
+  await expect(page.getByTestId("library-player")).toHaveCount(0);
+
+  const download = page.waitForEvent("download");
+  await tile.getByRole("button", { name: "Original laden" }).click();
+  expect((await download).suggestedFilename()).toBe("original.mp4");
+});

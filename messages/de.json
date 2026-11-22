@@ -241,7 +241,11 @@
       "ready": "bereit",
       "failed": "Verarbeitung fehlgeschlagen"
     },
-    "actionFailed": "Das hat nicht geklappt."
+    "actionFailed": "Das hat nicht geklappt.",
+    "watch": "Ansehen",
+    "original": "Original laden",
+    "closePlayer": "Schließen",
+    "videoFailed": "Video konnte nicht geladen werden."
   },
   "TwoFactorLogin": {
     "title": "Zwei-Faktor-Code",
