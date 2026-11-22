@@ -143,7 +143,7 @@ D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (b
 ## Log
 
 ### 2026-11-22 – W1 Website (Routine)
-- W1-1 Rahmen (#100), W1-2 Landing Page (#101), W1-3 Preisseite (#102), W1-4 Blog/MDX/RSS (#103), W1-5 SEO (#104), W1-6 zwei Blog-Entwürfe. Flaky `gallery-info`-E2E behoben (wartet auf die POST-Antwort). Offen: W1-7 Live-Abnahme (D-154), Freigaben D-153/D-155/D-156. Next.js 16.4.3 hat 7 Advisories („moderate“, u. a. Cache Components) → Patch-Update auf 16.4.6 als eigener PR. Cloud: `service postgresql start`, `redis-server --daemonize yes`, Rolle `roses` + DBs `roses_gallery`/`roses_gallery_test`, `.env.local` aus `.env.example`. `next build` bricht in der Cloud jeden zweiten Lauf mit einem Upgrade-Hinweis ab („SecurityFatalError“) – Befehl einfach wiederholen.
+- W1-1 Rahmen (#100), W1-2 Landing Page (#101), W1-3 Preisseite (#102), W1-4 Blog/MDX/RSS (#103), W1-5 SEO (#104), W1-6 zwei Blog-Entwürfe (#105). Flaky `gallery-info`-E2E behoben (wartet auf die POST-Antwort). Offen: W1-7 Live-Abnahme (D-154), Freigaben D-153/D-155/D-156. Next.js 16.4.3 → 16.4.6 (#106, 7 Advisories „moderate“, u. a. Cache Components; wirksam nach nächstem Coolify-Deploy). Cloud: `service postgresql start`, `redis-server --daemonize yes`, Rolle `roses` + DBs `roses_gallery`/`roses_gallery_test`, `.env.local` aus `.env.example`.
 
 ### 2026-11-22 – Domain & Website-Planung
 - Domain `roses-gallery.app` (Mitsch): DNS, Coolify-Domains (www → Apex), `AUTH_URL`, Stripe-/Bunny-Webhooks, Google-Redirect-URI und Postmark-Absender laut Mitsch umgestellt. Aus der Cloud-Umgebung nicht prüfbar (Host nicht freigegeben, D-154). Meilenstein W1 geplant (D-152).
