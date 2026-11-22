@@ -95,3 +95,45 @@ test("password: set in profile, then sign in with e-mail and password", async ({
   await expect(page).toHaveURL(/\/dashboard/);
   await expect(page.getByTestId("signed-in-as")).toContainText(email);
 });
+
+test("watermark default in the profile applies to the gallery editor", async ({
+  page,
+  request,
+}, testInfo) => {
+  const email = `wm+${testInfo.project.name}-${Date.now()}@foto-rose.de`;
+  await signUp(page, request, email);
+  await page.goto("/dashboard/settings");
+  const form = page.getByTestId("watermark-form");
+  await expect(
+    page.getByText("Lade zuerst unter „Profil & Einstellungen“ ein Logo hoch"),
+  ).toBeVisible();
+  await form.getByLabel("Position").selectOption("top-left");
+  await form.getByLabel("Deckkraft (5–100 %)").fill("40");
+  await form.getByLabel("Größe (5–60 % der Bildbreite)").fill("25");
+  await form.getByRole("button", { name: "Einstellungen übernehmen" }).click();
+  await expect(page.getByRole("status")).toHaveText("Gespeichert.");
+  await expect(form.getByLabel("Position")).toHaveValue("top-left");
+  await expect(form.getByLabel("Deckkraft (5–100 %)")).toHaveValue("40");
+
+  // the gallery editor shows the same (account-wide) settings
+  await page.goto("/dashboard/galleries/new");
+  await page.getByLabel("Titel").fill("Wasserzeichen-Test");
+  await page.getByRole("button", { name: "Galerie anlegen" }).click();
+  await expect(page).toHaveURL(/galleries\/[0-9a-f-]{36}$/);
+  await page.waitForLoadState("networkidle");
+  await page
+    .getByLabel("Wasserzeichen auf Web-Größen (Originale bleiben unberührt)")
+    .check();
+  await Promise.all([
+    page.waitForResponse(
+      (r) => r.request().method() === "POST" && r.url().includes("/galleries/"),
+    ),
+    page.getByRole("button", { name: "Speichern", exact: true }).click(),
+  ]);
+  await page.reload();
+  const editorForm = page.getByTestId("watermark-form");
+  await expect(editorForm.getByLabel("Position")).toHaveValue("top-left");
+  await expect(
+    editorForm.getByLabel("Größe (5–60 % der Bildbreite)"),
+  ).toHaveValue("25");
+});

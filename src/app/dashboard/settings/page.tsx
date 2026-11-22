@@ -9,9 +9,12 @@ import { hasPassword } from "@/lib/account-password";
 import { logoUrl } from "@/lib/branding";
 import { getProfile } from "@/lib/profile";
 import { requireAccount } from "@/lib/session";
+import { readWatermarkConfig } from "@/lib/watermark";
+import { WatermarkForm } from "@/components/watermark-form";
 import { getStorage } from "@/lib/storage";
 import {
   removeAccountLogoAction,
+  saveAccountWatermarkAction,
   savePasswordAction,
   saveProfileAction,
 } from "./actions";
@@ -177,6 +180,24 @@ async function ProfileContent({
             </Button>
           </form>
         )}
+      </section>
+
+      <section
+        aria-labelledby="profile-watermark"
+        className="max-w-md space-y-3"
+      >
+        <h2
+          id="profile-watermark"
+          className="font-display text-xl font-semibold"
+        >
+          {t("watermark.title")}
+        </h2>
+        <p className="text-sm text-muted-foreground">{t("watermark.intro")}</p>
+        <WatermarkForm
+          action={saveAccountWatermarkAction}
+          config={readWatermarkConfig(account.branding)}
+          hasLogo={Boolean(logo)}
+        />
       </section>
     </main>
   );

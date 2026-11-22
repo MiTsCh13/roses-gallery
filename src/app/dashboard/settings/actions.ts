@@ -9,6 +9,7 @@ import { BrandingError, removeLogo } from "@/lib/branding";
 import { saveProfile } from "@/lib/profile";
 import { requireAccount } from "@/lib/session";
 import { getStorage } from "@/lib/storage";
+import { saveWatermarkConfig } from "@/lib/watermark";
 
 const text = (formData: FormData, name: string) => {
   const v = formData.get(name);
@@ -64,6 +65,25 @@ export async function savePasswordAction(formData: FormData) {
     if (e instanceof PasswordError && e.code === "wrong_current") {
       redirect("/dashboard/settings?error=wrong_current");
     }
+    throw e;
+  }
+  redirect("/dashboard/settings?saved=1");
+}
+
+export async function saveAccountWatermarkAction(formData: FormData) {
+  const { account } = await requireAccount();
+  try {
+    await saveWatermarkConfig(
+      { db: db(), accountId: account.id },
+      {
+        position: text(formData, "position"),
+        opacity: text(formData, "opacity"),
+        scale: text(formData, "scale"),
+      },
+    );
+  } catch (e) {
+    if (e instanceof ZodError)
+      redirect("/dashboard/settings?error=watermark_invalid");
     throw e;
   }
   redirect("/dashboard/settings?saved=1");
