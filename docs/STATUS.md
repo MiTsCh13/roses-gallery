@@ -41,7 +41,7 @@ Rahmen (D-152): Website und App laufen in **derselben** Next.js-App auf `roses-g
 
 - [ ] Wasserzeichen-Standard ins Profil; „Passwort vergessen“ (derzeit = Anmeldelink)
 - [ ] Video-Original-Download/-Vorschau in der Bibliothek (D-145)
-- [ ] E2E-Test für „Als Titelbild“ im Medienpanel
+- [x] E2E-Test für „Als Titelbild“ im Medienpanel (`e2e/gallery-cover.spec.ts`)
 - [ ] Dashboard-Ansicht der Favoritenlisten je Galerie (CSV)
 
 ## Nächste Schritte (M11, erledigt; ein Schritt = ein PR)
