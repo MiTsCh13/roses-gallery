@@ -89,7 +89,7 @@ describe("galleryFavorites", () => {
 describe("favoritesCsv", () => {
   const labels = {
     list: "Liste",
-    visitor: "Besucher",
+    visitor: "Besucher:in",
     type: "Typ",
     number: "Nummer",
     photo: "Foto",
@@ -113,7 +113,7 @@ describe("favoritesCsv", () => {
     );
     expect(csv.startsWith("﻿")).toBe(true);
     expect(csv.slice(1).split("\r\n")).toEqual([
-      '"Liste";"Besucher";"Typ";"Nummer"',
+      '"Liste";"Besucher:in";"Typ";"Nummer"',
       '"Album ""A""";"anna@example.com";"Foto";"1"',
       '"Album ""A""";"anna@example.com";"Foto";"3"',
       '"Album ""A""";"anna@example.com";"Video";"2"',

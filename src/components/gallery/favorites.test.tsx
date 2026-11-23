@@ -138,10 +138,10 @@ describe("favorites UI", () => {
 
     fireEvent.click(
       screen.getByRole("button", {
-        name: "Aktuelle Liste an den Fotografen senden",
+        name: "Aktuelle Liste an deine:n Fotograf:in senden",
       }),
     );
-    await screen.findByText("Die Liste wurde an den Fotografen gesendet.");
+    await screen.findByText("Die Liste wurde an deine:n Fotograf:in gesendet.");
     expect(actions.sendListAction).toHaveBeenCalledWith("anna-ben", "l1");
 
     fireEvent.change(screen.getByLabelText("E-Mail-Adresse"), {

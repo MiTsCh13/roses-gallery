@@ -66,7 +66,7 @@ test("create a gallery, edit it and add library media", async ({
 
   // Delivery mail: edited text, placeholders filled, logged.
   const client = `kunde+${testInfo.project.name}-${Date.now()}@example.com`;
-  await page.getByRole("button", { name: "An Kunden senden" }).click();
+  await page.getByRole("button", { name: "An Kund:innen senden" }).click();
   // the draft is already personalised for this gallery
   await expect(page.locator("input[name=subject]")).toHaveValue(
     "Eure Galerie „Anna & Jörg“ ist da ✨",
