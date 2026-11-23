@@ -130,6 +130,31 @@ export const authSessions = pgTable("auth_sessions", {
   secondFactorAt: timestamp("second_factor_at", { withTimezone: true }),
 });
 
+// "Passwort vergessen" (D-157): one-time link, only the SHA-256 of the token
+// is stored; valid for 15 minutes.
+export const passwordResetTokens = pgTable(
+  "password_reset_tokens",
+  {
+    id: id(),
+    accountId: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id, { onDelete: "cascade" }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    tokenHash: text("token_hash").notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    usedAt: timestamp("used_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("password_reset_tokens_hash_idx").on(t.tokenHash),
+    index("password_reset_tokens_user_idx").on(t.userId),
+  ],
+);
+
 export const authVerificationTokens = pgTable(
   "auth_verification_tokens",
   {

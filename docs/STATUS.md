@@ -4,7 +4,7 @@
 > und `docs/DECISIONS.md`. Log kurz halten (max. 10 Einträge, ältere löschen –
 > die Git-Historie bleibt).
 
-**Aktueller Meilenstein:** W1 fertig. Phase 2 freigegeben (D-147), Reihenfolge offen (D-158, vorläufig P2-7 → P2-1). M11-Rest „Passwort vergessen“ (D-157) wird gebaut. M10-Rest bei Mitsch: Rechtstexte anwaltlich prüfen, Stripe-Live
+**Aktueller Meilenstein:** W1 fertig. Phase 2 freigegeben (D-147), Reihenfolge offen (D-158, vorläufig P2-7 → P2-1). M11-Reste alle erledigt. M10-Rest bei Mitsch: Rechtstexte anwaltlich prüfen, Stripe-Live
 **Stand main:** M0–M3 und M5–M9 abgeschlossen (M2: Abnahme gegen echtes Stripe offen, D-006; M4: Original-URL live offen, D-117)
 
 ## Meilensteine
@@ -40,7 +40,7 @@ Rahmen (D-152): Website und App laufen in **derselben** Next.js-App auf `roses-g
 ## Optionale Reste aus M11 (niedrige Priorität, nicht Teil des Abschlusses)
 
 - [x] Wasserzeichen-Standard ins Profil (Abschnitt „Wasserzeichen“ in Profil & Einstellungen, gemeinsame Komponente `components/watermark-form.tsx` mit dem Galerie-Editor; Einstellungen bleiben accountweit, Ein/Aus je Galerie unter „Downloads“)
-- [ ] „Passwort vergessen“: wartet auf D-157 (wer sein Passwort vergessen hat, kann sich per Anmeldelink anmelden, das Passwort aber nicht ohne das alte ändern)
+- [x] „Passwort vergessen“ (D-157): `/login/reset` → Link per Mail → `/login/reset/[token]`, `lib/password-reset.ts`, Migration 0017; danach alle Sitzungen beendet + Hinweis-Mail
 - [x] Video-Original-Download/-Vorschau in der Bibliothek (D-145): Buttons „Ansehen“ (signierte Player-URL im `<dialog>`, erst per Klick) und „Original laden“ an fertigen Video-Kacheln (`components/library-video-actions.tsx`, nutzt `/api/videos/{playback,original}`); live hängt der Original-Download weiter an D-117
 - [x] E2E-Test für „Als Titelbild“ im Medienpanel (`e2e/gallery-cover.spec.ts`)
 - [x] Dashboard-Ansicht der Favoritenlisten je Galerie (CSV): Block „Favoriten“ im Galerie-Editor (Liste, Besucher, Foto-/Video-Nummern wie in der Galerie), Export `GET /api/galleries/[galleryId]/favorites` (Semikolon + BOM für Excel, Formel-Neutralisierung gegen CSV-Injection), `lib/favorites-overview.ts`
