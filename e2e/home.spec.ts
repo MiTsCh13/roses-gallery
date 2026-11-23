@@ -169,8 +169,17 @@ test("blog lists no drafts in production and serves RSS", async ({
   await expect(
     page.getByRole("heading", { level: 1, name: messages.Blog.title }),
   ).toBeVisible();
-  // Die ersten Beiträge sind Entwürfe (D-153) und erscheinen nicht.
+  // Entwürfe (D-153) erscheinen nicht, freigegebene Beiträge schon.
   await expect(page.getByText(messages.Blog.draft)).toHaveCount(0);
+  await page
+    .getByRole("link", { name: /Galerie-Link statt Dropbox/ })
+    .first()
+    .click();
+  await expect(page).toHaveURL(/\/blog\/galerie-link-statt-dropbox$/);
+  await expect(
+    page.getByRole("heading", { level: 1, name: /Galerie-Link statt Dropbox/ }),
+  ).toBeVisible();
+  await expect(page.getByText("Gib das Passwort mit")).toBeVisible();
 
   // notFound kommt im gestreamten Shell (HTTP 200), daher Inhalt prüfen.
   await page.goto("/blog/hochzeitsvideos-ohne-qualitaetsverlust-ausliefern");
@@ -185,4 +194,5 @@ test("blog lists no drafts in production and serves RSS", async ({
   expect(xml).toContain('<rss version="2.0"');
   expect(xml).toMatch(/<link>https?:\/\/[^<]+\/blog<\/link>/);
   expect(xml).not.toContain("hochzeitsvideos-ohne-qualitaetsverlust");
+  expect(xml).toContain("/blog/galerie-link-statt-dropbox</link>");
 });

@@ -12,6 +12,7 @@ test("sitemap lists website pages but no app routes", async ({ request }) => {
   }
   // Entwürfe erscheinen nicht.
   expect(xml).not.toContain("hochzeitsvideos-ohne-qualitaetsverlust");
+  expect(xml).toContain("/blog/galerie-link-statt-dropbox</loc>");
 });
 
 test("robots.txt blocks app, api, galleries and login", async ({ request }) => {
