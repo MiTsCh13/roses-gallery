@@ -4,7 +4,7 @@
 > und `docs/DECISIONS.md`. Log kurz halten (max. 10 Einträge, ältere löschen –
 > die Git-Historie bleibt).
 
-**Aktueller Meilenstein:** W1 fertig. Phase 2 freigegeben (D-147), Reihenfolge offen (D-158, vorläufig P2-7 → P2-1). M11-Reste alle erledigt. M10-Rest bei Mitsch: Rechtstexte anwaltlich prüfen, Stripe-Live
+**Aktueller Meilenstein:** W2 – Beta & Sichtbarkeit (Plan unten). Phase 2 zurückgestellt bis nach den Beta-Tests (D-158). M10-Rest bei Mitsch: Rechtstexte anwaltlich prüfen, Stripe-Live
 **Stand main:** M0–M3 und M5–M9 abgeschlossen (M2: Abnahme gegen echtes Stripe offen, D-006; M4: Original-URL live offen, D-117)
 
 ## Meilensteine
@@ -24,6 +24,18 @@
 | M10 | Härtung & Launch | ✅ live (Mitsch: Rechtstexte, Postmark, Stripe-Live offen) |
 | M11 | Überarbeitung Dashboard & Galerie-Editor | ✅ fertig (Schritte 1–8 + Migration 0015; optionale Reste unten) |
 | W1 | Marketing-Website (Landing Page, Preise, Blog, SEO) | ✅ fertig (live abgenommen 2026-11-23; Blog-Freigabe D-153 offen) |
+| W2 | Beta & Sichtbarkeit (Logo, Beta-Modus, Search Console, Zielgruppen-Seiten, Blog) | 🔄 geplant |
+
+## Nächste Schritte (W2, in dieser Reihenfolge; ein Schritt = ein PR)
+
+Ziel: erste Beta-Testerinnen und -Tester auf die Plattform holen und über Suchmaschinen gefunden werden. Weiter ohne Tracking-Cookies (D-152), keine erfundenen Aussagen.
+
+- [ ] **1. Logo einbauen** (D-161, Entwurf A2): Bildmarke als SVG-Komponente, Kopfzeile Website + Dashboard, `app/icon.svg` (Favicon), `apple-icon.png`, Logo im OG-Bild und in JSON-LD (`Organization.logo`)
+- [ ] **2. Beta-Modus** (wartet auf D-159): `BETA_MODE`, Hinweis auf Preis-/Abo-Seite, Upgrade-Buttons aus, Beta-Limits, Feedback-Link, „Beta“-Abzeichen
+- [ ] **3. Search Console/Bing** (D-160, Mitsch): Bestätigung per DNS-TXT, Sitemap einreichen; Code nur, falls Bestätigung per Meta-Tag gewünscht (`GOOGLE_SITE_VERIFICATION`)
+- [ ] **4. Zielgruppen-Seiten** `/fuer-fotografen` und `/fuer-videografen`: eigene Titel/Beschreibung auf Suchbegriffe wie „Online-Galerie für Hochzeitsfotografen“, „Hochzeitsvideo an Kunden ausliefern“; nur Live-Funktionen; Sitemap, interne Links von Startseite/Blog
+- [ ] **5. Blog-Plan:** je Routine-Lauf höchstens ein neuer Entwurf (`draft: true`, Freigabe D-153) zu: Online-Galerie vs. WeTransfer, Hochzeitsfotos richtig ausliefern (Größen/Formate), Favoritenauswahl mit dem Brautpaar, Passwortschutz & Datenschutz bei Hochzeitsgalerien, 4K-Hochzeitsfilm auf dem Fernseher zeigen
+- [ ] **6. Website-Performance & Bilder:** Lighthouse/Core Web Vitals für `/`, `/preise`, `/blog` (Ziel LCP < 2,5 s mobil), Screenshots der echten App (eigene Testgalerie) als Bilder auf der Landing Page statt Platzhalter
 
 ## Nächste Schritte (W1, in dieser Reihenfolge; ein Schritt = ein PR)
 
@@ -127,11 +139,15 @@ Anlass: Rückmeldung von Mitsch nach dem ersten Live-Test (D-140). Reihenfolge s
 
 ## Entscheidungsbedarf
 
-D-158: Reihenfolge Phase 2 (P2-1 bis P2-7). Vorläufig P2-7, dann P2-1.
+D-159: Beta-Modus – Vorschlag bestätigen (welche Limits für Beta-Konten, Ende der Beta?).
 
-D-153: Zwei Blogbeiträge liegen als Entwurf in `content/blog/` – Mitsch liest gegen und gibt frei (`draft: true` entfernen). D-155: Texte der Landing Page gegenlesen.
+D-160: Google Search Console/Bing einrichten (Mitsch, DNS-TXT) und Sitemap einreichen.
 
-D-156 (Folge): Stripe-Preise als Bruttopreise (`tax_behavior: inclusive`) anlegen. D-117 (Folge): Original-Download nach dem nächsten Deploy live im Dashboard prüfen.
+D-153: Zwei Blog-Entwürfe freigeben (`draft: true` entfernen).
+
+www: DNS-Eintrag für `www` und beide Domains in Coolify eintragen (`docs/DEPLOYMENT.md`, Schritt 2).
+
+Folgen: Stripe-Preise als Bruttopreise anlegen (D-156, nach der Beta); Original-Download nach dem nächsten Deploy im Dashboard prüfen (D-117).
 
 ## Umgebung (Cloud-Sessions)
 
@@ -142,6 +158,9 @@ D-156 (Folge): Stripe-Preise als Bruttopreise (`tax_behavior: inclusive`) anlege
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-11-23 – Antworten Mitsch, W1 fertig, W2 geplant
+- W1-7 live abgenommen, Preise inkl. MwSt. (#112), „Passwort vergessen“ per Reset-Link (#113, D-157). www-Weiterleitung als Fallback in der App + Anleitung für Coolify. Logo gewählt: A2 (D-161). Phase 2 zurückgestellt (D-158); neuer Meilenstein W2 (Beta & Sichtbarkeit), Beta-Modus wartet auf D-159.
 
 ### 2026-11-22 – M11-Rest Video in der Bibliothek (Routine, nachts)
 - W1-7 weiter blockiert (Proxy 403, D-154). Video-Vorschau und Original-Download in der Bibliothek (D-145). Veraltete M5-/M6-Reste als erledigt markiert. Offen nur noch: D-157 („Passwort vergessen“), W1-7 und Freigaben D-147/D-153/D-155/D-156.
