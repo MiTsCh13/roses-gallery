@@ -8,7 +8,7 @@
 
 | ID | Frage | Vorläufige Annahme | Benötigt bis |
 | --- | --- | --- | --- |
-| D-153 | Blogbeiträge sind öffentliche Werbeaussagen: Routinen schreiben sie mit `draft: true`, Mitsch gibt frei (draft entfernen) | Entwürfe werden gemergt, aber nicht angezeigt; Website-Code selbst fällt weiter unter D-100 | vor erstem Beitrag (W1-6) |
+| D-153 | Blogbeiträge sind öffentliche Werbeaussagen: Routinen schreiben sie mit `draft: true`, Mitsch gibt frei. **Stand 2026-11-23:** „Galerie-Link statt Dropbox“ freigegeben und live; „USB-Stick oder online: Hochzeitsfilme ohne Qualitätsverlust übergeben“ nach Rückmeldung überarbeitet (USB-Stick als üblicher Weg, Online-Übergabe großer Dateien), wartet erneut auf Freigabe | Entwürfe werden gemergt, aber nicht angezeigt | laufend |
 | D-159 | **Beta-Phase** (Mitsch 2026-11-23: „Personen auf die Seite lassen“, Stripe-Preise später). Vorschlag: Schalter `BETA_MODE=1` – Preisseite und Abo-Seite zeigen „Beta: kostenlos testen, Bezahlpläne folgen“, Kauf-/Upgrade-Buttons sind aus (kein Stripe nötig), neue Konten bekommen während der Beta die Limits von **Bloom** ohne Zahlung, Feedback-Link (Mail an `LEGAL_EMAIL`) im Dashboard, kleines „Beta“-Abzeichen im Kopf. Nach der Beta: Konten fallen auf Free bzw. buchen einen Plan (Ankündigung per Mail). Bitte bestätigen oder anpassen (welcher Plan? Ende der Beta?) | Bis zur Antwort nicht gebaut; der Free-Plan funktioniert ohne Stripe bereits | W2-2 |
 | D-160 | **SEO/Traffic:** Google Search Console und Bing Webmaster Tools einrichten (Mitsch: Konto anlegen, Domain per DNS-TXT bestätigen, `https://roses-gallery.app/sitemap.xml` einreichen). Reichweite messen wir vorerst nur über die Search Console (keine Tracking-Cookies, D-152); eine cookielose, selbst gehostete Statistik (z. B. Umami/Plausible) wäre später möglich und braucht eine eigene Entscheidung | – | W2-3 |
 
@@ -18,6 +18,7 @@ Schlüssel bitte als Secrets in der Cloud-Umgebung (bzw. GitHub Actions Secrets)
 
 | ID | Entscheidung | Begründung | Datum |
 | --- | --- | --- | --- |
+| D-162 | Blogbeiträge gendern mit Doppelpunkt (z. B. „Fotograf:innen“, „Kund:innen“). Website- und App-Texte bleiben vorerst wie sie sind (offen: ebenfalls umstellen?) | Wunsch Mitsch | 2026-11-23 |
 | D-158 | Phase 2 wird **noch nicht** begonnen (Mitsch 2026-11-23): zuerst Beta-Tests mit echten Personen, danach Reihenfolge festlegen. Stattdessen W2 (Beta & Sichtbarkeit) | Antwort Mitsch | 2026-11-23 |
 | D-161 | Logo: Entwurf **A2 „Blende mit Blütenlamellen“** (sechs geschwungene Blendenlamellen, die zugleich Blütenblätter sind; Rosé `#A8314B` auf Creme, Schriftzug „Roses Gallery“ in Fraunces). Wird als Favicon, App-Icon, Kopfzeilen-Logo und im OG-Bild verwendet | Wahl Mitsch | 2026-11-23 |
 | D-154 | `roses-gallery.app` ist in der Netzwerk-Allowlist (Mitsch 2026-11-23). `www.roses-gallery.app` ist aus der Cloud weiter gesperrt (Proxy 403) – die Weiterleitung www → Apex prüft nur Mitsch im Browser | W1-7 live abgenommen 2026-11-23 | 2026-11-23 |

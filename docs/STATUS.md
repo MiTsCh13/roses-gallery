@@ -34,7 +34,7 @@ Ziel: erste Beta-Testerinnen und -Tester auf die Plattform holen und über Suchm
 - [ ] **2. Beta-Modus** (wartet auf D-159): `BETA_MODE`, Hinweis auf Preis-/Abo-Seite, Upgrade-Buttons aus, Beta-Limits, Feedback-Link, „Beta“-Abzeichen
 - [ ] **3. Search Console/Bing** (D-160, Mitsch): Bestätigung per DNS-TXT, Sitemap einreichen; Code nur, falls Bestätigung per Meta-Tag gewünscht (`GOOGLE_SITE_VERIFICATION`)
 - [ ] **4. Zielgruppen-Seiten** `/fuer-fotografen` und `/fuer-videografen`: eigene Titel/Beschreibung auf Suchbegriffe wie „Online-Galerie für Hochzeitsfotografen“, „Hochzeitsvideo an Kunden ausliefern“; nur Live-Funktionen; Sitemap, interne Links von Startseite/Blog
-- [ ] **5. Blog-Plan:** je Routine-Lauf höchstens ein neuer Entwurf (`draft: true`, Freigabe D-153) zu: Online-Galerie vs. WeTransfer, Hochzeitsfotos richtig ausliefern (Größen/Formate), Favoritenauswahl mit dem Brautpaar, Passwortschutz & Datenschutz bei Hochzeitsgalerien, 4K-Hochzeitsfilm auf dem Fernseher zeigen
+- [ ] **5. Blog-Plan** (Gendern mit „:“, D-162; „Galerie-Link statt Dropbox“ ist live): je Routine-Lauf höchstens ein neuer Entwurf (`draft: true`, Freigabe D-153) zu: Online-Galerie vs. WeTransfer, Hochzeitsfotos richtig ausliefern (Größen/Formate), Favoritenauswahl mit dem Brautpaar, Passwortschutz & Datenschutz bei Hochzeitsgalerien, 4K-Hochzeitsfilm auf dem Fernseher zeigen
 - [ ] **6. Website-Performance & Bilder:** Lighthouse/Core Web Vitals für `/`, `/preise`, `/blog` (Ziel LCP < 2,5 s mobil), Screenshots der echten App (eigene Testgalerie) als Bilder auf der Landing Page statt Platzhalter
 
 ## Nächste Schritte (W1, in dieser Reihenfolge; ein Schritt = ein PR)
@@ -143,7 +143,7 @@ D-159: Beta-Modus – Vorschlag bestätigen (welche Limits für Beta-Konten, End
 
 D-160: Google Search Console/Bing einrichten (Mitsch, DNS-TXT) und Sitemap einreichen.
 
-D-153: Zwei Blog-Entwürfe freigeben (`draft: true` entfernen).
+D-153: Überarbeiteten Video-Beitrag („USB-Stick oder online …“) gegenlesen und freigeben.
 
 www: DNS-Eintrag für `www` und beide Domains in Coolify eintragen (`docs/DEPLOYMENT.md`, Schritt 2).
 
