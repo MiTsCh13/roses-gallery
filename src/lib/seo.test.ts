@@ -55,7 +55,11 @@ describe("buildRobots", () => {
 describe("buildStructuredData", () => {
   it("publishes prices straight from plans.ts", () => {
     const [org, app] = buildStructuredData(base, "Galerien");
-    expect(org).toMatchObject({ "@type": "Organization", url: base });
+    expect(org).toMatchObject({
+      "@type": "Organization",
+      url: base,
+      logo: `${base}/logo.png`,
+    });
     expect(app["@type"]).toBe("SoftwareApplication");
     const offers = (app as { offers: { name: string; price: string }[] })
       .offers;

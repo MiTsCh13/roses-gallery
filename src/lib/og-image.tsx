@@ -1,5 +1,7 @@
 import { ImageResponse } from "next/og";
 
+import { BRAND_BLADES } from "@/components/brand-mark";
+
 export const OG_SIZE = { width: 1200, height: 630 };
 
 // Farben wie im Website-Theme (Rosé/Creme), als feste Werte für Satori.
@@ -28,7 +30,28 @@ export function brandImage({
         color: INK,
       }}
     >
-      <div style={{ fontSize: 36, color: ROSE, fontWeight: 700 }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 18,
+          fontSize: 36,
+          color: ROSE,
+          fontWeight: 700,
+        }}
+      >
+        <svg width="56" height="56" viewBox="-50 -50 100 100">
+          {BRAND_BLADES.map((d) => (
+            <path
+              key={d}
+              d={d}
+              fill={ROSE}
+              stroke={CREAM}
+              strokeWidth={4}
+              strokeLinejoin="round"
+            />
+          ))}
+        </svg>
         Roses Gallery
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>

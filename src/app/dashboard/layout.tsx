@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 
 import { signOut } from "@/auth";
 import { Button } from "@/components/ui/button";
+import { BrandMark } from "@/components/brand-mark";
 
 async function signOutAction() {
   "use server";
@@ -27,8 +28,9 @@ export default async function DashboardLayout({
         <div className="mx-auto flex w-full max-w-5xl items-center gap-4 px-6 py-3">
           <Link
             href="/dashboard"
-            className="font-display text-lg font-semibold text-primary"
+            className="flex items-center gap-2 font-display text-lg font-semibold text-primary"
           >
+            <BrandMark className="size-7 shrink-0" />
             {t("brand")}
           </Link>
           <nav
