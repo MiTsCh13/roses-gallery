@@ -30,7 +30,7 @@
 
 Ziel: erste Beta-Testerinnen und -Tester auf die Plattform holen und über Suchmaschinen gefunden werden. Weiter ohne Tracking-Cookies (D-152), keine erfundenen Aussagen.
 
-- [ ] **1. Logo einbauen** (D-161, Entwurf A2): Bildmarke als SVG-Komponente, Kopfzeile Website + Dashboard, `app/icon.svg` (Favicon), `apple-icon.png`, Logo im OG-Bild und in JSON-LD (`Organization.logo`)
+- [x] **1. Logo einbauen** (D-161, Entwurf A2; `components/brand-mark.tsx`, `lib/brand-icon.ts`, Icons per `pnpm tsx scripts/brand-icons.ts` erzeugt, `favicon.ico` ersetzt durch `icon.svg`, `public/logo.png` für JSON-LD): Bildmarke als SVG-Komponente, Kopfzeile Website + Dashboard, `app/icon.svg` (Favicon), `apple-icon.png`, Logo im OG-Bild und in JSON-LD (`Organization.logo`)
 - [ ] **2. Beta-Modus** (wartet auf D-159): `BETA_MODE`, Hinweis auf Preis-/Abo-Seite, Upgrade-Buttons aus, Beta-Limits, Feedback-Link, „Beta“-Abzeichen
 - [ ] **3. Search Console/Bing** (D-160, Mitsch): Bestätigung per DNS-TXT, Sitemap einreichen; Code nur, falls Bestätigung per Meta-Tag gewünscht (`GOOGLE_SITE_VERIFICATION`)
 - [ ] **4. Zielgruppen-Seiten** `/fuer-fotografen` und `/fuer-videografen`: eigene Titel/Beschreibung auf Suchbegriffe wie „Online-Galerie für Hochzeitsfotografen“, „Hochzeitsvideo an Kunden ausliefern“; nur Live-Funktionen; Sitemap, interne Links von Startseite/Blog

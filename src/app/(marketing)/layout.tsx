@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { LEGAL_MISSING, legalDetails } from "@/lib/legal-details";
 
 import { MobileMenu } from "./mobile-menu";
+import { BrandMark } from "@/components/brand-mark";
 
 const MARKETING_NAV = [
   { href: "/#funktionen", key: "features" },
@@ -45,8 +46,9 @@ export default async function MarketingLayout({
         <div className="mx-auto flex w-full max-w-6xl items-center gap-4 px-4 py-3 sm:px-6">
           <Link
             href="/"
-            className="font-display text-lg font-semibold text-primary"
+            className="flex items-center gap-2 font-display text-lg font-semibold text-primary"
           >
+            <BrandMark className="size-7 shrink-0" />
             {t("brand")}
           </Link>
           <nav

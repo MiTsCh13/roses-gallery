@@ -74,6 +74,7 @@ export function buildStructuredData(base: string, description: string) {
       "@type": "Organization",
       name: SITE_NAME,
       url: base,
+      logo: `${base}/logo.png`,
     },
     {
       "@context": "https://schema.org",

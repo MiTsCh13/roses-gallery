@@ -86,3 +86,21 @@ test("www host redirects permanently to the apex domain", async ({
   const apex = await request.get("/preise", { maxRedirects: 0 });
   expect(apex.status()).toBe(200);
 });
+
+test("logo: header mark, favicon, apple icon and logo file", async ({
+  page,
+  request,
+}) => {
+  await page.goto("/");
+  await expect(
+    page.getByRole("banner").getByTestId("brand-mark").first(),
+  ).toBeVisible();
+  const icon = await page
+    .locator('link[rel="icon"][type="image/svg+xml"]')
+    .getAttribute("href");
+  expect(icon).toMatch(/^\/icon\.svg/);
+  for (const path of [icon!, "/apple-icon.png", "/logo.png"]) {
+    const res = await request.get(path);
+    expect(res.status(), path).toBe(200);
+  }
+});
