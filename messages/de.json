@@ -875,5 +875,16 @@
     "video": "Video",
     "library": "Bibliothek",
     "gallery": "Galerie"
+  },
+  "Beta": {
+    "badge": "Beta",
+    "pricingBanner": "Beta-Phase: Roses Gallery ist gerade kostenlos – mit {storage} Speicher und unbegrenzt vielen Galerien. Die Bezahlpläne unten gelten erst nach der Beta; wir informieren dich rechtzeitig vorher.",
+    "startFree": "Beta starten",
+    "afterBeta": "Buchbar nach der Beta",
+    "billingTitle": "Du bist in der Beta",
+    "billingText": "Während der Beta ist Roses Gallery kostenlos: {storage} Speicher und unbegrenzt viele Galerien. Bezahlpläne folgen später – wir informieren dich rechtzeitig vorher.",
+    "feedbackTitle": "Feedback zur Beta",
+    "feedbackText": "Was fehlt, was stört, was gefällt dir? Schreib uns – jede Rückmeldung hilft.",
+    "feedbackSubject": "Feedback zur Beta"
   }
 }

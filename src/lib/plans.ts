@@ -90,6 +90,23 @@ export const PLANS: Record<PlanId, Plan> = {
 
 export const TRIAL_DAYS = 14;
 
+/**
+ * Beta-Phase (D-159): Mit `BETA_MODE=1` bekommen Konten ohne Abo die
+ * Beta-Limits (Speicher wie Free, unbegrenzt viele Galerien), und Käufe sind
+ * abgeschaltet. Bestehende Abos behalten ihren Plan.
+ */
+export function isBetaMode(
+  env: Record<string, string | undefined> = process.env,
+): boolean {
+  return env.BETA_MODE === "1";
+}
+
+export const BETA_PLAN: Plan = {
+  ...PLANS.free,
+  name: "Beta",
+  maxGalleries: null,
+};
+
 export function isPlanId(value: string): value is PlanId {
   return (PLAN_IDS as readonly string[]).includes(value);
 }
@@ -104,13 +121,17 @@ export type BillingState = {
 
 // Paid limits apply while the subscription is trialing or active. Any other
 // state (never subscribed, canceled, unpaid) falls back to the free plan.
-export function effectivePlan(account: BillingState): Plan {
+export function effectivePlan(
+  account: BillingState,
+  beta: boolean = isBetaMode(),
+): Plan {
   const paid =
     account.subscriptionStatus === "trialing" ||
     account.subscriptionStatus === "active" ||
     // Grace period: Stripe retries failed payments while `past_due`.
     account.subscriptionStatus === "past_due";
-  return paid && isPlanId(account.plan) ? PLANS[account.plan] : PLANS.free;
+  if (paid && isPlanId(account.plan)) return PLANS[account.plan];
+  return beta ? BETA_PLAN : PLANS.free;
 }
 
 export function hasFeature(account: BillingState, feature: Feature): boolean {
@@ -156,8 +177,9 @@ export function assertCanUpload(
 export function assertCanCreateGallery(
   account: BillingState,
   currentGalleryCount: number,
+  beta: boolean = isBetaMode(),
 ) {
-  const { maxGalleries } = effectivePlan(account);
+  const { maxGalleries } = effectivePlan(account, beta);
   if (maxGalleries !== null && currentGalleryCount >= maxGalleries) {
     throw new PlanLimitError(
       "gallery_limit",

@@ -15,13 +15,17 @@ export function PricingTable({
   plans,
   discountPercent,
   enterpriseAction,
+  beta = false,
 }: {
   plans: PricingPlan[];
   discountPercent: number;
   /** Server-Slot (Mail-Link aus der Umgebung). */
   enterpriseAction?: React.ReactNode;
+  /** Beta-Phase (D-159): Bezahlpläne sind noch nicht buchbar. */
+  beta?: boolean;
 }) {
   const t = useTranslations("Pricing");
+  const tBeta = useTranslations("Beta");
   const [billing, setBilling] = useState<Billing>("monthly");
   return (
     <div className="flex flex-col items-center">
@@ -87,6 +91,10 @@ export function PricingTable({
             <div className="mt-auto pt-6">
               {plan.kind === "enterprise" ? (
                 (enterpriseAction ?? null)
+              ) : beta && plan.kind !== "free" ? (
+                <p className="text-center text-sm text-muted-foreground">
+                  {tBeta("afterBeta")}
+                </p>
               ) : (
                 <Button
                   asChild
@@ -95,7 +103,9 @@ export function PricingTable({
                 >
                   <Link href="/login">
                     {plan.kind === "free"
-                      ? t("startFree")
+                      ? beta
+                        ? tBeta("startFree")
+                        : t("startFree")
                       : t("choose", { plan: plan.name })}
                   </Link>
                 </Button>

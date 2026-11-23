@@ -10,10 +10,11 @@ import { pricingPlans } from "@/lib/pricing";
 
 afterEach(cleanup);
 
-function renderTable() {
+function renderTable(beta = false) {
   return render(
     <NextIntlClientProvider locale="de" messages={messages}>
       <PricingTable
+        beta={beta}
         plans={pricingPlans()}
         discountPercent={20}
         enterpriseAction={<a href="mailto:x@example.com">Anfrage</a>}
@@ -85,5 +86,19 @@ describe("PricingTable", () => {
     expect(screen.getByTestId("plan-bud").textContent).not.toContain(
       messages.Pricing.planned,
     );
+  });
+});
+
+describe("PricingTable in beta (D-159)", () => {
+  it("offers only the free start and marks paid plans as after the beta", () => {
+    renderTable(true);
+    for (const id of ["bud", "bloom", "bouquet"] as const) {
+      const card = screen.getByTestId(`plan-${id}`);
+      expect(card.querySelector("a")).toBeNull();
+      expect(card.textContent).toContain(messages.Beta.afterBeta);
+    }
+    const free = screen.getByTestId("plan-free").querySelector("a");
+    expect(free?.textContent).toBe(messages.Beta.startFree);
+    expect(free?.getAttribute("href")).toBe("/login");
   });
 });
