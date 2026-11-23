@@ -72,3 +72,17 @@ test("website pages carry canonical, open graph and JSON-LD", async ({
   ]);
   expect(ld[1].offers?.length).toBe(4);
 });
+
+test("www host redirects permanently to the apex domain", async ({
+  request,
+}) => {
+  const res = await request.get("/preise?x=1", {
+    headers: { host: "www.roses-gallery.app" },
+    maxRedirects: 0,
+  });
+  expect(res.status()).toBe(308);
+  expect(res.headers().location).toBe("https://roses-gallery.app/preise?x=1");
+
+  const apex = await request.get("/preise", { maxRedirects: 0 });
+  expect(apex.status()).toBe(200);
+});

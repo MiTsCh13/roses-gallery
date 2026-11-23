@@ -3,6 +3,7 @@ import createMDX from "@next/mdx";
 import createNextIntlPlugin from "next-intl/plugin";
 
 import { buildCsp } from "./src/lib/csp";
+import { wwwRedirects } from "./src/lib/www-redirect";
 
 const securityHeaders = [
   {
@@ -33,6 +34,9 @@ const nextConfig: NextConfig = {
         as: "*.css",
       },
     },
+  },
+  async redirects() {
+    return wwwRedirects();
   },
   async headers() {
     // Kundengalerien und App nie indexieren – auch wenn robots.txt ignoriert wird.
