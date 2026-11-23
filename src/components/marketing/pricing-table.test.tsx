@@ -51,6 +51,16 @@ describe("PricingTable", () => {
     expect(screen.getByText("Anfrage")).toBeTruthy();
   });
 
+  it("labels every paid price as gross (D-156)", () => {
+    renderTable();
+    for (const id of ["bud", "bloom", "bouquet"] as const) {
+      const vat = screen
+        .getByTestId(`plan-${id}`)
+        .querySelector("[data-testid=vat]");
+      expect(vat?.textContent).toBe("inkl. MwSt.");
+    }
+  });
+
   it("switches to yearly prices", () => {
     renderTable();
     const yearly = screen.getByRole("button", { name: /Jährlich/ });

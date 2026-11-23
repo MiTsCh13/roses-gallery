@@ -137,6 +137,9 @@ function Price({ plan, billing }: { plan: PricingPlan; billing: Billing }) {
           {yearly ? t("perYear") : t("perMonth")}
         </span>
       </p>
+      <p className="text-xs text-muted-foreground" data-testid="vat">
+        {t("vatIncluded")}
+      </p>
       <p className="mt-1 text-sm text-muted-foreground">
         {yearly
           ? t("yearlyHint", { price: plan.yearlyPerMonth ?? "" })
