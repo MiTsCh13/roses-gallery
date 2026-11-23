@@ -4,7 +4,7 @@
 > und `docs/DECISIONS.md`. Log kurz halten (max. 10 Einträge, ältere löschen –
 > die Git-Historie bleibt).
 
-**Aktueller Meilenstein:** W1 – Marketing-Website auf `roses-gallery.app` (D-152). Phase 2 (Priorität S) wartet weiter auf Freigabe durch Mitsch (D-147). M10-Rest bei Mitsch: Rechtstexte anwaltlich prüfen, Stripe-Live
+**Aktueller Meilenstein:** W1 fertig. Phase 2 freigegeben (D-147), Reihenfolge offen (D-158, vorläufig P2-7 → P2-1). M11-Rest „Passwort vergessen“ (D-157) wird gebaut. M10-Rest bei Mitsch: Rechtstexte anwaltlich prüfen, Stripe-Live
 **Stand main:** M0–M3 und M5–M9 abgeschlossen (M2: Abnahme gegen echtes Stripe offen, D-006; M4: Original-URL live offen, D-117)
 
 ## Meilensteine
@@ -23,7 +23,7 @@
 | M9 | Auslieferung & Statistik | ✅ fertig (Postmark live ungeprüft: nur Fake getestet) |
 | M10 | Härtung & Launch | ✅ live (Mitsch: Rechtstexte, Postmark, Stripe-Live offen) |
 | M11 | Überarbeitung Dashboard & Galerie-Editor | ✅ fertig (Schritte 1–8 + Migration 0015; optionale Reste unten) |
-| W1 | Marketing-Website (Landing Page, Preise, Blog, SEO) | 🔄 Schritte 1–6 fertig, offen nur Live-Abnahme (D-154) |
+| W1 | Marketing-Website (Landing Page, Preise, Blog, SEO) | ✅ fertig (live abgenommen 2026-11-23; Blog-Freigabe D-153 offen) |
 
 ## Nächste Schritte (W1, in dieser Reihenfolge; ein Schritt = ein PR)
 
@@ -35,7 +35,7 @@ Rahmen (D-152): Website und App laufen in **derselben** Next.js-App auf `roses-g
 - [x] **4. Blog** (`@next/mdx` + `remark-frontmatter`, Frontmatter per `yaml` + Zod in `lib/blog.ts`; `/blog/[slug]` ohne `dynamicParams` (nicht mit `cacheComponents` vereinbar), unbekannt/Entwurf → notFound; ohne veröffentlichten Beitrag Platzhalter-Param `_`; erster Entwurf liegt bei, s. W1-6): Beiträge als Markdown/MDX in `content/blog/*.mdx` mit Frontmatter (title, description, date, author, draft, cover optional), Frontmatter per Zod geprüft (Build bricht bei Fehlern). `/blog` (Liste, neueste zuerst, ohne Entwürfe in Produktion), `/blog/[slug]` statisch vorgerendert, RSS `/blog/rss.xml`. Vor Umsetzung `node_modules/next/dist/docs/01-app/02-guides/mdx.md` lesen. Tests: Frontmatter-Validierung, Entwürfe ausgeblendet, RSS gültig
 - [x] **5. SEO** (`lib/seo.ts`, `lib/site-url.ts`; zusätzlich `X-Robots-Tag: noindex` für `/g/`, `/dashboard`, `/login`; Basis-URL wird beim Build eingebrannt, s. DEPLOYMENT.md): `metadataBase` aus `AUTH_URL` (Fallback `https://roses-gallery.app`), Titel/Beschreibung/Canonical je Seite, `sitemap.ts` (Website + Blog), `robots.ts` (erlaubt Website/Blog; sperrt `/dashboard`, `/api`, `/g/`, `/login`), Galerien zusätzlich `noindex`, `opengraph-image` für Startseite und Blogbeiträge, JSON-LD (Organization, SoftwareApplication mit Preisen aus `plans.ts`). Tests für sitemap/robots/noindex
 - [x] **6. Erste Blogbeiträge als Entwurf** (`hochzeitsvideos-ohne-qualitaetsverlust-ausliefern`, `galerie-link-statt-dropbox`; Titel des zweiten ohne „was Brautpaare erwarten“, weil dafür keine Belege vorliegen. **Freigabe durch Mitsch** = `draft: true` entfernen, D-153) (`draft: true`, D-153): z. B. „Hochzeitsvideos ohne Qualitätsverlust an Kunden ausliefern“, „Galerie-Link statt Dropbox: was Brautpaare erwarten“. Sachlich, keine erfundenen Zahlen/Zitate. Mitsch gibt frei, indem `draft` entfernt wird
-- [ ] **7. Live-Abnahme** (braucht D-154): `https://roses-gallery.app` und `www` → 200/Weiterleitung, `/api/health`, `/preise`, `/blog`, `/sitemap.xml`, `/robots.txt`, Security-Header/HSTS. Ergebnis ins Log
+- [x] **7. Live-Abnahme** (2026-11-23: alles 200, `/api/health` ok, HTTP → HTTPS 302, HSTS mit preload, CSP/X-Frame-Options/nosniff/Referrer/Permissions-Policy gesetzt, robots/sitemap korrekt, `/login` mit `X-Robots-Tag: noindex`; `www` aus der Cloud nicht prüfbar, D-154): `https://roses-gallery.app` und `www` → 200/Weiterleitung, `/api/health`, `/preise`, `/blog`, `/sitemap.xml`, `/robots.txt`, Security-Header/HSTS. Ergebnis ins Log
 
 ## Optionale Reste aus M11 (niedrige Priorität, nicht Teil des Abschlusses)
 
@@ -127,13 +127,11 @@ Anlass: Rückmeldung von Mitsch nach dem ersten Live-Test (D-140). Reihenfolge s
 
 ## Entscheidungsbedarf
 
-D-157: „Passwort vergessen“ – neues Passwort nach Anmeldelink ohne altes Passwort setzen? (Vorschlag: ja, nur innerhalb von 15 min nach Anmeldung per Link, Mail-Hinweis an den Nutzer.)
+D-158: Reihenfolge Phase 2 (P2-1 bis P2-7). Vorläufig P2-7, dann P2-1.
 
-D-153: Zwei Blogbeiträge liegen als Entwurf in `content/blog/` – Mitsch liest gegen und gibt frei (`draft: true` entfernen). D-154: `roses-gallery.app` in die Netzwerk-Allowlist der Umgebung „Roses gallery“ aufnehmen (blockiert nur W1-7; Stand 2026-11-22: Proxy antwortet 403). D-155: Texte der Landing Page gegenlesen (bewusst ohne „DSGVO-konform“/„EU-Hosting“, keine Bilder). D-156: Preise netto oder brutto, welcher MwSt.-Hinweis?
+D-153: Zwei Blogbeiträge liegen als Entwurf in `content/blog/` – Mitsch liest gegen und gibt frei (`draft: true` entfernen). D-155: Texte der Landing Page gegenlesen.
 
-D-147: Phase 2 (P2-1 Premiere/Countdown usw.) besteht nur aus Anforderungen mit Priorität S. Freigabe und Reihenfolge durch Mitsch nötig; bis dahin nur optionale M11-Reste.
-
-D-117: Bunny-Pull-Zone-Token-Key als `BUNNY_STREAM_CDN_TOKEN_KEY` hinterlegen (blockiert nur die Live-Abnahme des Original-Downloads, nicht M5).
+D-156 (Folge): Stripe-Preise als Bruttopreise (`tax_behavior: inclusive`) anlegen. D-117 (Folge): Original-Download nach dem nächsten Deploy live im Dashboard prüfen.
 
 ## Umgebung (Cloud-Sessions)
 

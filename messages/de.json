@@ -114,6 +114,7 @@
     "yearlySave": "−{percent} %",
     "perMonth": "/ Monat",
     "perYear": "/ Jahr",
+    "vatIncluded": "inkl. MwSt.",
     "yearlyHint": "entspricht {price} pro Monat",
     "freePrice": "0 €",
     "freeHint": "dauerhaft kostenlos",
@@ -140,7 +141,7 @@
       "0 % Provision"
     ],
     "plannedHint": "Mit „geplant“ markierte Funktionen sind in Entwicklung und im jeweiligen Plan enthalten, sobald sie erscheinen.",
-    "currencyHint": "Alle Preise in Euro.",
+    "currencyHint": "Alle Preise in Euro inklusive der gesetzlichen Mehrwertsteuer.",
     "features": {
       "video_cover": "Video als Titelbild",
       "branding_socials": "Branding & Social-Links",
