@@ -159,6 +159,9 @@ Folgen: Stripe-Preise als Bruttopreise anlegen (D-156, nach der Beta); Original-
 
 ## Log
 
+### 2026-11-23 – Beta-Modus, Gendern, Blog
+- Logo A2 (#115), Blog „Galerie-Link statt Dropbox“ live, Video-Beitrag überarbeitet (#116), Beta-Modus (#117, D-159), Website-/App-Texte gegendert (D-162, Rechtstexte ausgenommen). Offen bei Mitsch: `BETA_MODE=1` setzen, Search Console (D-160), Video-Beitrag freigeben (D-153).
+
 ### 2026-11-23 – Antworten Mitsch, W1 fertig, W2 geplant
 - W1-7 live abgenommen, Preise inkl. MwSt. (#112), „Passwort vergessen“ per Reset-Link (#113, D-157). www-Weiterleitung als Fallback in der App + Anleitung für Coolify. Logo gewählt: A2 (D-161). Phase 2 zurückgestellt (D-158); neuer Meilenstein W2 (Beta & Sichtbarkeit), Beta-Modus wartet auf D-159.
 

@@ -22,7 +22,7 @@
       },
       {
         "title": "Passwort & Download-Rechte",
-        "text": "Passwortschutz und Ablaufdatum je Galerie. Du legst fest, ob Kunden gar nicht, in Web-Größe oder im Original herunterladen dürfen – auf Wunsch mit Wasserzeichen."
+        "text": "Passwortschutz und Ablaufdatum je Galerie. Du legst fest, ob deine Kund:innen gar nicht, in Web-Größe oder im Original herunterladen dürfen – auf Wunsch mit Wasserzeichen."
       },
       {
         "title": "Favoriten",
@@ -64,15 +64,15 @@
       },
       {
         "q": "Werden meine Videos komprimiert?",
-        "a": "Für das Streaming entstehen Fassungen in mehreren Qualitätsstufen bis 4K, damit Videos auch am Handy flüssig laufen. Deine Originaldatei bleibt erhalten, und du entscheidest je Galerie, ob Kunden das Original herunterladen dürfen."
+        "a": "Für das Streaming entstehen Fassungen in mehreren Qualitätsstufen bis 4K, damit Videos auch am Handy flüssig laufen. Deine Originaldatei bleibt erhalten, und du entscheidest je Galerie, ob deine Kund:innen das Original herunterladen dürfen."
       },
       {
-        "q": "Können meine Kunden die Videos am Fernseher ansehen?",
+        "q": "Können meine Kund:innen die Videos am Fernseher ansehen?",
         "a": "Ja. Der Player kann Videos per AirPlay oder Chromecast an den Fernseher senden, sofern Gerät und Browser das unterstützen."
       },
       {
-        "q": "Brauchen meine Kunden ein Konto?",
-        "a": "Nein. Kunden öffnen die Galerie über den Link, bei Bedarf mit Passwort. Favoriten funktionieren ohne Anmeldung."
+        "q": "Brauchen meine Kund:innen ein Konto?",
+        "a": "Nein. Deine Kund:innen öffnen die Galerie über den Link, bei Bedarf mit Passwort. Favoriten funktionieren ohne Anmeldung."
       },
       {
         "q": "Wo liegen die Daten?",
@@ -136,7 +136,7 @@
       "Vier Designs, eigene Farben, Schriften und Logo",
       "Passwortschutz und Ablaufdatum",
       "Download-Rechte je Galerie, Wasserzeichen",
-      "Favoritenlisten für deine Kunden",
+      "Favoritenlisten für deine Kund:innen",
       "Auslieferungs-Mail und Statistik",
       "0 % Provision"
     ],
@@ -225,7 +225,7 @@
     "navLabel": "Hauptnavigation",
     "welcome": "Willkommen zurück",
     "welcomeText": "Was möchtest du heute tun?",
-    "galleriesText": "Galerien anlegen, gestalten und an Kunden senden.",
+    "galleriesText": "Galerien anlegen, gestalten und an Kund:innen senden.",
     "settings": "Profil & Einstellungen",
     "settingsText": "Studio, Logo, Abo, Speicher und Sicherheit."
   },
@@ -416,11 +416,11 @@
     "watermarkOpacity": "Deckkraft (5–100 %)",
     "watermarkScale": "Größe (5–60 % der Bildbreite)",
     "watermarkSave": "Einstellungen übernehmen",
-    "deliveryOpen": "An Kunden senden",
+    "deliveryOpen": "An Kund:innen senden",
     "close": "Schließen",
-    "deliveryTitle": "Galerie an Kunden senden",
+    "deliveryTitle": "Galerie an Kund:innen senden",
     "deliveryHint": "Platzhalter: {titel}, {link}, {passwort_hinweis}, {fotograf}. Das Passwort selbst wird nie mitgeschickt.",
-    "deliveryRecipients": "Empfänger (E-Mail-Adressen, durch Komma oder Zeilenumbruch getrennt)",
+    "deliveryRecipients": "Empfänger:innen (E-Mail-Adressen, durch Komma oder Zeilenumbruch getrennt)",
     "deliverySubject": "Betreff",
     "deliveryBody": "Text",
     "deliverySend": "Mail senden",
@@ -493,7 +493,7 @@
     "favoritesHint": "Nummern wie in der Galerie: Fotos und Videos werden getrennt gezählt.",
     "favoritesCsv": {
       "list": "Liste",
-      "visitor": "Besucher",
+      "visitor": "Besucher:in",
       "type": "Typ",
       "number": "Nummer",
       "photo": "Foto",
@@ -572,20 +572,20 @@
     "favoritesNewList": "Neue Liste (z. B. Album)",
     "favoritesCreate": "Liste anlegen",
     "favoritesDelete": "Löschen",
-    "favoritesSend": "Aktuelle Liste an den Fotografen senden",
+    "favoritesSend": "Aktuelle Liste an deine:n Fotograf:in senden",
     "favoritesLinkIntro": "Mit deiner E-Mail-Adresse öffnest du die Favoriten auf jedem Gerät. Wir schicken dir einen Link.",
     "favoritesLinkSent": "Du hast einen Link angefordert. Du kannst ihn jederzeit erneut senden lassen.",
     "favoritesEmail": "E-Mail-Adresse",
     "favoritesLinkSubmit": "Link senden",
     "favoritesMessage": {
-      "sent": "Die Liste wurde an den Fotografen gesendet.",
+      "sent": "Die Liste wurde an deine:n Fotograf:in gesendet.",
       "link_sent": "Wir haben dir den Link per E-Mail geschickt.",
       "invalid": "Das hat nicht geklappt. Bitte prüfe deine Eingabe.",
       "limit": "Das Limit ist erreicht.",
       "empty": "Die Liste ist leer.",
       "not_found": "Das wurde nicht gefunden.",
       "rate_limited": "Zu viele Versuche. Bitte warte etwas.",
-      "no_recipient": "Der Fotograf ist gerade nicht erreichbar."
+      "no_recipient": "Die Liste kann gerade nicht zugestellt werden."
     },
     "download": "Herunterladen",
     "downloadOriginal": "Original herunterladen",
@@ -609,7 +609,7 @@
       "too_large": "Die Auswahl ist zu groß für einen ZIP-Download. Bitte wähle die Web-Größe.",
       "not_found": "Diese Galerie ist nicht verfügbar."
     },
-    "passwordIntro": "Diese Galerie ist passwortgeschützt. Bitte gib das Passwort ein, das du vom Fotografen erhalten hast.",
+    "passwordIntro": "Diese Galerie ist passwortgeschützt. Bitte gib das Passwort ein, das du zusammen mit dem Link zur Galerie erhalten hast.",
     "passwordLabel": "Passwort",
     "passwordSubmit": "Galerie öffnen",
     "passwordError": {
