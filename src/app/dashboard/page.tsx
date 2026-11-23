@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
 import { auth } from "@/auth";
+import { LEGAL_MISSING, legalDetails } from "@/lib/legal-details";
+import { isBetaMode } from "@/lib/plans";
 
 const CARDS = [
   { href: "/dashboard/galleries", key: "galleries" },
@@ -13,12 +15,19 @@ const CARDS = [
 
 async function DashboardContent() {
   await connection();
-  const [t, session] = await Promise.all([
+  const [t, tBeta, session] = await Promise.all([
     getTranslations("Dashboard"),
+    getTranslations("Beta"),
     auth(),
   ]);
   if (session?.user?.secondFactorPending) redirect("/login/2fa");
   if (!session?.user?.accountId) redirect("/login");
+  // Beta (D-159): Feedback per Mail an die Adresse aus dem Impressum.
+  const feedbackTo = legalDetails().LEGAL_EMAIL;
+  const feedbackHref =
+    isBetaMode() && feedbackTo !== LEGAL_MISSING
+      ? `mailto:${feedbackTo}?subject=${encodeURIComponent(tBeta("feedbackSubject"))}`
+      : null;
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-8 px-6 py-12">
       <div className="space-y-2">
@@ -46,6 +55,22 @@ async function DashboardContent() {
             </Link>
           </li>
         ))}
+        {feedbackHref && (
+          <li>
+            <a
+              href={feedbackHref}
+              data-testid="beta-feedback"
+              className="block h-full rounded-2xl border border-dashed bg-accent/40 p-6 transition hover:border-primary/40"
+            >
+              <h2 className="font-display text-lg font-semibold">
+                {tBeta("feedbackTitle")}
+              </h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {tBeta("feedbackText")}
+              </p>
+            </a>
+          </li>
+        )}
       </ul>
     </main>
   );

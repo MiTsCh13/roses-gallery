@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 
 import { signOut } from "@/auth";
 import { Button } from "@/components/ui/button";
+import { BetaBadge } from "@/components/beta-badge";
 import { BrandMark } from "@/components/brand-mark";
 
 async function signOutAction() {
@@ -32,6 +33,7 @@ export default async function DashboardLayout({
           >
             <BrandMark className="size-7 shrink-0" />
             {t("brand")}
+            <BetaBadge />
           </Link>
           <nav
             aria-label={t("navLabel")}

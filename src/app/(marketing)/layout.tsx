@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { LEGAL_MISSING, legalDetails } from "@/lib/legal-details";
 
 import { MobileMenu } from "./mobile-menu";
+import { BetaBadge } from "@/components/beta-badge";
 import { BrandMark } from "@/components/brand-mark";
 
 const MARKETING_NAV = [
@@ -50,6 +51,7 @@ export default async function MarketingLayout({
           >
             <BrandMark className="size-7 shrink-0" />
             {t("brand")}
+            <BetaBadge />
           </Link>
           <nav
             aria-label={t("nav.label")}

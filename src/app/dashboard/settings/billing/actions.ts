@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { getBilling } from "@/lib/billing";
-import { PURCHASABLE_PLAN_IDS } from "@/lib/plans";
+import { isBetaMode, PURCHASABLE_PLAN_IDS } from "@/lib/plans";
 import { requireAccount } from "@/lib/session";
 
 const checkoutSchema = z.object({
@@ -26,6 +26,8 @@ export async function startCheckout(formData: FormData) {
     interval: formData.get("interval"),
   });
   const { user, account } = await requireAccount();
+  // Beta (D-159): keine Käufe, auch nicht per direktem Aufruf der Action.
+  if (isBetaMode()) redirect("/dashboard/settings/billing");
   const base = await origin();
   const { url } = await getBilling().createCheckoutSession({
     accountId: account.id,

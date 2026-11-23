@@ -11,6 +11,8 @@ const serverEnvSchema = z.object({
   AUTH_SECRET: z.string().min(16).optional(),
   // Public base URL of the app; used for links in mails sent by the worker.
   AUTH_URL: z.url().optional(),
+  // Beta-Phase (D-159): "1" = kostenlose Beta-Limits, keine Käufe (lib/plans.ts).
+  BETA_MODE: z.enum(["0", "1"]).optional(),
   AUTH_GOOGLE_ID: z.string().min(1).optional(),
   AUTH_GOOGLE_SECRET: z.string().min(1).optional(),
   MAIL_TRANSPORT: z.enum(["postmark", "fake"]).optional(),

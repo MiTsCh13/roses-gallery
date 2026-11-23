@@ -4,7 +4,9 @@ import {
   assertCanCreateGallery,
   assertCanUpload,
   assertFeature,
+  BETA_PLAN,
   effectivePlan,
+  isBetaMode,
   hasFeature,
   PLAN_IDS,
   PLANS,
@@ -132,5 +134,33 @@ describe("D-001 price list", () => {
   it("gives Enterprise every feature", () => {
     expect(hasFeature(active("enterprise"), "face_search")).toBe(true);
     expect(hasFeature(active("enterprise"), "white_label")).toBe(true);
+  });
+});
+
+describe("beta mode (D-159)", () => {
+  const none: BillingState = { plan: "free", subscriptionStatus: "none" };
+
+  it("is switched on only by BETA_MODE=1", () => {
+    expect(isBetaMode({ BETA_MODE: "1" })).toBe(true);
+    expect(isBetaMode({ BETA_MODE: "0" })).toBe(false);
+    expect(isBetaMode({})).toBe(false);
+  });
+
+  it("gives accounts without a subscription 2 GB and unlimited galleries", () => {
+    expect(effectivePlan(none, true)).toBe(BETA_PLAN);
+    expect(BETA_PLAN.storageBytes).toBe(2 * GB);
+    expect(BETA_PLAN.maxGalleries).toBeNull();
+    expect(BETA_PLAN.features.size).toBe(0);
+    expect(() => assertCanCreateGallery(none, 500, true)).not.toThrow();
+    expect(() => assertCanCreateGallery(none, 3, false)).toThrowError(
+      expect.objectContaining({ code: "gallery_limit" }),
+    );
+  });
+
+  it("keeps paid plans as they are", () => {
+    expect(effectivePlan(active("bloom"), true)).toBe(PLANS.bloom);
+    expect(
+      effectivePlan({ plan: "bloom", subscriptionStatus: "canceled" }, true),
+    ).toBe(BETA_PLAN);
   });
 });

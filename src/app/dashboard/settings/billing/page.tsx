@@ -5,7 +5,9 @@ import { connection } from "next/server";
 import { Button } from "@/components/ui/button";
 import { formatBytes, formatEuro } from "@/lib/format";
 import {
+  BETA_PLAN,
   effectivePlan,
+  isBetaMode,
   PURCHASABLE_PLAN_IDS,
   PLANS,
   type SubscriptionStatus,
@@ -15,10 +17,12 @@ import { openPortal, startCheckout } from "./actions";
 
 async function BillingContent() {
   await connection();
-  const [t, { account }] = await Promise.all([
+  const [t, tBeta, { account }] = await Promise.all([
     getTranslations("Billing"),
+    getTranslations("Beta"),
     requireAccount(),
   ]);
+  const beta = isBetaMode();
   const status = account.subscriptionStatus as SubscriptionStatus;
   const current = effectivePlan({
     plan: account.plan,
@@ -79,7 +83,24 @@ async function BillingContent() {
         )}
       </section>
 
-      {!subscribed && (
+      {!subscribed && beta && (
+        <section
+          className="space-y-2 rounded-lg border bg-accent/40 p-4"
+          aria-labelledby="beta-title"
+          data-testid="beta-billing"
+        >
+          <h2 id="beta-title" className="text-lg font-medium">
+            {tBeta("billingTitle")}
+          </h2>
+          <p className="text-sm">
+            {tBeta("billingText", {
+              storage: formatBytes(BETA_PLAN.storageBytes),
+            })}
+          </p>
+        </section>
+      )}
+
+      {!subscribed && !beta && (
         <section className="space-y-3" aria-labelledby="choose-plan">
           <h2 id="choose-plan" className="text-lg font-medium">
             {t("choosePlan")}
