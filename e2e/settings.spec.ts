@@ -96,6 +96,53 @@ test("password: set in profile, then sign in with e-mail and password", async ({
   await expect(page.getByTestId("signed-in-as")).toContainText(email);
 });
 
+test("forgot password: link by mail, new password, signed out everywhere", async ({
+  page,
+  request,
+}, testInfo) => {
+  const email = `reset+${testInfo.project.name}-${Date.now()}@foto-rose.de`;
+  await signUp(page, request, email);
+
+  await page.goto("/login");
+  await page.getByText("Mit Passwort anmelden").click();
+  await page.getByRole("link", { name: "Passwort vergessen?" }).click();
+  await expect(page).toHaveURL(/\/login\/reset$/);
+  await page.locator("#reset-email").fill(email);
+  await page.getByRole("button", { name: "Link senden" }).click();
+  await expect(page.getByTestId("reset-sent")).toContainText("15 Minuten");
+
+  const res = await request.get(
+    `/api/test/mailbox?to=${encodeURIComponent(email)}`,
+  );
+  const { text, subject } = await res.json();
+  expect(subject).toContain("Passwort zurücksetzen");
+  const link = text.match(/https?:\/\/\S+\/login\/reset\/\S+/)![0];
+
+  await page.goto(link);
+  await page.locator("#new-password").fill("neues-geheim1");
+  await page.locator("#confirm-password").fill("anders-geheim");
+  await page.getByRole("button", { name: "Passwort speichern" }).click();
+  await expect(page.locator("#reset-error")).toContainText("nicht überein");
+  await page.locator("#new-password").fill("neues-geheim1");
+  await page.locator("#confirm-password").fill("neues-geheim1");
+  await page.getByRole("button", { name: "Passwort speichern" }).click();
+  await expect(page).toHaveURL(/\/login\/reset\/done/);
+
+  // The old session is gone.
+  await page.goto("/dashboard");
+  await expect(page).toHaveURL(/\/login/);
+  // The link works only once.
+  await page.goto(link);
+  await expect(page.getByText("Dieser Link ist abgelaufen")).toBeVisible();
+
+  await page.goto("/login");
+  await page.getByText("Mit Passwort anmelden").click();
+  await page.locator("#pw-email").fill(email);
+  await page.locator("#pw-password").fill("neues-geheim1");
+  await page.getByRole("button", { name: "Anmelden", exact: true }).click();
+  await expect(page).toHaveURL(/\/dashboard/);
+});
+
 test("watermark default in the profile applies to the gallery editor", async ({
   page,
   request,

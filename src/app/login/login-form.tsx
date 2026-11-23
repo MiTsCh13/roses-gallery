@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import { useTranslations } from "next-intl";
 
@@ -82,6 +83,12 @@ export function LoginForm() {
           <Button type="submit" variant="outline" disabled={pwPending}>
             {t("passwordSubmit")}
           </Button>
+          <Link
+            href="/login/reset"
+            className="text-sm text-muted-foreground underline-offset-2 hover:underline"
+          >
+            {t("forgotPassword")}
+          </Link>
         </form>
       </details>
     </div>

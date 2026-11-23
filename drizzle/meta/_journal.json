@@ -120,6 +120,13 @@
       "when": 1793538059709,
       "tag": "0016_wide_valkyrie",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1795468316616,
+      "tag": "0017_heavy_the_renegades",
+      "breakpoints": true
     }
   ]
 }
