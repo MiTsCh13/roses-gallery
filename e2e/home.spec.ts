@@ -50,6 +50,10 @@ test("legal pages are public and linked from the footer", async ({ page }) => {
     ).toBeVisible();
     await page.goBack();
   }
+
+  // Ohne LEGAL_VAT_ID entfällt der USt-ID-Abschnitt (keine USt-ID vorhanden).
+  await page.goto("/impressum");
+  await expect(page.getByText("Umsatzsteuer")).toHaveCount(0);
 });
 
 test("website navigation works on desktop and mobile", async ({

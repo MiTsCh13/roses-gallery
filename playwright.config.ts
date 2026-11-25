@@ -31,6 +31,13 @@ export default defineConfig({
       STORAGE_TRANSPORT: "fake",
       VIDEO_TRANSPORT: "fake",
       E2E_TEST_MODE: "1",
+      // Rechtstexte immer im Entwurfszustand testen, unabhängig von der Umgebung.
+      LEGAL_NAME: "",
+      LEGAL_ADDRESS: "",
+      LEGAL_EMAIL: "",
+      LEGAL_PHONE: "",
+      LEGAL_VAT_ID: "",
+      BETA_MODE: "",
     },
     url: `http://localhost:${PORT}/api/health`,
     reuseExistingServer: !process.env.CI,

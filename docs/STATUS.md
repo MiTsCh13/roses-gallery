@@ -143,6 +143,8 @@ Anlass: Rückmeldung von Mitsch nach dem ersten Live-Test (D-140). Reihenfolge s
 
 D-163: Video-Download für Kund:innen bauen (Original-Datei per signiertem Bunny-Link, nur bei Download-Recht „Original“)? Vorschlag: ja, als nächster Schritt.
 
+D-166: Kleinunternehmer:in? Dann Preis-Hinweis ändern („inkl. MwSt.“ wäre falsch); Impressum nach österreichischem Recht (§ 5 ECG, § 25 MedienG) mit Anwalt klären.
+
 D-165: Eigene Fotos (8–12, Einverständnis des Paares) bzw. Demo-Galerie für Screenshots auf der Landing Page.
 
 D-153: Überarbeiteten Video-Beitrag („USB-Stick oder online …“) gegenlesen und freigeben; den Satz zum Video-Download vorher streichen oder D-163 umsetzen.

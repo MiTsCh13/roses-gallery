@@ -12,12 +12,17 @@ export type LegalField = (typeof LEGAL_FIELDS)[number];
 
 export const LEGAL_MISSING = "[bitte ergänzen]";
 
+/** Freiwillige Angaben: leer = Abschnitt entfällt (z. B. keine USt-ID). */
+export const OPTIONAL_LEGAL_FIELDS: readonly LegalField[] = ["LEGAL_VAT_ID"];
+
 export function legalDetails(
   source: Record<string, string | undefined> = process.env,
 ): Record<LegalField, string> {
   const out = {} as Record<LegalField, string>;
   for (const field of LEGAL_FIELDS) {
-    out[field] = source[field]?.trim() || LEGAL_MISSING;
+    const value = source[field]?.trim();
+    out[field] =
+      value || (OPTIONAL_LEGAL_FIELDS.includes(field) ? "" : LEGAL_MISSING);
   }
   return out;
 }
