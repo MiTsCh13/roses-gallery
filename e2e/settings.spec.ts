@@ -184,3 +184,33 @@ test("watermark default in the profile applies to the gallery editor", async ({
     editorForm.getByLabel("Größe (5–60 % der Bildbreite)"),
   ).toHaveValue("25");
 });
+
+test("ideas: dashboard dialog validates, stores and mails the idea", async ({
+  page,
+  request,
+}, testInfo) => {
+  const email = `idee+${testInfo.project.name}-${Date.now()}@foto-rose.de`;
+  await signUp(page, request, email);
+
+  await page.getByTestId("idea-open").click();
+  const dialog = page.getByRole("dialog", {
+    name: "Deine Idee für Roses Gallery",
+  });
+  await expect(dialog).toBeVisible();
+  await dialog.locator("#idea-text").fill("zu kurz");
+  await dialog.getByRole("button", { name: "Idee senden" }).click();
+  // Native Prüfung (minLength) blockt im Browser; serverseitig greift Zod.
+  await expect(dialog.getByTestId("idea-sent")).toHaveCount(0);
+
+  const idea = `Galerien duplizieren können (${email})`;
+  await dialog.locator("#idea-text").fill(idea);
+  await dialog.getByRole("button", { name: "Idee senden" }).click();
+  await expect(dialog.getByTestId("idea-sent")).toBeVisible();
+
+  const mail = await (
+    await request.get("/api/test/mailbox?to=kontakt%40e2e.test")
+  ).json();
+  expect(mail.subject).toBe("Neue Idee für Roses Gallery");
+  expect(mail.replyTo).toBe(email);
+  expect(mail.text).toContain(idea);
+});
