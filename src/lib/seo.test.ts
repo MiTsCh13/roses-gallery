@@ -28,6 +28,8 @@ describe("buildSitemap", () => {
     expect(urls).toEqual([
       base,
       `${base}/preise`,
+      `${base}/fuer-fotografen`,
+      `${base}/fuer-videografen`,
       `${base}/blog`,
       `${base}/impressum`,
       `${base}/datenschutz`,

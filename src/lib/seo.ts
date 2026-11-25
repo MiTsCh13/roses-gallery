@@ -11,6 +11,8 @@ export const SITE_NAME = "Roses Gallery";
 export const WEBSITE_PATHS = [
   "/",
   "/preise",
+  "/fuer-fotografen",
+  "/fuer-videografen",
   "/blog",
   "/impressum",
   "/datenschutz",

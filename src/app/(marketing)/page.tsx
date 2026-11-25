@@ -11,6 +11,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
+import { AUDIENCE_PATHS } from "@/components/marketing/audience-page";
 import { Button } from "@/components/ui/button";
 import { buildStructuredData, jsonLd } from "@/lib/seo";
 import { siteUrl } from "@/lib/site-url";
@@ -24,6 +25,7 @@ const FEATURE_ICONS = [Palette, Download, Heart, Mail, ShieldCheck, PiggyBank];
 export default function HomePage() {
   const t = useTranslations("HomePage");
   const tPricing = useTranslations("Pricing");
+  const tAudience = useTranslations("Audience");
   const highlights = t.raw("highlights") as string[];
   const features = t.raw("features") as TextBlock[];
   const steps = t.raw("steps") as TextBlock[];
@@ -98,6 +100,39 @@ export default function HomePage() {
               </li>
             );
           })}
+        </ul>
+      </section>
+
+      <section
+        aria-labelledby="zielgruppen-titel"
+        className="mx-auto w-full max-w-4xl px-4 pb-16 sm:px-6"
+      >
+        <h2
+          id="zielgruppen-titel"
+          className="text-center font-display text-2xl font-semibold tracking-tight"
+        >
+          {tAudience("common.navLabel")}
+        </h2>
+        <ul className="mt-6 grid gap-4 sm:grid-cols-2">
+          {(["photographers", "videographers"] as const).map((key) => (
+            <li key={key}>
+              <Link
+                href={AUDIENCE_PATHS[key]}
+                className="block h-full rounded-2xl border bg-card p-6 transition hover:border-primary/40"
+              >
+                <span className="font-display text-lg font-semibold text-primary">
+                  {tAudience(
+                    key === "photographers"
+                      ? "common.forPhotographers"
+                      : "common.forVideographers",
+                  )}
+                </span>
+                <span className="mt-2 block text-sm text-muted-foreground">
+                  {tAudience(`${key}.intro`)}
+                </span>
+              </Link>
+            </li>
+          ))}
         </ul>
       </section>
 

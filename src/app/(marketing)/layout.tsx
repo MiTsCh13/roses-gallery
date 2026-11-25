@@ -39,6 +39,7 @@ export default async function MarketingLayout({
 }) {
   const t = await getTranslations("Marketing");
   const tLegal = await getTranslations("Legal");
+  const tAudience = await getTranslations("Audience.common");
   const navLinkClass =
     "rounded-full px-3 py-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground";
   return (
@@ -97,6 +98,19 @@ export default async function MarketingLayout({
           <p>{t("footer.tagline")}</p>
           <nav aria-label={t("footer.label")}>
             <ul className="flex flex-wrap gap-x-6 gap-y-2">
+              <li>
+                <Link href="/fuer-fotografen" className="hover:text-foreground">
+                  {tAudience("forPhotographers")}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/fuer-videografen"
+                  className="hover:text-foreground"
+                >
+                  {tAudience("forVideographers")}
+                </Link>
+              </li>
               {LEGAL_LINKS.map((key) => (
                 <li key={key}>
                   <Link href={`/${key}`} className="hover:text-foreground">
