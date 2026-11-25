@@ -7,11 +7,13 @@ import {
   fillLegalText,
   hasMissingLegalDetails,
   legalDetails,
+  type LegalField,
 } from "@/lib/legal-details";
 
 export type LegalKey = "impressum" | "datenschutz" | "agb";
 
-type Section = { heading: string; paragraphs: string[] };
+/** `requires`: Abschnitt nur zeigen, wenn diese Angabe gesetzt ist. */
+type Section = { heading: string; paragraphs: string[]; requires?: LegalField };
 
 async function LegalBody({ page }: { page: LegalKey }) {
   await connection();
@@ -25,19 +27,21 @@ async function LegalBody({ page }: { page: LegalKey }) {
           {t("draft")}
         </p>
       ) : null}
-      {sections.map((section) => (
-        <section key={section.heading} className="mt-8">
-          <h2 className="text-lg font-semibold">{section.heading}</h2>
-          {section.paragraphs.map((paragraph) => (
-            <p
-              key={paragraph}
-              className="mt-2 leading-relaxed whitespace-pre-line"
-            >
-              {fillLegalText(paragraph, details)}
-            </p>
-          ))}
-        </section>
-      ))}
+      {sections
+        .filter((section) => !section.requires || details[section.requires])
+        .map((section) => (
+          <section key={section.heading} className="mt-8">
+            <h2 className="text-lg font-semibold">{section.heading}</h2>
+            {section.paragraphs.map((paragraph) => (
+              <p
+                key={paragraph}
+                className="mt-2 leading-relaxed whitespace-pre-line"
+              >
+                {fillLegalText(paragraph, details)}
+              </p>
+            ))}
+          </section>
+        ))}
     </>
   );
 }

@@ -35,4 +35,15 @@ describe("legal details", () => {
       "Mail: hi@example.de {LEGAL_X}",
     );
   });
+
+  it("keeps the VAT ID optional: empty, not missing", () => {
+    const details = legalDetails({
+      LEGAL_NAME: "a",
+      LEGAL_ADDRESS: "b",
+      LEGAL_EMAIL: "c",
+      LEGAL_PHONE: "d",
+    });
+    expect(details.LEGAL_VAT_ID).toBe("");
+    expect(hasMissingLegalDetails(details)).toBe(false);
+  });
 });

@@ -1,7 +1,7 @@
 {
   "Metadata": {
     "title": "Roses Gallery",
-    "description": "Gebrandete Foto- und Video-Galerien für Hochzeitsfotografen und -videografen."
+    "description": "Gebrandete Foto- und Video-Galerien für Hochzeitsfotograf:innen und -videograf:innen."
   },
   "HomePage": {
     "title": "Roses Gallery",
@@ -101,7 +101,7 @@
     },
     "footer": {
       "label": "Rechtliches und Kontakt",
-      "tagline": "Roses Gallery – Foto- und Video-Galerien für Hochzeitsfotografen und -videografen.",
+      "tagline": "Roses Gallery – Foto- und Video-Galerien für Hochzeitsfotograf:innen und -videograf:innen.",
       "contact": "Kontakt"
     }
   },
@@ -646,6 +646,7 @@
         },
         {
           "heading": "Umsatzsteuer-ID",
+          "requires": "LEGAL_VAT_ID",
           "paragraphs": [
             "Umsatzsteuer-Identifikationsnummer gemäß § 27a UStG: {LEGAL_VAT_ID}"
           ]
