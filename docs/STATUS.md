@@ -143,7 +143,7 @@ Anlass: Rückmeldung von Mitsch nach dem ersten Live-Test (D-140). Reihenfolge s
 
 D-163: Video-Download für Kund:innen bauen (Original-Datei per signiertem Bunny-Link, nur bei Download-Recht „Original“)? Vorschlag: ja, als nächster Schritt.
 
-D-166: Kleinunternehmer:in? Dann Preis-Hinweis ändern („inkl. MwSt.“ wäre falsch); Impressum nach österreichischem Recht (§ 5 ECG, § 25 MedienG) mit Anwalt klären.
+Vor dem ersten Verkauf (Ende der Beta): Preis-Hinweis auf Kleinunternehmerregelung umstellen (D-166); optional `LEGAL_TRADE` (Gewerbe, Gewerbebehörde, Kammer) in Coolify setzen.
 
 D-165: Eigene Fotos (8–12, Einverständnis des Paares) bzw. Demo-Galerie für Screenshots auf der Landing Page.
 

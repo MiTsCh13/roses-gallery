@@ -38,6 +38,7 @@ export default defineConfig({
       LEGAL_EMAIL: "kontakt@e2e.test",
       LEGAL_PHONE: "",
       LEGAL_VAT_ID: "",
+      LEGAL_TRADE: "",
       BETA_MODE: "",
     },
     url: `http://localhost:${PORT}/api/health`,

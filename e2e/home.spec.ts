@@ -54,6 +54,13 @@ test("legal pages are public and linked from the footer", async ({ page }) => {
   // Ohne LEGAL_VAT_ID entfällt der USt-ID-Abschnitt (keine USt-ID vorhanden).
   await page.goto("/impressum");
   await expect(page.getByText("Umsatzsteuer")).toHaveCount(0);
+  // Österreichisches Recht (D-166): ECG/MedienG statt DDG; ohne LEGAL_TRADE
+  // entfallen die gewerberechtlichen Angaben.
+  await expect(
+    page.getByRole("heading", { name: /§ 5 ECG.*§ 25 MedienG/ }),
+  ).toBeVisible();
+  await expect(page.getByText("DDG")).toHaveCount(0);
+  await expect(page.getByText("Gewerberechtliche Angaben")).toHaveCount(0);
 });
 
 test("website navigation works on desktop and mobile", async ({
