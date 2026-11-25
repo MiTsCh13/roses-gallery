@@ -36,7 +36,8 @@ Ziel: erste Beta-Testerinnen und -Tester auf die Plattform holen und über Suchm
 - [x] **4. Zielgruppen-Seiten** (`components/marketing/audience-page.tsx`, Texte unter `Audience` in `messages/de.json`, Links von Startseite („Für wen?“) und Fußzeile, verlinkt nur veröffentlichte Blogbeiträge) `/fuer-fotografen` und `/fuer-videografen`: eigene Titel/Beschreibung auf Suchbegriffe wie „Online-Galerie für Hochzeitsfotografen“, „Hochzeitsvideo an Kunden ausliefern“; nur Live-Funktionen; Sitemap, interne Links von Startseite/Blog
 - [ ] **5. Blog-Plan** (Gendern mit „:“, D-162; „Galerie-Link statt Dropbox“ ist live): je Routine-Lauf höchstens ein neuer Entwurf (`draft: true`, Freigabe D-153) zu: Online-Galerie vs. WeTransfer, Hochzeitsfotos richtig ausliefern (Größen/Formate), Favoritenauswahl mit dem Brautpaar, Passwortschutz & Datenschutz bei Hochzeitsgalerien, 4K-Hochzeitsfilm auf dem Fernseher zeigen
 - [ ] **4b. Video-Download für Kund:innen** (F-SEC-02, Priorität M; wartet auf D-163): Kund:innen können Videos bisher nicht herunterladen (Downloads/ZIP nur Fotos). Startseiten-FAQ entsprechend korrigiert
-- [ ] **6. Website-Performance & Bilder:** Lighthouse/Core Web Vitals für `/`, `/preise`, `/blog` (Ziel LCP < 2,5 s mobil), Screenshots der echten App (eigene Testgalerie) als Bilder auf der Landing Page statt Platzhalter
+- [~] **6a. Website-Performance** (2026-11-25, live, Lighthouse mobil, `scripts/lighthouse-site.sh`): `/` LCP 1,8–2,5 s (TBT 100–420 ms), `/preise` 2,3–2,4 s, `/blog` 1,5 s, Blogbeitrag 1,5 s, CLS überall 0; Barrierefreiheit, Best Practices, SEO je 100. Ziel LCP < 2,5 s erreicht, Startseite am Rand: LCP-Element ist Text, Zeit geht in Serverantwort (~0,7 s simuliert) und Rendern; keine Bilder/Fremdskripte. Zielgruppen-Seiten nach dem nächsten Deploy messen
+- [ ] **6b. Screenshots der App** (wartet auf D-165: eigene Fotos/Testgalerie von Mitsch)
 
 ## Nächste Schritte (W1, in dieser Reihenfolge; ein Schritt = ein PR)
 
@@ -142,6 +143,8 @@ Anlass: Rückmeldung von Mitsch nach dem ersten Live-Test (D-140). Reihenfolge s
 
 D-163: Video-Download für Kund:innen bauen (Original-Datei per signiertem Bunny-Link, nur bei Download-Recht „Original“)? Vorschlag: ja, als nächster Schritt.
 
+D-165: Eigene Fotos (8–12, Einverständnis des Paares) bzw. Demo-Galerie für Screenshots auf der Landing Page.
+
 D-164: Beta-Speicher 2 GB reicht für Videograf:innen kaum (ein Film hat oft > 1 GB). Speicher für Beta-Konten erhöhen?
 
 D-153: Überarbeiteten Video-Beitrag („USB-Stick oder online …“) gegenlesen und freigeben; den Satz zum Video-Download vorher streichen oder D-163 umsetzen.
@@ -157,6 +160,9 @@ Folgen: Stripe-Preise als Bruttopreise anlegen (D-156, nach der Beta); Original-
 - SessionStart-Hook (`.claude/hooks/session-start.sh`) installiert Abhängigkeiten.
 
 ## Log
+
+### 2026-11-25 – Zielgruppen-Seiten, Performance
+- `/fuer-fotografen`, `/fuer-videografen` (#122). Startseiten-FAQ korrigiert: Kund:innen können Videos nicht herunterladen (D-163). Lighthouse live: LCP-Ziel erreicht (W2-6a), Mess-Skript `scripts/lighthouse-site.sh`. Offen: D-163, D-164, D-165.
 
 ### 2026-11-23 – Beta-Modus, Gendern, Blog
 - Logo A2 (#115), Blog „Galerie-Link statt Dropbox“ live, Video-Beitrag überarbeitet (#116), Beta-Modus (#117, D-159), Website-/App-Texte gegendert (D-162, Rechtstexte ausgenommen). Offen bei Mitsch: `BETA_MODE=1` setzen, Search Console (D-160), Video-Beitrag freigeben (D-153).
