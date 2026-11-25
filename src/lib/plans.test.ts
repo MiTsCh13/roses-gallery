@@ -146,9 +146,9 @@ describe("beta mode (D-159)", () => {
     expect(isBetaMode({})).toBe(false);
   });
 
-  it("gives accounts without a subscription 2 GB and unlimited galleries", () => {
+  it("gives accounts without a subscription 5 GB and unlimited galleries", () => {
     expect(effectivePlan(none, true)).toBe(BETA_PLAN);
-    expect(BETA_PLAN.storageBytes).toBe(2 * GB);
+    expect(BETA_PLAN.storageBytes).toBe(5 * GB);
     expect(BETA_PLAN.maxGalleries).toBeNull();
     expect(BETA_PLAN.features.size).toBe(0);
     expect(() => assertCanCreateGallery(none, 500, true)).not.toThrow();

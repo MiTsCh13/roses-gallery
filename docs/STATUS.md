@@ -31,7 +31,7 @@
 Ziel: erste Beta-Testerinnen und -Tester auf die Plattform holen und über Suchmaschinen gefunden werden. Weiter ohne Tracking-Cookies (D-152), keine erfundenen Aussagen.
 
 - [x] **1. Logo einbauen** (D-161, Entwurf A2; `components/brand-mark.tsx`, `lib/brand-icon.ts`, Icons per `pnpm tsx scripts/brand-icons.ts` erzeugt, `favicon.ico` ersetzt durch `icon.svg`, `public/logo.png` für JSON-LD): Bildmarke als SVG-Komponente, Kopfzeile Website + Dashboard, `app/icon.svg` (Favicon), `apple-icon.png`, Logo im OG-Bild und in JSON-LD (`Organization.logo`)
-- [x] **2. Beta-Modus** (D-159): `BETA_MODE=1` + `BETA_PLAN` (2 GB, unbegrenzt Galerien), Hinweis auf Preis-/Abo-Seite, Kaufen aus (auch serverseitig), Feedback-Karte, „Beta“-Abzeichen. **Mitsch:** `BETA_MODE=1` in Coolify setzen (auch als Build-Variable) und neu deployen
+- [x] **2. Beta-Modus** (D-159): `BETA_MODE=1` + `BETA_PLAN` (5 GB seit D-164, unbegrenzt Galerien), Hinweis auf Preis-/Abo-Seite, Kaufen aus (auch serverseitig), Feedback-Karte, „Beta“-Abzeichen. **Mitsch:** `BETA_MODE=1` in Coolify setzen (auch als Build-Variable) und neu deployen
 - [x] **3. Search Console/Bing** (D-160, Mitsch 2026-11-25 erledigt; `BETA_MODE=1` ist live): Bestätigung per DNS-TXT, Sitemap einreichen; Code nur, falls Bestätigung per Meta-Tag gewünscht (`GOOGLE_SITE_VERIFICATION`)
 - [x] **4. Zielgruppen-Seiten** (`components/marketing/audience-page.tsx`, Texte unter `Audience` in `messages/de.json`, Links von Startseite („Für wen?“) und Fußzeile, verlinkt nur veröffentlichte Blogbeiträge) `/fuer-fotografen` und `/fuer-videografen`: eigene Titel/Beschreibung auf Suchbegriffe wie „Online-Galerie für Hochzeitsfotografen“, „Hochzeitsvideo an Kunden ausliefern“; nur Live-Funktionen; Sitemap, interne Links von Startseite/Blog
 - [ ] **5. Blog-Plan** (Gendern mit „:“, D-162; „Galerie-Link statt Dropbox“ ist live): je Routine-Lauf höchstens ein neuer Entwurf (`draft: true`, Freigabe D-153) zu: Online-Galerie vs. WeTransfer, Hochzeitsfotos richtig ausliefern (Größen/Formate), Favoritenauswahl mit dem Brautpaar, Passwortschutz & Datenschutz bei Hochzeitsgalerien, 4K-Hochzeitsfilm auf dem Fernseher zeigen
@@ -144,8 +144,6 @@ Anlass: Rückmeldung von Mitsch nach dem ersten Live-Test (D-140). Reihenfolge s
 D-163: Video-Download für Kund:innen bauen (Original-Datei per signiertem Bunny-Link, nur bei Download-Recht „Original“)? Vorschlag: ja, als nächster Schritt.
 
 D-165: Eigene Fotos (8–12, Einverständnis des Paares) bzw. Demo-Galerie für Screenshots auf der Landing Page.
-
-D-164: Beta-Speicher 2 GB reicht für Videograf:innen kaum (ein Film hat oft > 1 GB). Speicher für Beta-Konten erhöhen?
 
 D-153: Überarbeiteten Video-Beitrag („USB-Stick oder online …“) gegenlesen und freigeben; den Satz zum Video-Download vorher streichen oder D-163 umsetzen.
 
