@@ -34,6 +34,22 @@ describe("PostmarkMailer", () => {
     });
   });
 
+  it("passes a reply-to address to Postmark", async () => {
+    const fetchMock = vi.fn(async () => new Response("{}", { status: 200 }));
+    const mailer = new PostmarkMailer("tok", "hi@rose.de", fetchMock);
+    await mailer.send({
+      to: "a@x.de",
+      subject: "S",
+      text: "T",
+      replyTo: "b@y.de",
+    });
+    const [, init] = fetchMock.mock.calls[0] as unknown as [
+      string,
+      RequestInit,
+    ];
+    expect(JSON.parse(init.body as string).ReplyTo).toBe("b@y.de");
+  });
+
   it("throws when Postmark rejects the request", async () => {
     const mailer = new PostmarkMailer(
       "tok",

@@ -161,6 +161,9 @@ Folgen: Stripe-Preise als Bruttopreise anlegen (D-156, nach der Beta); Original-
 
 ## Log
 
+### 2026-11-25 – Kontaktformular, Impressum, Beta 5 GB
+- Beta-Speicher 5 GB (#124, D-164), Impressum ohne USt-ID (#125, D-166), Kontaktformular `/kontakt` (Mail an `LEGAL_EMAIL` mit Reply-To, Honigtopf, Rate-Limit, Datenschutz-Abschnitt 4). Als Nächstes: Ideen/Feature-Requests im Dashboard.
+
 ### 2026-11-25 – Zielgruppen-Seiten, Performance
 - `/fuer-fotografen`, `/fuer-videografen` (#122). Startseiten-FAQ korrigiert: Kund:innen können Videos nicht herunterladen (D-163). Lighthouse live: LCP-Ziel erreicht (W2-6a), Mess-Skript `scripts/lighthouse-site.sh`. Offen: D-163, D-164, D-165.
 

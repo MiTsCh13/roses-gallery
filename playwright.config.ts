@@ -34,7 +34,8 @@ export default defineConfig({
       // Rechtstexte immer im Entwurfszustand testen, unabhängig von der Umgebung.
       LEGAL_NAME: "",
       LEGAL_ADDRESS: "",
-      LEGAL_EMAIL: "",
+      // Empfänger von Kontaktformular und Ideen (Fake-Postfach).
+      LEGAL_EMAIL: "kontakt@e2e.test",
       LEGAL_PHONE: "",
       LEGAL_VAT_ID: "",
       BETA_MODE: "",

@@ -72,6 +72,7 @@ test("login and landing page have no WCAG 2.1 AA violations", async ({
     "/fuer-fotografen",
     "/fuer-videografen",
     "/blog",
+    "/kontakt",
     "/login",
     "/impressum",
   ]) {

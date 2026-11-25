@@ -200,3 +200,42 @@ test("blog lists no drafts in production and serves RSS", async ({
   expect(xml).not.toContain("hochzeitsvideos-ohne-qualitaetsverlust");
   expect(xml).toContain("/blog/galerie-link-statt-dropbox</link>");
 });
+
+test("contact form: linked from the footer, validates and mails the message", async ({
+  page,
+  request,
+}) => {
+  await page.goto("/");
+  await page
+    .getByRole("navigation", { name: messages.Marketing.footer.label })
+    .getByRole("link", { name: messages.Marketing.footer.contact })
+    .click();
+  await expect(page).toHaveURL(/\/kontakt$/);
+  await expect(
+    page.getByRole("heading", { level: 1, name: messages.Contact.title }),
+  ).toBeVisible();
+
+  const email = `kontakt+${Date.now()}@foto-rose.de`;
+  await page.getByLabel(messages.Contact.name).fill("Anna Test");
+  await page.getByLabel(messages.Contact.email).fill(email);
+  await page.getByLabel(messages.Contact.message).fill("kurz");
+  await page.getByRole("button", { name: messages.Contact.send }).click();
+  await expect(page.locator("#contact-error")).toHaveText(
+    messages.Contact.errors.invalid,
+  );
+
+  await page.getByLabel(messages.Contact.name).fill("Anna Test");
+  await page.getByLabel(messages.Contact.email).fill(email);
+  await page
+    .getByLabel(messages.Contact.message)
+    .fill(`Hallo, eine Frage zur Beta (${email}).`);
+  await page.getByRole("button", { name: messages.Contact.send }).click();
+  await expect(page.getByTestId("contact-sent")).toBeVisible();
+
+  const mail = await (
+    await request.get("/api/test/mailbox?to=kontakt%40e2e.test")
+  ).json();
+  expect(mail.subject).toBe("Kontaktformular: Anna Test");
+  expect(mail.replyTo).toBe(email);
+  expect(mail.text).toContain(email);
+});
