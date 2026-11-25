@@ -5,8 +5,8 @@
   },
   "HomePage": {
     "title": "Roses Gallery",
-    "eyebrow": "Für Hochzeitsfotografen und -videografen",
-    "tagline": "Foto- und Video-Galerien für deine Hochzeitskunden – gebrandet, in 4K und auf Servern in Deutschland.",
+    "eyebrow": "Für Hochzeitsfotograf:innen und -videograf:innen",
+    "tagline": "Foto- und Video-Galerien für deine Hochzeitskund:innen – gebrandet, in 4K und auf Servern in Deutschland.",
     "cta": "Kostenlos starten",
     "secondaryCta": "Funktionen ansehen",
     "highlights": [
@@ -64,7 +64,7 @@
       },
       {
         "q": "Werden meine Videos komprimiert?",
-        "a": "Für das Streaming entstehen Fassungen in mehreren Qualitätsstufen bis 4K, damit Videos auch am Handy flüssig laufen. Deine Originaldatei bleibt erhalten, und du entscheidest je Galerie, ob deine Kund:innen das Original herunterladen dürfen."
+        "a": "Für das Streaming entstehen Fassungen in mehreren Qualitätsstufen bis 4K, damit Videos auch am Handy flüssig laufen. Deine Originaldatei bleibt erhalten und kann von dir jederzeit in der Bibliothek heruntergeladen werden."
       },
       {
         "q": "Können meine Kund:innen die Videos am Fernseher ansehen?",
@@ -886,5 +886,120 @@
     "feedbackTitle": "Feedback zur Beta",
     "feedbackText": "Was fehlt, was stört, was gefällt dir? Schreib uns – jede Rückmeldung hilft.",
     "feedbackSubject": "Feedback zur Beta"
+  },
+  "Audience": {
+    "common": {
+      "cta": "Kostenlos starten",
+      "pricing": "Preise ansehen",
+      "benefitsTitle": "Was Roses Gallery für dich übernimmt",
+      "faqTitle": "Häufige Fragen",
+      "blogTitle": "Aus dem Blog",
+      "otherTitle": "Du arbeitest auch mit Video oder Foto?",
+      "forPhotographers": "Für Fotograf:innen",
+      "forVideographers": "Für Videograf:innen",
+      "navLabel": "Für wen?"
+    },
+    "photographers": {
+      "metaTitle": "Online-Galerie für Hochzeitsfotograf:innen",
+      "metaDescription": "Hochzeitsfotos als gebrandete Online-Galerie ausliefern: Favoritenauswahl für das Album, Passwortschutz, Download-Rechte, ZIP-Download und Wasserzeichen – auf Servern in Deutschland.",
+      "eyebrow": "Für Hochzeitsfotograf:innen",
+      "title": "Die Online-Galerie für deine Hochzeitsfotos",
+      "intro": "Liefere Hochzeitsfotos in einer Galerie aus, die nach deinem Studio aussieht – und lass das Brautpaar seine Favoriten für das Album direkt darin auswählen.",
+      "benefits": [
+        {
+          "title": "Galerie in deinem Look",
+          "text": "Vier Designs als Ausgangspunkt, dazu deine Farben, Schriften, dein Logo und ein Titelbild. Fotos erscheinen im echten Seitenverhältnis – als Masonry, zeilenbündig oder untereinander."
+        },
+        {
+          "title": "Favoriten fürs Album",
+          "text": "Das Brautpaar markiert Fotos, legt mehrere Listen an und schickt sie dir aus der Galerie. Im Galerie-Editor siehst du alle Listen und exportierst sie als CSV."
+        },
+        {
+          "title": "Downloads nach deinen Regeln",
+          "text": "Je Galerie: kein Download, Web-Größe oder Original – einzeln oder alle Fotos als ZIP-Datei. Auf Wunsch mit deinem Logo als Wasserzeichen auf den Web-Größen."
+        },
+        {
+          "title": "Geschützt und befristet",
+          "text": "Passwortschutz und Ablaufdatum je Galerie. Ohne Datum bleibt die Galerie erreichbar, bis du sie offline nimmst."
+        },
+        {
+          "title": "Ausliefern mit einem Klick",
+          "text": "Die Auslieferungs-Mail mit Link und Passwort-Hinweis verschickst du direkt aus Roses Gallery. Danach siehst du Aufrufe, Downloads und Favoriten der letzten 7 und 30 Tage."
+        },
+        {
+          "title": "Ohne Konto für deine Kund:innen",
+          "text": "Das Brautpaar und die Gäste öffnen die Galerie über den Link – am Handy, Tablet oder Laptop. Fotos laden in passender Größe."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Welche Dateiformate kann ich hochladen?",
+          "a": "JPEG, PNG, WebP und TIFF. Für die Galerie entstehen automatisch Web-Größen; dein Original bleibt erhalten."
+        },
+        {
+          "q": "Kann das Brautpaar alle Fotos auf einmal herunterladen?",
+          "a": "Ja, als ZIP-Datei – sofern du Downloads für die Galerie erlaubst. Angeboten werden nur die Größen, die du freigegeben hast."
+        },
+        {
+          "q": "Wie bekomme ich die Favoriten für das Album?",
+          "a": "Das Brautpaar schickt dir seine Liste direkt aus der Galerie. Zusätzlich findest du alle Listen im Galerie-Editor, mit Foto-Nummern und als CSV-Export."
+        },
+        {
+          "q": "Kann ich Fotos und Videos in einer Galerie zeigen?",
+          "a": "Ja. Fotos und Videos liegen gleichrangig in einer Galerie, in der Reihenfolge, die du festlegst."
+        }
+      ]
+    },
+    "videographers": {
+      "metaTitle": "Hochzeitsvideos online an Kund:innen ausliefern",
+      "metaDescription": "Hochzeitsfilme online übergeben statt per USB-Stick: Streaming in bis zu 4K, AirPlay und Chromecast, Originaldatei bleibt erhalten – Fotos und Film in einer gebrandeten Galerie.",
+      "eyebrow": "Für Hochzeitsvideograf:innen",
+      "title": "Hochzeitsfilme online übergeben – in bis zu 4K",
+      "intro": "Lade deinen Film einmal hoch: Das Brautpaar sieht ihn am Handy, am Laptop oder auf dem Fernseher, und deine Originaldatei bleibt erhalten.",
+      "benefits": [
+        {
+          "title": "Streaming bis 4K",
+          "text": "Für jedes Video entstehen Fassungen in mehreren Qualitätsstufen bis 4K. Der Player wählt die passende – auch bei schwankender Verbindung."
+        },
+        {
+          "title": "Auf den großen Bildschirm",
+          "text": "Per AirPlay oder Chromecast schaut das Paar den Film gemeinsam am Fernseher, sofern Gerät und Browser das unterstützen."
+        },
+        {
+          "title": "Original bleibt erhalten",
+          "text": "Die Streaming-Fassungen ersetzen nicht dein Original. Du kannst die Originaldatei jederzeit aus deiner Bibliothek herunterladen."
+        },
+        {
+          "title": "Große Dateien hochladen",
+          "text": "Filme ziehst du per Drag & Drop in die Bibliothek oder direkt in die Galerie. Der Upload geht direkt zum Video-Dienst, mit Fortschrittsanzeige je Datei."
+        },
+        {
+          "title": "Film und Fotos zusammen",
+          "text": "Videos und Fotos liegen gleichrangig in einer Galerie – ideal, wenn du beides lieferst oder mit Fotograf:innen zusammenarbeitest."
+        },
+        {
+          "title": "In deinem Look",
+          "text": "Designs, Farben, Schriften, Logo und Titelbild machen die Galerie zu deiner. Passwortschutz und Ablaufdatum legst du je Galerie fest."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Wird mein Film komprimiert?",
+          "a": "Für das Streaming ja – in mehreren Qualitätsstufen bis 4K, damit der Film überall flüssig läuft. Deine Originaldatei bleibt unverändert erhalten."
+        },
+        {
+          "q": "Brauche ich YouTube oder Vimeo?",
+          "a": "Nein. Der Film läuft im Player von Roses Gallery, direkt in deiner Galerie."
+        },
+        {
+          "q": "Wie groß darf ein Film sein?",
+          "a": "Eine einzelne Datei darf bis zu 200 GB groß sein. Wie viel du insgesamt hochladen kannst, hängt vom Speicher deines Plans ab."
+        },
+        {
+          "q": "Können Gäste den Film auch sehen?",
+          "a": "Alle, die den Galerie-Link haben – und das Passwort, falls du eines festgelegt hast."
+        }
+      ]
+    }
   }
 }

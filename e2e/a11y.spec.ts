@@ -66,7 +66,15 @@ test("public gallery has no WCAG 2.1 AA violations", async ({
 test("login and landing page have no WCAG 2.1 AA violations", async ({
   page,
 }) => {
-  for (const path of ["/", "/preise", "/blog", "/login", "/impressum"]) {
+  for (const path of [
+    "/",
+    "/preise",
+    "/fuer-fotografen",
+    "/fuer-videografen",
+    "/blog",
+    "/login",
+    "/impressum",
+  ]) {
     await page.goto(path);
     expect(await violations(page), path).toEqual([]);
   }

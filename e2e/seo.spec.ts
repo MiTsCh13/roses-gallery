@@ -105,3 +105,57 @@ test("logo: header mark, favicon, apple icon and logo file", async ({
     expect(res.status(), path).toBe(200);
   }
 });
+
+test("audience pages: own title, canonical, links from home and sitemap", async ({
+  page,
+  request,
+}) => {
+  const pages = [
+    {
+      path: "/fuer-fotografen",
+      h1: "Die Online-Galerie für deine Hochzeitsfotos",
+      title: /Online-Galerie für Hochzeitsfotograf:innen/,
+      link: "Für Fotograf:innen",
+      other: "Für Videograf:innen",
+    },
+    {
+      path: "/fuer-videografen",
+      h1: "Hochzeitsfilme online übergeben – in bis zu 4K",
+      title: /Hochzeitsvideos online an Kund:innen ausliefern/,
+      link: "Für Videograf:innen",
+      other: "Für Fotograf:innen",
+    },
+  ];
+  for (const p of pages) {
+    await page.goto("/");
+    await page
+      .getByRole("main")
+      .getByRole("link", { name: new RegExp(p.link) })
+      .first()
+      .click();
+    await expect(page).toHaveURL(new RegExp(`${p.path}$`));
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(p.h1);
+    await expect(page).toHaveTitle(p.title);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      "href",
+      new RegExp(`${p.path}$`),
+    );
+    await expect(
+      page.getByRole("main").getByRole("link", { name: p.other }),
+    ).toBeVisible();
+  }
+  // Drafts are never linked; the published post is.
+  await page.goto("/fuer-videografen");
+  await expect(
+    page.locator(
+      'a[href="/blog/hochzeitsvideos-ohne-qualitaetsverlust-ausliefern"]',
+    ),
+  ).toHaveCount(0);
+  await expect(
+    page.locator('a[href="/blog/galerie-link-statt-dropbox"]'),
+  ).toHaveCount(1);
+
+  const xml = await (await request.get("/sitemap.xml")).text();
+  expect(xml).toContain("/fuer-fotografen</loc>");
+  expect(xml).toContain("/fuer-videografen</loc>");
+});
