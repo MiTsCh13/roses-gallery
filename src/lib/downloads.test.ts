@@ -7,6 +7,7 @@ import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { accounts, galleries, media } from "@/db/schema";
 import { createTestDb, resetDb, linkAccountMedia } from "@/test/db";
 import { FakeStorage } from "@/lib/storage/fake";
+import { FakeVideoProvider } from "@/lib/video/fake";
 import { allows, effectivePolicy } from "./download-policy";
 import { resolvePhotoDownload } from "./downloads";
 import { createAccessToken, hashPassword } from "./gallery-access";
@@ -200,5 +201,69 @@ describe("loadPublicGallery download links", () => {
         ? r3.items[0].downloads
         : undefined,
     ).toEqual({});
+  });
+});
+
+describe("video downloads (D-163)", () => {
+  const video = new FakeVideoProvider();
+
+  async function setupVideo(policy: "none" | "web" | "original") {
+    const { g } = await setup({ downloadPolicy: policy });
+    const [v] = await db
+      .insert(media)
+      .values({
+        accountId,
+        type: "video",
+        processingStatus: "ready",
+        bunnyVideoId: "vid-1",
+        sizeBytes: 1000,
+      })
+      .returning();
+    await linkAccountMedia(db, g.id);
+    return v;
+  }
+
+  it("serves only the original, only with policy original", async () => {
+    const v = await setupVideo("original");
+    const r = await resolvePhotoDownload(
+      { db, storage, video },
+      { slug: "anna-ben", mediaId: v.id, size: "original" },
+    );
+    expect(r.ok && r.url).toContain("/api/test/original/vid-1");
+    expect(
+      await resolvePhotoDownload(
+        { db, storage, video },
+        { slug: "anna-ben", mediaId: v.id, size: "web" },
+      ),
+    ).toEqual({ ok: false, reason: "forbidden" });
+  });
+
+  it("refuses with policy web and without a video provider", async () => {
+    const v = await setupVideo("web");
+    expect(
+      await resolvePhotoDownload(
+        { db, storage, video },
+        { slug: "anna-ben", mediaId: v.id, size: "original" },
+      ),
+    ).toEqual({ ok: false, reason: "forbidden" });
+    expect(
+      await resolvePhotoDownload(
+        { db, storage },
+        { slug: "anna-ben", mediaId: v.id, size: "original" },
+      ),
+    ).toEqual({ ok: false, reason: "not_found" });
+  });
+
+  it("lists the video download link only for policy original", async () => {
+    const v = await setupVideo("original");
+    const r = await loadPublicGallery({ db, storage, video }, "anna-ben");
+    const item = r && !r.locked ? r.items.find((i) => i.id === v.id) : null;
+    expect(item?.kind === "video" ? item.downloads : null).toEqual({
+      original: `/api/g/anna-ben/download/${v.id}?size=original`,
+    });
+    await db.update(galleries).set({ downloadPolicy: "web" });
+    const r2 = await loadPublicGallery({ db, storage, video }, "anna-ben");
+    const item2 = r2 && !r2.locked ? r2.items.find((i) => i.id === v.id) : null;
+    expect(item2?.kind === "video" ? item2.downloads : null).toEqual({});
   });
 });

@@ -121,6 +121,7 @@ async function GalleryContent({
             posterUrl: item.posterUrl,
             durationS: item.durationS,
           },
+          downloads: item.downloads,
         }
       : {
           id: item.id,
