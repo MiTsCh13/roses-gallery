@@ -92,7 +92,7 @@ export const TRIAL_DAYS = 14;
 
 /**
  * Beta-Phase (D-159): Mit `BETA_MODE=1` bekommen Konten ohne Abo die
- * Beta-Limits (Speicher wie Free, unbegrenzt viele Galerien), und Käufe sind
+ * Beta-Limits (5 GB Speicher, D-164; unbegrenzt viele Galerien), und Käufe sind
  * abgeschaltet. Bestehende Abos behalten ihren Plan.
  */
 export function isBetaMode(
@@ -104,6 +104,7 @@ export function isBetaMode(
 export const BETA_PLAN: Plan = {
   ...PLANS.free,
   name: "Beta",
+  storageBytes: 5 * GB,
   maxGalleries: null,
 };
 
