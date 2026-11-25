@@ -5,6 +5,7 @@ import { signOut } from "@/auth";
 import { Button } from "@/components/ui/button";
 import { BetaBadge } from "@/components/beta-badge";
 import { BrandMark } from "@/components/brand-mark";
+import { IdeaButton } from "@/components/idea-button";
 
 async function signOutAction() {
   "use server";
@@ -49,6 +50,7 @@ export default async function DashboardLayout({
               </Link>
             ))}
           </nav>
+          <IdeaButton />
           <form action={signOutAction}>
             <Button type="submit" variant="ghost" size="sm">
               {t("signOut")}

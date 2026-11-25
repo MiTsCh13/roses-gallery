@@ -127,6 +127,13 @@
       "when": 1795468316616,
       "tag": "0017_heavy_the_renegades",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1795644406399,
+      "tag": "0018_dusty_tempest",
+      "breakpoints": true
     }
   ]
 }

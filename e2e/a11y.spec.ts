@@ -54,7 +54,11 @@ test("public gallery has no WCAG 2.1 AA violations", async ({
     .getByRole("textbox", { name: "Neues Passwort (mind. 6 Zeichen)" })
     .fill("geheim-123");
   await page.getByRole("button", { name: "Passwort setzen" }).click();
-  await expect(page.getByRole("status")).toHaveText("Gespeichert.");
+  // „Gespeichert.“ steht schon vom vorigen Speichern da; erst der Button zum
+  // Entfernen zeigt, dass das Passwort wirklich gesetzt ist.
+  await expect(
+    page.getByRole("button", { name: "Passwort entfernen" }),
+  ).toBeVisible();
   const gate = await page.context().browser()!.newContext();
   const gatePage = await gate.newPage();
   await gatePage.goto(`/g/${slug}`);

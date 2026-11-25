@@ -682,7 +682,8 @@
         {
           "heading": "3. Daten der Creators",
           "paragraphs": [
-            "Bei Registrierung und Nutzung verarbeiten wir E-Mail-Adresse, Name, Tarif, Abrechnungsdaten, hochgeladene Medien, Galerie-Einstellungen und – falls aktiviert – ein verschlüsseltes 2FA-Geheimnis. Zweck ist die Vertragserfüllung (Art. 6 Abs. 1 lit. b DSGVO). Die Anmeldung erfolgt per E-Mail-Link oder Google-Login; bei Google erhalten wir E-Mail-Adresse und Name. Rechnungsrelevante Daten bewahren wir entsprechend den gesetzlichen Aufbewahrungsfristen auf (Art. 6 Abs. 1 lit. c DSGVO)."
+            "Bei Registrierung und Nutzung verarbeiten wir E-Mail-Adresse, Name, Tarif, Abrechnungsdaten, hochgeladene Medien, Galerie-Einstellungen und – falls aktiviert – ein verschlüsseltes 2FA-Geheimnis. Zweck ist die Vertragserfüllung (Art. 6 Abs. 1 lit. b DSGVO). Die Anmeldung erfolgt per E-Mail-Link oder Google-Login; bei Google erhalten wir E-Mail-Adresse und Name. Rechnungsrelevante Daten bewahren wir entsprechend den gesetzlichen Aufbewahrungsfristen auf (Art. 6 Abs. 1 lit. c DSGVO).",
+            "Ideen und Funktionswünsche, die Sie im Dashboard über „Idee einreichen“ senden, speichern wir zusammen mit Ihrem Konto, um sie auszuwerten, und erhalten sie zusätzlich per E-Mail. Sie werden mit dem Konto gelöscht."
           ]
         },
         {
@@ -1022,6 +1023,18 @@
       "invalid": "Bitte gib deinen Namen, eine gültige E-Mail-Adresse und eine Nachricht mit mindestens 10 Zeichen ein.",
       "rate_limited": "Zu viele Nachrichten in kurzer Zeit. Bitte versuche es später noch einmal.",
       "unavailable": "Das Kontaktformular ist gerade nicht verfügbar."
+    }
+  },
+  "Ideas": {
+    "open": "Idee einreichen",
+    "title": "Deine Idee für Roses Gallery",
+    "intro": "Was fehlt dir, was würde dir die Arbeit erleichtern? Beschreib deine Idee in ein paar Sätzen.",
+    "send": "Idee senden",
+    "close": "Schließen",
+    "sent": "Danke! Deine Idee ist angekommen. Wir lesen jede Einsendung.",
+    "errors": {
+      "invalid": "Bitte beschreib deine Idee mit mindestens 10 und höchstens 2000 Zeichen.",
+      "rate_limited": "Du hast gerade viele Ideen geschickt – bitte versuch es später noch einmal."
     }
   }
 }

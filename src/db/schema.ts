@@ -429,3 +429,21 @@ export const deliveryMails = pgTable(
     index("delivery_mails_gallery_idx").on(t.galleryId, t.createdAt),
   ],
 );
+
+// Ideen/Feature-Wünsche aus dem Dashboard (W2): gespeichert je Konto, zusätzlich
+// per Mail an den Betreiber. Fällt mit dem Konto weg.
+export const featureRequests = pgTable(
+  "feature_requests",
+  {
+    id: id(),
+    accountId: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id, { onDelete: "cascade" }),
+    userId: uuid("user_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    text: text("text").notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [index("feature_requests_account_idx").on(t.accountId, t.createdAt)],
+);
