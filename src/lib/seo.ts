@@ -14,6 +14,7 @@ export const WEBSITE_PATHS = [
   "/fuer-fotografen",
   "/fuer-videografen",
   "/blog",
+  "/kontakt",
   "/impressum",
   "/datenschutz",
   "/agb",

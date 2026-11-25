@@ -31,6 +31,7 @@ describe("buildSitemap", () => {
       `${base}/fuer-fotografen`,
       `${base}/fuer-videografen`,
       `${base}/blog`,
+      `${base}/kontakt`,
       `${base}/impressum`,
       `${base}/datenschutz`,
       `${base}/agb`,

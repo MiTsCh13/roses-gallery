@@ -686,43 +686,49 @@
           ]
         },
         {
-          "heading": "4. Besucher einer Galerie",
+          "heading": "4. Kontaktformular",
+          "paragraphs": [
+            "Wenn Sie uns über das Kontaktformular schreiben, verarbeiten wir Name, E-Mail-Adresse und Nachricht, um Ihre Anfrage zu beantworten (Art. 6 Abs. 1 lit. b bzw. f DSGVO). Die Nachricht wird per E-Mail über Postmark an uns zugestellt und nicht in der Datenbank von Roses Gallery gespeichert. Wir löschen sie, sobald die Anfrage erledigt ist und keine Aufbewahrungspflichten bestehen."
+          ]
+        },
+        {
+          "heading": "5. Besucher einer Galerie",
           "paragraphs": [
             "Beim Aufruf einer Galerie zählen wir Ereignisse (Aufruf, Wiedergabe, Download, Favorit) ohne Cookie, ohne IP-Adresse und ohne Besucherkennung. Diese Zählwerte löschen wir nach 24 Monaten. Server-Logfiles mit IP-Adressen entstehen beim Hosting zur Sicherstellung des Betriebs und der Sicherheit (Art. 6 Abs. 1 lit. f DSGVO).\nGeben Besucher ihre E-Mail-Adresse an (Favoritenliste, ZIP-Download), verwenden wir sie nur für diesen Zweck und im Auftrag des Creators."
           ]
         },
         {
-          "heading": "5. Cookies",
+          "heading": "6. Cookies",
           "paragraphs": [
             "Wir setzen ausschließlich technisch notwendige Cookies: Anmeldesitzung der Creators, Zugangsfreigabe für passwortgeschützte Galerien (7 Tage) und eine Besucherkennung für Favoritenlisten (bis zu 1 Jahr, erst nach dem ersten Favoriten). Dafür ist keine Einwilligung erforderlich (§ 25 Abs. 2 Nr. 2 TDDDG). Tracking- oder Werbe-Cookies setzen wir nicht ein."
           ]
         },
         {
-          "heading": "6. Empfänger und Auftragsverarbeiter",
+          "heading": "7. Empfänger und Auftragsverarbeiter",
           "paragraphs": [
             "Wir setzen folgende Dienstleister ein (jeweils mit Auftragsverarbeitungsvertrag):\n• Hetzner Online GmbH (Deutschland): Server-Hosting, Datenbank.\n• Cloudflare, Inc. (R2-Objektspeicher): Speicherung der Fotos und Dateien; Übermittlung in Drittländer nur auf Basis von EU-Standardvertragsklauseln bzw. des EU-US Data Privacy Framework.\n• BunnyWay d.o.o. (Bunny Stream, Slowenien): Transkodierung und Auslieferung von Videos.\n• Stripe Payments Europe, Ltd. (Irland): Zahlungsabwicklung für Abonnements.\n• Postmark / ActiveCampaign, LLC (USA): Versand von E-Mails; Übermittlung auf Basis von Standardvertragsklauseln.\n• Functional Software, Inc. (Sentry, EU-Region): Fehlerberichte ohne Nutzer- und Medieninhalte, nur sofern aktiviert.\nEine Weitergabe zu Werbezwecken findet nicht statt."
           ]
         },
         {
-          "heading": "7. Speicherdauer",
+          "heading": "8. Speicherdauer",
           "paragraphs": [
             "Konto- und Galeriedaten bleiben bis zur Löschung des Kontos bzw. der Galerie gespeichert. Abgelaufene Galerien werden nicht mehr ausgeliefert. Datenbank-Sicherungen werden 30 Tage aufbewahrt. Statistik-Ereignisse werden nach 24 Monaten gelöscht."
           ]
         },
         {
-          "heading": "8. Ihre Rechte",
+          "heading": "9. Ihre Rechte",
           "paragraphs": [
             "Sie haben das Recht auf Auskunft (Art. 15), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung (Art. 18), Datenübertragbarkeit (Art. 20) und Widerspruch (Art. 21 DSGVO). Wenden Sie sich dazu an {LEGAL_EMAIL}. Außerdem können Sie sich bei einer Datenschutzaufsichtsbehörde beschweren."
           ]
         },
         {
-          "heading": "9. Sicherheit",
+          "heading": "10. Sicherheit",
           "paragraphs": [
             "Medien sind nie öffentlich abrufbar, sondern nur über kurzlebige, signierte Adressen. Die Übertragung erfolgt verschlüsselt (TLS). Die Daten der Konten sind voneinander getrennt."
           ]
         },
         {
-          "heading": "10. Änderungen",
+          "heading": "11. Änderungen",
           "paragraphs": [
             "Wir passen diese Erklärung an, wenn sich Funktionen oder Rechtslage ändern. Es gilt die jeweils hier veröffentlichte Fassung."
           ]
@@ -1001,6 +1007,21 @@
           "a": "Alle, die den Galerie-Link haben – und das Passwort, falls du eines festgelegt hast."
         }
       ]
+    }
+  },
+  "Contact": {
+    "title": "Kontakt",
+    "intro": "Fragen zur Beta, zu den Funktionen oder zu deinem Konto? Schreib uns – wir melden uns per E-Mail.",
+    "name": "Name",
+    "email": "E-Mail-Adresse",
+    "message": "Nachricht",
+    "send": "Nachricht senden",
+    "sent": "Danke für deine Nachricht! Wir antworten dir so bald wie möglich per E-Mail.",
+    "privacy": "Wir verwenden deine Angaben nur, um deine Anfrage zu beantworten. Mehr dazu in der <link>Datenschutzerklärung</link>.",
+    "errors": {
+      "invalid": "Bitte gib deinen Namen, eine gültige E-Mail-Adresse und eine Nachricht mit mindestens 10 Zeichen ein.",
+      "rate_limited": "Zu viele Nachrichten in kurzer Zeit. Bitte versuche es später noch einmal.",
+      "unavailable": "Das Kontaktformular ist gerade nicht verfügbar."
     }
   }
 }

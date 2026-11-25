@@ -25,9 +25,9 @@ async function ContactLink() {
   if (email === LEGAL_MISSING) return null;
   return (
     <li>
-      <a href={`mailto:${email}`} className="hover:text-foreground">
+      <Link href="/kontakt" className="hover:text-foreground">
         {t("footer.contact")}
-      </a>
+      </Link>
     </li>
   );
 }
