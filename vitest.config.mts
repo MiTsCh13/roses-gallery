@@ -7,6 +7,7 @@ export default defineConfig({
   test: {
     environment: "node",
     globalSetup: ["./src/test/db-global-setup.ts"],
+    setupFiles: ["./src/test/setup-dom.ts"],
     fileParallelism: false,
     include: ["src/**/*.test.{ts,tsx}", "worker/**/*.test.ts"],
   },
