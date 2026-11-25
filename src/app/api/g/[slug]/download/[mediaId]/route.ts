@@ -6,6 +6,7 @@ import { resolvePhotoDownload } from "@/lib/downloads";
 import { serverEnv } from "@/lib/env";
 import { accessCookieName } from "@/lib/gallery-access";
 import { getStorage } from "@/lib/storage";
+import { getVideoProvider } from "@/lib/video";
 
 export async function GET(
   req: Request,
@@ -21,6 +22,7 @@ export async function GET(
     {
       db: db(),
       storage: getStorage(),
+      video: getVideoProvider(),
       accessSecret: serverEnv().AUTH_SECRET,
       accessToken: (id) => jar.get(accessCookieName(id))?.value,
     },

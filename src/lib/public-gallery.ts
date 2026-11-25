@@ -70,6 +70,8 @@ export type PublicVideo = {
   hlsUrl?: string;
   /** Signed poster image; absent → placeholder tile. */
   posterUrl?: string;
+  /** Original-Download, nur bei Download-Recht „original“ (D-163). */
+  downloads: { original?: string };
 };
 export type PublicItem = PublicPhoto | PublicVideo;
 
@@ -183,6 +185,11 @@ export async function loadPublicGallery(
         posterUrl:
           deps.video.signThumbnailUrl(m.bunnyVideoId, VIDEO_URL_TTL_SECONDS) ??
           undefined,
+        downloads: allows(gallery.downloadPolicy, "original")
+          ? {
+              original: `/api/g/${encodeURIComponent(gallery.slug)}/download/${m.id}?size=original`,
+            }
+          : {},
       });
       continue;
     }

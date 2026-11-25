@@ -35,7 +35,7 @@ Ziel: erste Beta-Testerinnen und -Tester auf die Plattform holen und über Suchm
 - [x] **3. Search Console/Bing** (D-160, Mitsch 2026-11-25 erledigt; `BETA_MODE=1` ist live): Bestätigung per DNS-TXT, Sitemap einreichen; Code nur, falls Bestätigung per Meta-Tag gewünscht (`GOOGLE_SITE_VERIFICATION`)
 - [x] **4. Zielgruppen-Seiten** (`components/marketing/audience-page.tsx`, Texte unter `Audience` in `messages/de.json`, Links von Startseite („Für wen?“) und Fußzeile, verlinkt nur veröffentlichte Blogbeiträge) `/fuer-fotografen` und `/fuer-videografen`: eigene Titel/Beschreibung auf Suchbegriffe wie „Online-Galerie für Hochzeitsfotografen“, „Hochzeitsvideo an Kunden ausliefern“; nur Live-Funktionen; Sitemap, interne Links von Startseite/Blog
 - [ ] **5. Blog-Plan** (Gendern mit „:“, D-162; „Galerie-Link statt Dropbox“ ist live): je Routine-Lauf höchstens ein neuer Entwurf (`draft: true`, Freigabe D-153) zu: Online-Galerie vs. WeTransfer, Hochzeitsfotos richtig ausliefern (Größen/Formate), Favoritenauswahl mit dem Brautpaar, Passwortschutz & Datenschutz bei Hochzeitsgalerien, 4K-Hochzeitsfilm auf dem Fernseher zeigen
-- [ ] **4b. Video-Download für Kund:innen** (F-SEC-02, Priorität M; wartet auf D-163): Kund:innen können Videos bisher nicht herunterladen (Downloads/ZIP nur Fotos). Startseiten-FAQ entsprechend korrigiert
+- [x] **4b. Video-Download für Kund:innen** (D-163): „Original herunterladen“ in der Großansicht bei Download-Recht „Original“, signierte Bunny-URL; FAQ/Videograf:innen-Seite wieder mit Download-Aussage. Live-Prüfung hängt an D-117
 - [~] **6a. Website-Performance** (2026-11-25, live, Lighthouse mobil, `scripts/lighthouse-site.sh`): `/` LCP 1,8–2,5 s (TBT 100–420 ms), `/preise` 2,3–2,4 s, `/blog` 1,5 s, Blogbeitrag 1,5 s, CLS überall 0; Barrierefreiheit, Best Practices, SEO je 100. Ziel LCP < 2,5 s erreicht, Startseite am Rand: LCP-Element ist Text, Zeit geht in Serverantwort (~0,7 s simuliert) und Rendern; keine Bilder/Fremdskripte. Zielgruppen-Seiten nach dem nächsten Deploy messen
 - [ ] **6b. Screenshots der App** (wartet auf D-165: eigene Fotos/Testgalerie von Mitsch)
 
@@ -141,13 +141,11 @@ Anlass: Rückmeldung von Mitsch nach dem ersten Live-Test (D-140). Reihenfolge s
 
 ## Entscheidungsbedarf
 
-D-163: Video-Download für Kund:innen bauen (Original-Datei per signiertem Bunny-Link, nur bei Download-Recht „Original“)? Vorschlag: ja, als nächster Schritt.
-
 Vor dem ersten Verkauf (Ende der Beta): Preis-Hinweis auf Kleinunternehmerregelung umstellen (D-166); optional `LEGAL_TRADE` (Gewerbe, Gewerbebehörde, Kammer) in Coolify setzen.
 
 D-165: Eigene Fotos (8–12, Einverständnis des Paares) bzw. Demo-Galerie für Screenshots auf der Landing Page.
 
-D-153: Überarbeiteten Video-Beitrag („USB-Stick oder online …“) gegenlesen und freigeben; den Satz zum Video-Download vorher streichen oder D-163 umsetzen.
+D-153: Überarbeiteten Video-Beitrag („USB-Stick oder online …“) gegenlesen und freigeben; der Satz zum Video-Download stimmt seit D-163.
 
 Folgen: Stripe-Preise als Bruttopreise anlegen (D-156, nach der Beta); Original-Download im Dashboard live prüfen (D-117).
 

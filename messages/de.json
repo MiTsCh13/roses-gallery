@@ -64,7 +64,7 @@
       },
       {
         "q": "Werden meine Videos komprimiert?",
-        "a": "Für das Streaming entstehen Fassungen in mehreren Qualitätsstufen bis 4K, damit Videos auch am Handy flüssig laufen. Deine Originaldatei bleibt erhalten und kann von dir jederzeit in der Bibliothek heruntergeladen werden."
+        "a": "Für das Streaming entstehen Fassungen in mehreren Qualitätsstufen bis 4K, damit Videos auch am Handy flüssig laufen. Deine Originaldatei bleibt erhalten, und du entscheidest je Galerie, ob deine Kund:innen das Original herunterladen dürfen."
       },
       {
         "q": "Können meine Kund:innen die Videos am Fernseher ansehen?",
@@ -988,7 +988,7 @@
         },
         {
           "title": "Original bleibt erhalten",
-          "text": "Die Streaming-Fassungen ersetzen nicht dein Original. Du kannst die Originaldatei jederzeit aus deiner Bibliothek herunterladen."
+          "text": "Die Streaming-Fassungen ersetzen nicht dein Original. Erlaubst du Downloads im Original, laden deine Kund:innen die Originaldatei direkt aus der Galerie herunter – ganz ohne USB-Stick."
         },
         {
           "title": "Große Dateien hochladen",
@@ -1007,6 +1007,10 @@
         {
           "q": "Wird mein Film komprimiert?",
           "a": "Für das Streaming ja – in mehreren Qualitätsstufen bis 4K, damit der Film überall flüssig läuft. Deine Originaldatei bleibt unverändert erhalten."
+        },
+        {
+          "q": "Können meine Kund:innen den Film herunterladen?",
+          "a": "Ja, wenn du für die Galerie Downloads im Original erlaubst. Dann erscheint beim Film der Link „Original herunterladen“. Ohne diese Freigabe können sie den Film nur ansehen."
         },
         {
           "q": "Brauche ich YouTube oder Vimeo?",
