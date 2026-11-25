@@ -637,23 +637,36 @@
       "linkLabel": "Impressum",
       "sections": [
         {
-          "heading": "Angaben gemäß § 5 DDG",
-          "paragraphs": ["{LEGAL_NAME}\n{LEGAL_ADDRESS}"]
+          "heading": "Angaben gemäß § 5 ECG und Offenlegung gemäß § 25 MedienG",
+          "paragraphs": [
+            "Medieninhaber und Diensteanbieter:\n{LEGAL_NAME}\n{LEGAL_ADDRESS}"
+          ]
         },
         {
           "heading": "Kontakt",
           "paragraphs": ["E-Mail: {LEGAL_EMAIL}\nTelefon: {LEGAL_PHONE}"]
         },
         {
-          "heading": "Umsatzsteuer-ID",
-          "requires": "LEGAL_VAT_ID",
+          "heading": "Unternehmensgegenstand",
           "paragraphs": [
-            "Umsatzsteuer-Identifikationsnummer gemäß § 27a UStG: {LEGAL_VAT_ID}"
+            "Betrieb der Online-Plattform Roses Gallery für Foto- und Video-Galerien von Hochzeitsfotograf:innen und -videograf:innen."
           ]
         },
         {
-          "heading": "Verantwortlich für Inhalte",
-          "paragraphs": ["{LEGAL_NAME}, Anschrift wie oben."]
+          "heading": "Umsatzsteuer-Identifikationsnummer",
+          "requires": "LEGAL_VAT_ID",
+          "paragraphs": ["UID: {LEGAL_VAT_ID}"]
+        },
+        {
+          "heading": "Gewerberechtliche Angaben",
+          "requires": "LEGAL_TRADE",
+          "paragraphs": ["{LEGAL_TRADE}"]
+        },
+        {
+          "heading": "Grundlegende Richtung (§ 25 Abs. 4 MedienG)",
+          "paragraphs": [
+            "Information über die Funktionen und Angebote von Roses Gallery sowie Fachbeiträge rund um die Auslieferung von Hochzeitsfotos und -videos."
+          ]
         },
         {
           "heading": "Streitbeilegung",
@@ -701,7 +714,7 @@
         {
           "heading": "6. Cookies",
           "paragraphs": [
-            "Wir setzen ausschließlich technisch notwendige Cookies: Anmeldesitzung der Creators, Zugangsfreigabe für passwortgeschützte Galerien (7 Tage) und eine Besucherkennung für Favoritenlisten (bis zu 1 Jahr, erst nach dem ersten Favoriten). Dafür ist keine Einwilligung erforderlich (§ 25 Abs. 2 Nr. 2 TDDDG). Tracking- oder Werbe-Cookies setzen wir nicht ein."
+            "Wir setzen ausschließlich technisch notwendige Cookies: Anmeldesitzung der Creators, Zugangsfreigabe für passwortgeschützte Galerien (7 Tage) und eine Besucherkennung für Favoritenlisten (bis zu 1 Jahr, erst nach dem ersten Favoriten). Dafür ist keine Einwilligung erforderlich (§ 165 Abs. 3 TKG 2021). Tracking- oder Werbe-Cookies setzen wir nicht ein."
           ]
         },
         {
@@ -719,7 +732,7 @@
         {
           "heading": "9. Ihre Rechte",
           "paragraphs": [
-            "Sie haben das Recht auf Auskunft (Art. 15), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung (Art. 18), Datenübertragbarkeit (Art. 20) und Widerspruch (Art. 21 DSGVO). Wenden Sie sich dazu an {LEGAL_EMAIL}. Außerdem können Sie sich bei einer Datenschutzaufsichtsbehörde beschweren."
+            "Sie haben das Recht auf Auskunft (Art. 15), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung (Art. 18), Datenübertragbarkeit (Art. 20) und Widerspruch (Art. 21 DSGVO). Wenden Sie sich dazu an {LEGAL_EMAIL}. Außerdem können Sie sich bei einer Datenschutzaufsichtsbehörde beschweren, in Österreich bei der Datenschutzbehörde (www.dsb.gv.at)."
           ]
         },
         {
@@ -743,7 +756,7 @@
         {
           "heading": "1. Geltungsbereich",
           "paragraphs": [
-            "Diese Bedingungen gelten für die Nutzung von Roses Gallery, betrieben von {LEGAL_NAME}, {LEGAL_ADDRESS} („Anbieter“). Das Angebot richtet sich ausschließlich an Unternehmer im Sinne des § 14 BGB, insbesondere selbstständige Fotografen und Videografen („Creator“). Abweichende Bedingungen des Creators gelten nicht."
+            "Diese Bedingungen gelten für die Nutzung von Roses Gallery, betrieben von {LEGAL_NAME}, {LEGAL_ADDRESS} („Anbieter“). Das Angebot richtet sich ausschließlich an Unternehmer im Sinne des § 1 KSchG, insbesondere selbstständige Fotografen und Videografen („Creator“). Abweichende Bedingungen des Creators gelten nicht."
           ]
         },
         {
@@ -803,7 +816,7 @@
         {
           "heading": "11. Schlussbestimmungen",
           "paragraphs": [
-            "Es gilt deutsches Recht unter Ausschluss des UN-Kaufrechts. Gerichtsstand ist, soweit zulässig, der Sitz des Anbieters. Sollte eine Bestimmung unwirksam sein, bleibt der Vertrag im Übrigen wirksam."
+            "Es gilt österreichisches Recht unter Ausschluss der Verweisungsnormen des internationalen Privatrechts und des UN-Kaufrechts. Gerichtsstand ist, soweit zulässig, der Sitz des Anbieters. Sollte eine Bestimmung unwirksam sein, bleibt der Vertrag im Übrigen wirksam."
           ]
         }
       ]

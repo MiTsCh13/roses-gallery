@@ -46,4 +46,12 @@ describe("legal details", () => {
     expect(details.LEGAL_VAT_ID).toBe("");
     expect(hasMissingLegalDetails(details)).toBe(false);
   });
+
+  it("keeps trade details optional and turns a written \\n into a line break", () => {
+    expect(legalDetails({}).LEGAL_TRADE).toBe("");
+    expect(
+      legalDetails({ LEGAL_TRADE: "Gewerbe: IT\\nBehörde: Magistrat Linz" })
+        .LEGAL_TRADE,
+    ).toBe("Gewerbe: IT\nBehörde: Magistrat Linz");
+  });
 });
